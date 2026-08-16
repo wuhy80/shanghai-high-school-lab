@@ -112,6 +112,36 @@ test('curriculum contains six complete semesters with valid, unique topics', asy
   expect([...mappedDemoIds].sort(), 'every implemented demo should be reachable from the curriculum').toEqual([...demoIds].sort())
 })
 
+test('high-one first-semester math follows the Shanghai textbook chapter and section order', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Textbook structure validation only needs one project')
+
+  const mathCourse = semesterPlans.find((semester) => semester.id === 'g10-1')?.courses.math
+  expect(mathCourse).toBeTruthy()
+  if (!mathCourse) return
+
+  expect([...new Set(mathCourse.units.map((unit) => unit.chapter))]).toEqual([
+    '第1章 集合与逻辑',
+    '第2章 等式与不等式',
+    '第3章 幂、指数与对数',
+    '第4章 幂函数、指数函数与对数函数',
+    '第5章 函数的概念、性质及应用',
+  ])
+  expect(mathCourse.units.map((unit) => unit.title)).toEqual([
+    '1.1 集合初步', '1.2 常用逻辑用语',
+    '2.1 等式与不等式的性质', '2.2 不等式的求解', '2.3 基本不等式及其应用',
+    '3.1 幂与指数', '3.2 对数',
+    '4.1 幂函数', '4.2 指数函数', '4.3 对数函数',
+    '5.1 函数', '5.2 函数的基本性质', '5.3 函数的应用', '5.4 反函数',
+  ])
+
+  await page.goto('/')
+  await selectSemester(page, 'g10-1')
+  await selectSubject(page, 'math')
+  await expect(page.locator('.chapter-directory')).toHaveCount(5)
+  await expect(page.locator('.chapter-directory details')).toHaveCount(14)
+  await expect(page.locator('.book-meta')).toContainText('5 章 · 14 节 · 27 个知识点')
+})
+
 test('every topic contains a substantive lesson and each subject uses varied concept templates', async ({ page: _page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'Static lesson quality validation only needs one project')
 
@@ -337,7 +367,7 @@ test('every high-one first-semester math topic has a working concept visual at e
 
 test('representative math concept visuals fit desktop and narrow screens', async ({ page }, testInfo) => {
   await page.goto('/')
-  const representativeTitles = ['交集并集与补集', '一元二次不等式', '对数概念与换底', '函数的单调性', '函数模型的比较与检验']
+  const representativeTitles = ['交集并集与补集', '等式与不等式的性质', '对数概念与换底', '幂函数的图像与性质', '反函数']
 
   for (const title of representativeTitles) {
     await page.locator('.global-search input').fill(title)
@@ -414,16 +444,44 @@ test('audited math diagrams preserve domains, endpoints and symmetry cues', asyn
   await expect(piecewiseVisual.locator('.fmv-open-end')).toHaveCount(7)
   await expect(piecewiseVisual.locator('.fmv-closed-end')).toHaveCount(7)
 
-  const power = mathEntry('幂函数模型')
+  const power = mathEntry('幂函数的图像与性质')
   expect(power).toBeTruthy()
   if (!power) return
   await openTopic(page, power)
-  const powerVisual = page.locator('[data-math-concept-visual="幂函数模型"]')
+  const powerVisual = page.locator('[data-math-concept-visual="幂函数的图像与性质"]')
   await powerVisual.getByRole('button', { name: 'a = −1' }).click()
   await expect(powerVisual.locator('polyline.fmv-curve')).toHaveCount(2)
   await expect(powerVisual.locator('.fmv-asymptote')).toHaveCount(1)
   await powerVisual.getByRole('button', { name: 'a = 1/2' }).click()
   await expect(powerVisual.locator('.fmv-domain-endpoint')).toHaveCount(1)
+})
+
+test('new equality and inverse-function visuals preserve their key reasoning states', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Interaction state regression only needs one browser')
+  await page.goto('/')
+  const mathEntry = (title: string) => allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'math' && item.topic.title === title)
+
+  const properties = mathEntry('等式与不等式的性质')
+  expect(properties).toBeTruthy()
+  if (!properties) return
+  await openTopic(page, properties)
+  const propertiesVisual = page.locator('[data-math-concept-visual="等式与不等式的性质"]')
+  await propertiesVisual.getByRole('button', { name: '乘除负数方向反向' }).click()
+  await expect(propertiesVisual.locator('.slv-property-formulas')).toContainText('4 > -8')
+  await propertiesVisual.getByRole('button', { name: '错误诊断' }).click()
+  await propertiesVisual.getByRole('button', { name: '等式两边乘 0' }).click()
+  await expect(propertiesVisual).toContainText('解集从 {2} 扩大为全体实数')
+
+  const inverse = mathEntry('反函数')
+  expect(inverse).toBeTruthy()
+  if (!inverse) return
+  await openTopic(page, inverse)
+  const inverseVisual = page.locator('[data-math-concept-visual="反函数"]')
+  await expect(inverseVisual.locator('.fmv-inverse-swap')).toContainText('定义域')
+  await expect(inverseVisual.locator('.fmv-reflection-line')).toHaveCount(1)
+  await inverseVisual.getByRole('button', { name: '不可逆：g(x)=x²' }).click()
+  await expect(inverseVisual.locator('.fmv-horizontal-hit')).toHaveCount(2)
+  await expect(inverseVisual).toContainText('水平线交 2 点')
 })
 
 test('a math concept visual passes serious and critical WCAG checks in both themes', async ({ page }, testInfo) => {

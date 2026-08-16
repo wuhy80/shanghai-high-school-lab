@@ -53,14 +53,15 @@ export function KnowledgeDetail({ course, subjectName, topic, unit }: KnowledgeD
         <div className="lesson-prose">
           {lesson.explanation.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
-        <div className="concept-path" role="list" aria-label="知识点在课程中的位置">
+        <div className={`concept-path ${unit.chapter ? 'has-chapter' : ''}`} role="list" aria-label="知识点在课程中的位置">
           <div role="listitem"><small>教材</small><strong>{subjectName} · {course.book}</strong></div>
           <span aria-hidden="true">→</span>
-          <div role="listitem"><small>单元</small><strong>{unit.title}</strong></div>
+          {unit.chapter && <><div role="listitem"><small>章节</small><strong>{unit.chapter}</strong></div><span aria-hidden="true">→</span></>}
+          <div role="listitem"><small>{unit.chapter ? '课节' : '单元'}</small><strong>{unit.title}</strong></div>
           <span aria-hidden="true">→</span>
           <div role="listitem" className="current"><small>知识点</small><strong>{topic.title}</strong></div>
         </div>
-        <p className="unit-focus"><GitBranch size={17} aria-hidden="true" /><span><b>单元联系：</b>{unit.focus}</span></p>
+        <p className="unit-focus"><GitBranch size={17} aria-hidden="true" /><span><b>{unit.chapter ? '本节联系' : '单元联系'}：</b>{unit.focus}</span></p>
       </section>
 
       {isG10MathVisualTopicId(topic.id) && <G10MathVisual topicTitle={topic.title} />}

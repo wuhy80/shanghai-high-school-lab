@@ -23,6 +23,7 @@ export type KnowledgeTopic = {
 
 export type CurriculumUnit = {
   id: string
+  chapter?: string
   title: string
   focus: string
   topics: KnowledgeTopic[]
@@ -49,6 +50,7 @@ export type SemesterPlan = {
 }
 
 export type UnitSeed = {
+  chapter?: string
   title: string
   focus: string
   topics: string[]
@@ -109,6 +111,7 @@ function buildSemester(seed: SemesterSeed): SemesterPlan {
     let topicIndex = 0
     const units = course.units.map((unit, unitIndex) => ({
       id: `${seed.id}-${subjectId}-u${unitIndex + 1}`,
+      chapter: unit.chapter,
       title: unit.title,
       focus: unit.focus,
       topics: unit.topics.map((title) => {

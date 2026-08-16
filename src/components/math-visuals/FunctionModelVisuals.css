@@ -264,6 +264,81 @@
 .fmv-transform-sketch g.is-active path { fill: var(--accent); }
 .fmv-transform-sketch g.is-active text { fill: var(--accent-ink); font-weight: 700; }
 
+.fmv-inverse-swap {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 7px;
+  margin: 0 auto 8px;
+}
+
+.fmv-inverse-swap > div {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+}
+
+.fmv-inverse-swap > div.is-inverse { border-left-color: var(--plot-secondary); }
+.fmv-inverse-swap > div > strong { font-size: 14px; }
+.fmv-inverse-swap > div > i { color: var(--muted); font-size: 18px; font-style: normal; }
+.fmv-inverse-swap span { min-width: 0; }
+.fmv-inverse-swap small,
+.fmv-inverse-swap span > b { display: block; }
+.fmv-inverse-swap small { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.fmv-inverse-swap span > b { margin-top: 3px; color: var(--ink); font-size: 13px; line-height: 1.45; }
+
+.fmv-original-curve,
+.fmv-inverse-curve {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: points .25s ease;
+}
+
+.fmv-original-curve { stroke: var(--accent); }
+.fmv-inverse-curve { stroke: var(--plot-secondary); }
+.fmv-identity-line { stroke: var(--plot-tertiary); stroke-width: 2; stroke-dasharray: 7 5; }
+.fmv-reflection-line { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.fmv-original-label { fill: var(--accent) !important; font-weight: 700; }
+.fmv-inverse-label { fill: var(--plot-secondary) !important; font-weight: 700; }
+.fmv-original-point circle { fill: var(--accent); stroke: var(--surface); stroke-width: 3; }
+.fmv-original-point text { fill: var(--accent-ink) !important; font-weight: 700; }
+.fmv-inverted-point rect { fill: var(--plot-secondary); stroke: var(--surface); stroke-width: 3; }
+.fmv-inverted-point text { fill: var(--plot-secondary) !important; font-weight: 700; }
+
+.fmv-inverse-failure {
+  width: min(760px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 10px;
+  margin: 0 auto 8px;
+}
+
+.fmv-inverse-failure > span {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: center;
+}
+
+.fmv-inverse-failure > span.is-error { border-color: var(--contrast); background: var(--contrast-soft); }
+.fmv-inverse-failure > i { align-self: center; color: var(--muted); font-size: 12px; font-style: normal; }
+.fmv-inverse-failure small { color: var(--muted); font-size: 11px; }
+.fmv-inverse-failure b { color: var(--ink); font-size: 14px; line-height: 1.5; }
+.fmv-horizontal-line { stroke: var(--contrast); stroke-width: 2.5; stroke-dasharray: 7 5; }
+.fmv-horizontal-label { fill: var(--contrast) !important; font-weight: 700; }
+.fmv-horizontal-hit circle { fill: var(--contrast); stroke: var(--surface); stroke-width: 3; }
+.fmv-horizontal-hit line { stroke: var(--contrast); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.fmv-horizontal-hit text { fill: var(--ink) !important; font-weight: 700; }
+
 .fmv-formula,
 .fmv-equation {
   width: min(760px, 100%);
@@ -370,7 +445,7 @@
 .fmv-takeaway i { font-family: Cambria, "Times New Roman", serif; font-size: 1.08em; }
 
 @media (max-width: 680px) {
-  .fmv { margin-inline: -2px; }
+  .fmv { margin-inline: 0; }
   .fmv-header { grid-template-columns: 1fr; gap: 8px; padding: 18px 16px; }
   .fmv-header h3 { font-size: 18px; }
   .fmv-header p,
@@ -387,6 +462,11 @@
   .fmv-transform-map > span { transform: rotate(90deg); line-height: 1; }
   .fmv-flow span,
   .fmv-transform-map > div { padding-block: 8px; }
+  .fmv-inverse-swap { padding-inline: 8px; }
+  .fmv-inverse-swap > div { grid-template-columns: 1fr; gap: 5px; }
+  .fmv-inverse-swap > div > i { transform: rotate(90deg); text-align: center; line-height: 1; }
+  .fmv-inverse-failure { grid-template-columns: 1fr; padding-inline: 8px; gap: 5px; }
+  .fmv-inverse-failure > i { text-align: center; }
   .fmv-growth-chain { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 8px 8px; }
   .fmv-growth-chain span { min-width: 0; }
   .fmv-growth-chain i { display: none; }

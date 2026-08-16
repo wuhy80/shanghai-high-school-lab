@@ -799,6 +799,277 @@
   color: var(--accent);
 }
 
+.slv-property-scale-controls {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.3fr) minmax(190px, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.slv-equation-history {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.slv-equation-history button {
+  min-width: 0;
+  min-height: 104px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 13px;
+  border: 0;
+  border-top: 3px solid transparent;
+  color: var(--muted);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.slv-equation-history button:hover {
+  background: var(--surface-2);
+}
+
+.slv-equation-history button[aria-pressed='true'] {
+  color: var(--ink);
+  border-top-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.slv-equation-history small,
+.slv-equation-history strong,
+.slv-equation-history span {
+  display: block;
+}
+
+.slv-equation-history small {
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.slv-equation-history strong {
+  font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: 18px;
+}
+
+.slv-equation-history span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.slv-balance-operation {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin: 22px auto 9px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.slv-balance-operation strong {
+  color: var(--accent-ink);
+  font-size: 13px;
+}
+
+.slv-balance-operation span::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin-top: 5px;
+  background: var(--line-strong);
+}
+
+.slv-balance {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 20px;
+  width: min(590px, 100%);
+  margin: 0 auto;
+}
+
+.slv-balance-pan {
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  padding: 13px;
+  color: var(--ink);
+  border-bottom: 4px solid var(--accent);
+  background: var(--surface);
+  font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.slv-balance-pan:last-child {
+  border-bottom-color: var(--plot-secondary);
+}
+
+.slv-balance > b {
+  align-self: center;
+  color: var(--accent);
+  font-family: Cambria, serif;
+  font-size: 26px;
+}
+
+.slv-property-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.slv-property-result code {
+  color: var(--ink);
+  font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.slv-property-formulas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.slv-property-formulas code,
+.slv-property-formulas strong {
+  color: var(--ink);
+  font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: 18px;
+}
+
+.slv-property-formulas > span {
+  padding: 4px 8px;
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.slv-property-formulas strong {
+  color: var(--accent-ink);
+}
+
+.slv-row-title {
+  fill: var(--faint) !important;
+  font-weight: 700;
+}
+
+.slv-left-movement,
+.slv-right-movement {
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+}
+
+.slv-left-movement { stroke: var(--accent); }
+.slv-right-movement { stroke: var(--plot-secondary); }
+
+.slv-left-number circle {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+
+.slv-left-number text {
+  fill: var(--accent) !important;
+  font-weight: 700;
+}
+
+.slv-right-number rect {
+  fill: var(--plot-secondary);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+
+.slv-right-number text {
+  fill: var(--plot-secondary) !important;
+  font-weight: 700;
+}
+
+.slv-direction {
+  fill: var(--accent) !important;
+  font-size: 15px !important;
+  font-weight: 700;
+}
+
+.slv-direction.is-reversed {
+  fill: var(--plot-secondary) !important;
+}
+
+.slv-mistake-property {
+  padding-block: 30px;
+}
+
+.slv-mistake-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.slv-mistake-flow > div {
+  min-height: 118px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 16px;
+  border-top: 3px solid var(--accent);
+  background: var(--surface);
+}
+
+.slv-mistake-flow > div.is-wrong {
+  border-top-color: var(--plot-secondary);
+  background: var(--contrast-soft);
+}
+
+.slv-mistake-flow small {
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.slv-mistake-flow strong {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.slv-mistake-flow > span {
+  color: var(--plot-secondary);
+  font-size: 22px;
+}
+
+.slv-mistake-property > p {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 13px 15px;
+  color: var(--muted);
+  border-left: 3px solid var(--plot-secondary);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.slv-mistake-property > p strong {
+  color: var(--plot-secondary);
+  white-space: nowrap;
+}
+
 @media (max-width: 720px) {
   .slv-controls-wrap,
   .slv-two-controls,
@@ -841,6 +1112,11 @@
   .slv-coefficient-map {
     grid-template-columns: 1fr;
   }
+
+  .slv-property-scale-controls,
+  .slv-equation-history {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 520px) {
@@ -881,6 +1157,11 @@
 
   .slv-canvas svg .slv-symbol {
     font-size: 34px !important;
+  }
+
+  .slv-inequality-property svg text,
+  .slv-canvas svg .slv-direction {
+    font-size: 28px !important;
   }
 
   .slv-equation,
@@ -944,6 +1225,36 @@
     grid-template-columns: 1fr;
     gap: 4px;
     padding: 13px;
+  }
+
+  .slv-balance {
+    gap: 10px;
+  }
+
+  .slv-balance-pan {
+    min-height: 60px;
+    padding: 8px;
+    font-size: 18px;
+  }
+
+  .slv-property-result,
+  .slv-property-formulas {
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .slv-mistake-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .slv-mistake-flow > span {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+
+  .slv-mistake-property > p {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 }
 

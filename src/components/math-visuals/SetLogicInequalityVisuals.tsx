@@ -460,6 +460,151 @@ function AbsoluteInequalityVisual() {
   )
 }
 
+type EqualityPropertyMode = 'equation' | 'add' | 'positive' | 'negative' | 'mistake'
+type EquationStep = 'original' | 'subtract' | 'divide'
+type ScaleOperation = 'multiply' | 'divide'
+type MistakeCase = 'one-side' | 'no-reverse' | 'zero'
+
+const formatPropertyNumber = (value: number) => Number(value.toFixed(2)).toString()
+
+function EqualityInequalityPropertiesVisual() {
+  const [mode, setMode] = useState<EqualityPropertyMode>('equation')
+  const [equationStep, setEquationStep] = useState<EquationStep>('original')
+  const [offset, setOffset] = useState(3)
+  const [factor, setFactor] = useState(2)
+  const [scaleOperation, setScaleOperation] = useState<ScaleOperation>('multiply')
+  const [mistake, setMistake] = useState<MistakeCase>('one-side')
+  const left = -2
+  const right = 4
+  const signedFactor = mode === 'negative' ? -factor : factor
+  const transformedLeft = mode === 'add'
+    ? left + offset
+    : scaleOperation === 'multiply' ? left * signedFactor : left / signedFactor
+  const transformedRight = mode === 'add'
+    ? right + offset
+    : scaleOperation === 'multiply' ? right * signedFactor : right / signedFactor
+  const transformedRelation = mode === 'negative' ? '>' : '<'
+  const xPosition = (value: number) => 340 + value * 17
+  const equation = {
+    original: { left: '2x + 3', right: '9', operation: '先观察原等式', note: '解集为 {3}' },
+    subtract: { left: '2x', right: '6', operation: '两边同时减 3', note: '解集仍为 {3}' },
+    divide: { left: 'x', right: '3', operation: '再把两边同时除以 2', note: '解集仍为 {3}' },
+  }[equationStep]
+  const mistakes = {
+    'one-side': {
+      original: '2 < 5',
+      wrong: '只给左边加 3：5 < 5',
+      correction: '应在两边同时加 3：5 < 8。只改变一边，无法保证新命题与原命题同真假。',
+    },
+    'no-reverse': {
+      original: '−2 < 4',
+      wrong: '两边乘 −2 仍写 <：4 < −8',
+      correction: '乘负数后两点关于 0 反射并交换左右，正确结果是 4 > −8。',
+    },
+    zero: {
+      original: 'x = 2',
+      wrong: '两边乘 0 得 0 = 0，所以仍同解',
+      correction: '0=0 对每个实数 x 都成立，解集从 {2} 扩大为全体实数；等式两边乘除同一个数时，这个数必须非零才保证同解。',
+    },
+  }[mistake]
+  const operationSymbol = scaleOperation === 'multiply' ? '×' : '÷'
+  const operationText = mode === 'add'
+    ? `同时${offset >= 0 ? '加' : '减'} ${Math.abs(offset)}`
+    : `同时${scaleOperation === 'multiply' ? '乘' : '除以'} ${signedFactor}`
+
+  const takeaway = mode === 'equation'
+    ? <>等式两边做<strong>相同且可逆</strong>的变形，解集不变。加减任意同数都可逆；乘除同数时必须保证这个数不为 0。</>
+    : mode === 'add'
+      ? <>同加减一个数只是让两个点一起平移，间距仍为 <code>{right - left}</code>，所以左右次序和不等号方向不变。</>
+      : mode === 'positive'
+        ? <>乘除正数相当于按正比例伸缩数轴，左边仍在左、右边仍在右，所以 <code>&lt;</code> 方向不变。</>
+        : mode === 'negative'
+          ? <>乘除负数包含一次关于 0 的反射，两点交换左右位置；为了继续表示正确大小关系，<code>&lt;</code> 必须变为 <code>&gt;</code>。</>
+          : <>判断变形是否合法，要同时检查：<strong>两边是否做同一操作</strong>、乘除数是否非零、负数乘除后是否反向。</>
+
+  return (
+    <VisualFrame title="等式与不等式的性质" lead="把代数变形看成天平与数轴上的同步操作，就能理解规则，而不是只背“变号”。" takeaway={takeaway}>
+      <div className="slv-controls">
+        <Toggle label="选择要观察的性质" value={mode} options={[
+          { value: 'equation', label: '等式同解变形' },
+          { value: 'add', label: '同加减方向不变' },
+          { value: 'positive', label: '乘除正数方向不变' },
+          { value: 'negative', label: '乘除负数方向反向' },
+          { value: 'mistake', label: '错误诊断' },
+        ]} onChange={setMode} />
+        {mode === 'equation' && <Toggle label="选择等式变形步骤" value={equationStep} options={[
+          { value: 'original', label: '原式' },
+          { value: 'subtract', label: '两边同时减 3' },
+          { value: 'divide', label: '再同时除以 2' },
+        ]} onChange={setEquationStep} />}
+        {mode === 'add' && <RangeControl id="property-offset" label="两边同加的数 c" value={offset} min={-4} max={4} onChange={setOffset} />}
+        {(mode === 'positive' || mode === 'negative') && <div className="slv-property-scale-controls">
+          <Toggle label="选择乘法或除法" value={scaleOperation} options={[{ value: 'multiply', label: '乘同一个数' }, { value: 'divide', label: '除以同一个数' }]} onChange={setScaleOperation} />
+          <RangeControl id="property-factor" label={`${mode === 'positive' ? '正' : '负'}数的绝对值`} value={factor} min={1} max={4} onChange={setFactor} />
+        </div>}
+        {mode === 'mistake' && <Toggle label="选择错误示例" value={mistake} options={[
+          { value: 'one-side', label: '只改变一边' },
+          { value: 'no-reverse', label: '乘负数不反向' },
+          { value: 'zero', label: '等式两边乘 0' },
+        ]} onChange={setMistake} />}
+      </div>
+
+      {mode === 'equation' ? (
+        <div className="slv-canvas slv-equation-property">
+          <div className="slv-equation-history" role="group" aria-label="等式同解变形的三个步骤">
+            {[
+              { key: 'original', label: '原等式', formula: '2x + 3 = 9' },
+              { key: 'subtract', label: '两边同时 −3', formula: '2x = 6' },
+              { key: 'divide', label: '两边同时 ÷2', formula: 'x = 3' },
+            ].map((item) => <button key={item.key} type="button" aria-pressed={equationStep === item.key} onClick={() => setEquationStep(item.key as EquationStep)}><small>{item.label}</small><strong>{item.formula}</strong><span>解集 {'{3}'}</span></button>)}
+          </div>
+          <div className="slv-balance-operation"><span>左边</span><strong>{equation.operation}</strong><span>右边</span></div>
+          <div className="slv-balance" aria-live="polite" aria-label={`${equation.left} 等于 ${equation.right}，${equation.note}`}>
+            <span className="slv-balance-pan">{equation.left}</span><b>=</b><span className="slv-balance-pan">{equation.right}</span>
+          </div>
+          <p className="slv-property-result"><code>{equation.left} = {equation.right}</code><span>{equation.note}</span></p>
+        </div>
+      ) : mode === 'mistake' ? (
+        <div className="slv-canvas slv-mistake-property">
+          <div className="slv-mistake-flow">
+            <div><small>原关系</small><strong>{mistakes.original}</strong></div>
+            <span aria-hidden="true">→</span>
+            <div className="is-wrong"><small>错误变形</small><strong>{mistakes.wrong}</strong></div>
+          </div>
+          <p><strong>错在哪里</strong><span>{mistakes.correction}</span></p>
+        </div>
+      ) : (
+        <div className="slv-canvas slv-inequality-property">
+          <div className="slv-property-formulas" aria-live="polite">
+            <code>{left} &lt; {right}</code>
+            <span>{operationText}</span>
+            <code>
+              {mode === 'add'
+                ? `${left} ${offset >= 0 ? '+' : '−'} ${Math.abs(offset)} ${transformedRelation} ${right} ${offset >= 0 ? '+' : '−'} ${Math.abs(offset)}`
+                : `(${left}) ${operationSymbol} (${signedFactor}) ${transformedRelation} ${right} ${operationSymbol} (${signedFactor})`}
+            </code>
+            <strong>{formatPropertyNumber(transformedLeft)} {transformedRelation} {formatPropertyNumber(transformedRight)}</strong>
+          </div>
+          <svg viewBox="0 0 680 275" role="img" aria-label={`原来负 2 小于 4，${operationText}以后，${formatPropertyNumber(transformedLeft)} ${transformedRelation === '<' ? '小于' : '大于'} ${formatPropertyNumber(transformedRight)}`}>
+            <title>相同运算如何改变数轴上的大小关系</title>
+            <desc>青色点始终表示原不等式左边的数，红色方块始终表示右边的数。连接线显示它们经过相同运算后的移动。</desc>
+            <text className="slv-row-title" x="52" y="55">变形前</text>
+            <line className="slv-axis" x1="68" y1="88" x2="612" y2="88" />
+            <text className="slv-row-title" x="52" y="160">变形后</text>
+            <line className="slv-axis" x1="68" y1="193" x2="612" y2="193" />
+            {[-16, 0, 16].map((value) => <g key={value}><line className="slv-tick" x1={xPosition(value)} y1="185" x2={xPosition(value)} y2="201" /><text x={xPosition(value)} y="226" textAnchor="middle">{value}</text></g>)}
+            <line className="slv-left-movement" x1={xPosition(left)} y1="88" x2={xPosition(transformedLeft)} y2="193" />
+            <line className="slv-right-movement" x1={xPosition(right)} y1="88" x2={xPosition(transformedRight)} y2="193" />
+            <g className="slv-left-number"><circle cx={xPosition(left)} cy="88" r="9" /><text x={xPosition(left)} y="64" textAnchor="middle">左边 {left}</text><circle cx={xPosition(transformedLeft)} cy="193" r="9" /><text x={xPosition(transformedLeft)} y="238" textAnchor="middle">左边 {formatPropertyNumber(transformedLeft)}</text></g>
+            <g className="slv-right-number"><rect x={xPosition(right) - 9} y="79" width="18" height="18" /><text x={xPosition(right)} y="64" textAnchor="middle">右边 {right}</text><rect x={xPosition(transformedRight) - 9} y="184" width="18" height="18" /><text x={xPosition(transformedRight)} y="264" textAnchor="middle">右边 {formatPropertyNumber(transformedRight)}</text></g>
+            <text className={mode === 'negative' ? 'slv-direction is-reversed' : 'slv-direction'} x="340" y="147" textAnchor="middle">{mode === 'negative' ? '< 反向为 >' : '< 方向保持'}</text>
+          </svg>
+        </div>
+      )}
+    </VisualFrame>
+  )
+}
+
 const visualByTopic: Record<string, () => ReactNode> = {
   集合的表示与元素关系: SetRepresentationVisual,
   子集与集合相等: SubsetEqualityVisual,
@@ -471,6 +616,7 @@ const visualByTopic: Record<string, () => ReactNode> = {
   分式不等式: RationalInequalityVisual,
   基本不等式及等号条件: BasicInequalityVisual,
   绝对值不等式: AbsoluteInequalityVisual,
+  等式与不等式的性质: EqualityInequalityPropertiesVisual,
 }
 
 export function SetLogicInequalityVisual({ topicTitle }: { topicTitle: string }): ReactNode {

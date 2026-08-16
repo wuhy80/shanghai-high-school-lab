@@ -272,6 +272,106 @@ function TransformVisual() {
   )
 }
 
+type InverseMode = 'invertible' | 'many-to-one'
+
+function InverseFunctionVisual() {
+  const [mode, setMode] = useState<InverseMode>('invertible')
+  const [a, setA] = useState(1.5)
+  const [level, setLevel] = useState(1)
+  const b = 2 * a + 1
+  const inverse = (value: number) => (value - 1) / 2
+  const symmetricMapX = (value: number) => 280 + value * 25
+  const symmetricMapY = (value: number) => 150 - value * 25
+  const parabolaMapX = (value: number) => 280 + value * 88
+  const parabolaMapY = (value: number) => 258 - value * 52
+  const root = Math.sqrt(level)
+
+  return (
+    <VisualFrame
+      title={mode === 'invertible' ? '反函数把输入与输出完整交换' : '先用水平线检验能不能交换'}
+      summary={mode === 'invertible'
+        ? '在 f(x)=2x+1，x∈[−2,2] 中跟踪一对输入输出；交换坐标后得到反函数上的点。'
+        : '在 g(x)=x²，x∈[−2,2] 上，同一条水平线会遇到两个点，说明一个输出来自两个输入。'}
+      controls={<>
+        <ChoiceControl
+          label="选择要检查的函数"
+          value={mode}
+          onChange={(value) => setMode(value as InverseMode)}
+          choices={[
+            { value: 'invertible', label: '可逆：f(x)=2x+1' },
+            { value: 'many-to-one', label: '不可逆：g(x)=x²' },
+          ]}
+        />
+        {mode === 'invertible'
+          ? <RangeControl label="原函数输入 a" value={a} min={-2} max={2} step={0.5} onChange={setA} output={`a = ${a}`} />
+          : <RangeControl label="水平线高度 c" value={level} min={0.5} max={4} step={0.5} onChange={setLevel} output={`c = ${level}`} />}
+      </>}
+      takeaway={mode === 'invertible'
+        ? <>若 <i>f(a)=b</i>，就有 <i>f⁻¹(b)=a</i>；因此点 <i>(a,b)</i> 交换成 <i>(b,a)</i>，定义域和值域互换，两条图像关于 <i>y=x</i> 对称。</>
+        : <>并非每个函数在原定义域上都有反函数。水平线只要与图像相交两次，交换后就会让一个输入对应两个输出；限制定义域后才可能可逆。</>}
+    >
+      {mode === 'invertible' ? <>
+        <div className="fmv-inverse-swap" aria-live="polite">
+          <div>
+            <strong>原函数 f</strong>
+            <span><small>输入 / 定义域 D<sub>f</sub></small><b>a = {a}　∈ [−2, 2]</b></span>
+            <i aria-hidden="true">→</i>
+            <span><small>输出 / 值域 V<sub>f</sub></small><b>b = {b}　∈ [−3, 5]</b></span>
+          </div>
+          <div className="is-inverse">
+            <strong>反函数 f⁻¹</strong>
+            <span><small>输入 / 定义域 D<sub>f⁻¹</sub> = V<sub>f</sub></small><b>b = {b}　∈ [−3, 5]</b></span>
+            <i aria-hidden="true">→</i>
+            <span><small>输出 / 值域 V<sub>f⁻¹</sub> = D<sub>f</sub></small><b>a = {a}　∈ [−2, 2]</b></span>
+          </div>
+        </div>
+        <svg className="fmv-plot fmv-inverse-plot" viewBox="0 0 560 300" role="img" aria-label={`原函数 f 的点为 ${a},${b}，反函数的对应点为 ${b},${a}；两条图像关于 y 等于 x 对称`}>
+          <title>原函数与反函数关于 y=x 对称</title>
+          <desc>原函数 f(x)=2x+1 的定义域是负2到2，反函数是括号 x 减 1 再除以 2。点 a,b 交换成 b,a。</desc>
+          <Axes xOrigin={280} yOrigin={150} />
+          <line className="fmv-identity-line" x1={symmetricMapX(-5)} y1={symmetricMapY(-5)} x2={symmetricMapX(5)} y2={symmetricMapY(5)} />
+          <text className="fmv-direct-label" x="398" y="48">y = x</text>
+          <polyline className="fmv-original-curve" points={curvePoints((value) => 2 * value + 1, -2, 2, symmetricMapX, symmetricMapY)} />
+          <polyline className="fmv-inverse-curve" points={curvePoints(inverse, -3, 5, symmetricMapX, symmetricMapY)} />
+          <text className="fmv-original-label" x={symmetricMapX(-2) + 8} y={symmetricMapY(-3) - 10}>f</text>
+          <text className="fmv-inverse-label" x={symmetricMapX(5) - 8} y={symmetricMapY(2) - 10} textAnchor="end">f⁻¹</text>
+          <line className="fmv-reflection-line" x1={symmetricMapX(a)} y1={symmetricMapY(b)} x2={symmetricMapX(b)} y2={symmetricMapY(a)} />
+          <g className="fmv-original-point">
+            <circle cx={symmetricMapX(a)} cy={symmetricMapY(b)} r="7" />
+            <text x={symmetricMapX(a) - 10} y={b >= 4.5 ? symmetricMapY(b) + 24 : symmetricMapY(b) - 11} textAnchor="end">P({a}, {b})</text>
+          </g>
+          <g className="fmv-inverted-point">
+            <rect x={symmetricMapX(b) - 6} y={symmetricMapY(a) - 6} width="12" height="12" transform={`rotate(45 ${symmetricMapX(b)} ${symmetricMapY(a)})`} />
+            <text x={symmetricMapX(b) + 10} y={symmetricMapY(a) + 20}>P′({b}, {a})</text>
+          </g>
+        </svg>
+        <p className="fmv-equation">P(a,b) = ({a},{b})　⇄　P′(b,a) = ({b},{a})</p>
+      </> : <>
+        <div className="fmv-inverse-failure" aria-live="polite">
+          <span><small>原函数中的两个输入</small><b>g(−{Number(root.toFixed(2))}) = g({Number(root.toFixed(2))}) = {level}</b></span>
+          <i aria-hidden="true">交换输入输出后</i>
+          <span className="is-error"><small>同一个输入会有两个输出</small><b>{level} → −{Number(root.toFixed(2))} 和 {Number(root.toFixed(2))}</b></span>
+        </div>
+        <svg className="fmv-plot fmv-horizontal-test-plot" viewBox="0 0 560 300" role="img" aria-label={`函数 g 等于 x 平方在定义域负2到2上，水平线 y 等于 ${level} 与图像有两个交点，所以原定义域上没有反函数`}>
+          <title>水平线检验一一对应</title>
+          <desc>水平线与抛物线相交两次，两个不同输入产生同一个输出，交换后不再满足函数定义。</desc>
+          <Axes xOrigin={280} yOrigin={258} />
+          <polyline className="fmv-original-curve" points={curvePoints((value) => value * value, -2, 2, parabolaMapX, parabolaMapY)} />
+          <line className="fmv-horizontal-line" x1={parabolaMapX(-2.35)} y1={parabolaMapY(level)} x2={parabolaMapX(2.35)} y2={parabolaMapY(level)} />
+          <text className="fmv-horizontal-label" x={parabolaMapX(2.25)} y={parabolaMapY(level) - 10} textAnchor="end">y = {level}</text>
+          {[-root, root].map((value) => <g key={value} className="fmv-horizontal-hit">
+            <circle cx={parabolaMapX(value)} cy={parabolaMapY(level)} r="7" />
+            <line x1={parabolaMapX(value)} y1={parabolaMapY(level)} x2={parabolaMapX(value)} y2="258" />
+            <text x={parabolaMapX(value)} y="282" textAnchor="middle">{Number(value.toFixed(2))}</text>
+          </g>)}
+          <text className="fmv-direct-label" x="280" y="34" textAnchor="middle">水平线交 2 点 → 不满足一一对应</text>
+        </svg>
+        <p className="fmv-equation is-warning">在定义域 [−2,2] 上没有反函数；若限制为 [0,2] 或 [−2,0]，水平线至多交一点，才可求反函数。</p>
+      </>}
+    </VisualFrame>
+  )
+}
+
 function PiecewiseVisual() {
   const [hours, setHours] = useState(2)
   const cost = hours <= 1 ? 6 : Math.min(30, 6 + Math.ceil(hours - 1) * 4)
@@ -459,10 +559,11 @@ const visualByTopic: Record<string, () => ReactNode> = {
   '函数的奇偶性': () => <ParityVisual />,
   '函数的零点': () => <ZeroVisual />,
   '函数图像与参数变换': () => <TransformVisual />,
+  '反函数': () => <InverseFunctionVisual />,
   '分段函数与实际计费': () => <PiecewiseVisual />,
-  '幂函数模型': () => <PowerVisual />,
-  '指数函数模型': () => <ExponentialVisual />,
-  '对数函数模型': () => <LogarithmVisual />,
+  '幂函数的图像与性质': () => <PowerVisual />,
+  '指数函数的图像与性质': () => <ExponentialVisual />,
+  '对数函数的图像与性质': () => <LogarithmVisual />,
   '函数模型的比较与检验': () => <ModelComparisonVisual />,
 }
 

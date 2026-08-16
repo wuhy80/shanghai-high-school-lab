@@ -71,6 +71,18 @@ function topicCount(course: CoursePlan) {
   return course.units.reduce((total, unit) => total + unit.topics.length, 0)
 }
 
+function groupUnitsByChapter(units: CurriculumUnit[]) {
+  return units.reduce<Array<{ chapter?: string; units: Array<{ unit: CurriculumUnit; index: number }> }>>((groups, unit, index) => {
+    const current = groups.at(-1)
+    if (!current || current.chapter !== unit.chapter) {
+      groups.push({ chapter: unit.chapter, units: [{ unit, index }] })
+    } else {
+      current.units.push({ unit, index })
+    }
+    return groups
+  }, [])
+}
+
 type UnitDirectoryItemProps = {
   currentTopicId: string
   isCurrentUnit: boolean
@@ -81,6 +93,9 @@ type UnitDirectoryItemProps = {
 
 function UnitDirectoryItem({ currentTopicId, isCurrentUnit, onSelect, unit, unitIndex }: UnitDirectoryItemProps) {
   const [open, setOpen] = useState(isCurrentUnit)
+  const sectionMatch = unit.title.match(/^(\d+\.\d+)\s+(.+)$/)
+  const sectionNumber = sectionMatch?.[1] ?? String(unitIndex + 1).padStart(2, '0')
+  const sectionTitle = sectionMatch?.[2] ?? unit.title
 
   useEffect(() => {
     if (isCurrentUnit) setOpen(true)
@@ -93,8 +108,8 @@ function UnitDirectoryItem({ currentTopicId, isCurrentUnit, onSelect, unit, unit
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary>
-        <span>{String(unitIndex + 1).padStart(2, '0')}</span>
-        <strong>{unit.title}</strong>
+        <span>{sectionNumber}</span>
+        <strong>{sectionTitle}</strong>
         <small>{unit.topics.length}</small>
       </summary>
       <p>{unit.focus}</p>
@@ -138,6 +153,8 @@ function App() {
     () => course.units.flatMap((unit) => unit.topics.map((topic) => ({ topic, unit }))),
     [course],
   )
+  const unitGroups = useMemo(() => groupUnitsByChapter(course.units), [course])
+  const chapterCount = unitGroups.filter((group) => group.chapter).length
   const currentIndex = Math.max(0, courseTopics.findIndex((entry) => entry.topic.id === topicId))
   const currentEntry = courseTopics[currentIndex] ?? courseTopics[0]
   const topic = currentEntry.topic
@@ -160,6 +177,7 @@ function App() {
         itemCourse.book,
         itemCourse.publisher,
         itemCourse.note,
+        itemUnit.chapter,
         itemUnit.title,
         itemUnit.focus,
         itemTopic.title,
@@ -279,7 +297,7 @@ function App() {
                           <span className="result-icon" aria-hidden="true"><Icon size={17} /></span>
                           <span>
                             <strong>{match.topic.title}</strong>
-                            <small>{match.semester.shortLabel} · {matchSubject.name} · {match.unit.title}</small>
+                            <small>{match.semester.shortLabel} · {matchSubject.name} · {match.unit.chapter ? `${match.unit.chapter} · ` : ''}{match.unit.title}</small>
                           </span>
                         </button>
                       </li>
@@ -375,20 +393,31 @@ function App() {
           <div className="book-meta">
             <span>{course.publisher}</span>
             <span className={`basis basis-${course.basis}`}>{basisLabels[course.basis]}</span>
-            <strong>{courseTopics.length} 个知识点</strong>
+            <strong>{chapterCount > 0 ? `${chapterCount} 章 · ${course.units.length} 节` : `${course.units.length} 单元`} · {courseTopics.length} 个知识点</strong>
           </div>
           {course.note && <p className="course-note">{course.note}</p>}
 
           <nav className="unit-directory" aria-label={`${course.book}单元与知识点`}>
-            {course.units.map((item, unitIndex) => (
-              <UnitDirectoryItem
-                key={item.id}
-                currentTopicId={topic.id}
-                isCurrentUnit={item.id === unit.id}
-                onSelect={selectTopic}
-                unit={item}
-                unitIndex={unitIndex}
-              />
+            {unitGroups.map((group, groupIndex) => (
+              <section className={group.chapter ? 'chapter-directory' : 'flat-directory'} key={group.chapter ?? 'course-units'} data-chapter-title={group.chapter}>
+                {group.chapter && (
+                  <header>
+                    <span>{String(groupIndex + 1).padStart(2, '0')}</span>
+                    <h3>{group.chapter}</h3>
+                    <small>{group.units.length} 节</small>
+                  </header>
+                )}
+                {group.units.map(({ unit: item, index: unitIndex }) => (
+                  <UnitDirectoryItem
+                    key={item.id}
+                    currentTopicId={topic.id}
+                    isCurrentUnit={item.id === unit.id}
+                    onSelect={selectTopic}
+                    unit={item}
+                    unitIndex={unitIndex}
+                  />
+                ))}
+              </section>
             ))}
           </nav>
         </aside>
@@ -397,6 +426,7 @@ function App() {
           <nav className="content-breadcrumb" aria-label="当前位置">
             <span>{semester.label}</span><i aria-hidden="true">/</i>
             <span>{subject.name}</span><i aria-hidden="true">/</i>
+            {unit.chapter && <><span>{unit.chapter}</span><i aria-hidden="true">/</i></>}
             <span>{unit.title}</span>
           </nav>
 

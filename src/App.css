@@ -523,6 +523,11 @@
 .basis-review { color: var(--contrast); border-color: color-mix(in srgb, var(--contrast) 35%, var(--line)); background: var(--contrast-soft); }
 .course-note { margin: 12px 8px 4px; padding: 10px 11px; border-left: 2px solid var(--line-strong); color: var(--muted); background: var(--surface-2); font-size: 10px; line-height: 1.65; }
 .unit-directory { margin-top: 14px; }
+.chapter-directory + .chapter-directory { margin-top: 18px; }
+.chapter-directory > header { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 7px; min-height: 42px; padding: 8px; border-top: 3px solid var(--accent); background: var(--surface-2); }
+.chapter-directory > header span { color: var(--accent); font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chapter-directory > header h3 { margin: 0; font-size: 13px; line-height: 1.4; }
+.chapter-directory > header small { color: var(--faint); font-size: 10px; }
 .unit-directory details { border-top: 1px solid var(--line); }
 .unit-directory details:last-child { border-bottom: 1px solid var(--line); }
 .unit-directory summary { min-height: 48px; display: grid; grid-template-columns: 28px minmax(0, 1fr) 22px; align-items: center; gap: 5px; padding: 8px; color: var(--muted); cursor: pointer; list-style: none; }
@@ -564,6 +569,7 @@
 .lesson-prose p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.85; }
 .lesson-prose p + p { padding-left: 28px; border-left: 1px solid var(--line); }
 .concept-path { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 7px; margin-top: 22px; }
+.concept-path.has-chapter { grid-template-columns: 1.2fr auto 1fr auto 1fr auto 1fr; }
 .concept-path > div { min-width: 0; min-height: 86px; display: flex; flex-direction: column; justify-content: center; padding: 10px; border-top: 3px solid var(--line-strong); background: var(--surface-2); }
 .concept-path > div.current { border-top-color: var(--accent); background: var(--accent-soft); }
 .concept-path > span { align-self: center; color: var(--line-strong); }
@@ -636,10 +642,12 @@
 .book-meta, .book-meta strong { font-size: 11px; }
 .course-note { font-size: 12px; }
 .unit-directory summary > span, .unit-directory summary small { font-size: 11px; }
-.unit-directory summary strong { font-size: 13px; }
-.unit-directory details > p { font-size: 11px; }
+.unit-directory summary strong { font-size: 14px; }
+.unit-directory details > p { font-size: 12px; line-height: 1.65; }
 .unit-directory li button > span, .unit-directory li button small { font-size: 10px; }
-.unit-directory li button strong { font-size: 12px; }
+.unit-directory li button strong { font-size: 13px; line-height: 1.45; }
+.chapter-directory > header span, .chapter-directory > header small { font-size: 11px; }
+.chapter-directory > header h3 { font-size: 14px; }
 
 .content-breadcrumb { font-size: 12px; }
 .eyebrow { font-size: 12px; }

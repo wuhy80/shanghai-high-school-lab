@@ -1236,6 +1236,46 @@ type FocusedLessonSpec = Omit<LessonContent, 'guidingQuestion' | 'core'> & {
 }
 
 const focusedLessonSpecs: Record<string, FocusedLessonSpec> = {
+  'math-equality-inequality-properties': {
+    templateId: 'math-equality-inequality-properties',
+    teachingPoint: '把每一步变形和它所需的条件对应起来，特别是乘除负数时不等号必须反向',
+    explanation: [
+      '等式两边同时加减同一个数，等式仍成立；同时乘同一个数也成立，但若要由 ac=bc 推回 a=b，就必须有 c≠0。解方程追求的是解集不变，所以除以可能为零的式子、两边平方或开方都要另行检查是否丢解或增根。',
+      '不等式两边同时加减同一个数，方向不变；同时乘除正数，方向不变；同时乘除负数，方向反向。乘以零会把不同大小都压成相等，不能作为等价变形。含字母的乘数符号未知时，必须分正、负、零讨论。',
+    ],
+    steps: [
+      { label: '标记当前关系', detail: '先写清是等式还是不等式，并标出准备乘除的数或式子的符号。' },
+      { label: '同步操作两边', detail: '加减同量保持关系；乘除时按正数不变、负数反向、零不可约去执行。' },
+      { label: '检验是否等价', detail: '把结果代回原关系，并检查除数为零、平方增根或分类遗漏等边界。' },
+    ],
+    example: {
+      prompt: '解不等式 -2x+3>7，并说明不等号为什么改变方向。',
+      reasoning: ['两边同时减 3，得 -2x>4；加减同数不改变不等号方向。', '两边同时除以 -2。因为除数为负数，数轴方向发生翻转，所以必须把 > 改为 <，得到 x<-2。'],
+      result: '解集是 (-∞,-2)。取 x=-3 检验得 9>7，取边界 x=-2 得 7=7 不满足严格不等式。',
+    },
+    selfCheck: { question: '已知 a<b，把两边同时乘 -3 后应写成什么？', answer: '-3a>-3b。负倍数把数轴上的左右次序反转，因此不等号必须反向。' },
+    pitfall: '“两边做同样的事”不自动保证等价：除数不能为零，乘除负数要反向，两边平方还可能把原来一正一负的不同数变成相同结果。',
+  },
+  'math-inverse-function': {
+    templateId: 'math-inverse-function',
+    teachingPoint: '先判断原函数是否一一对应，再交换输入输出，并同步交换定义域和值域',
+    explanation: [
+      '若 f 把定义域 A 中每个 x 映到值域 B 中的 y，反函数要把这个 y 唯一送回原来的 x。因此原函数必须在所讨论的定义域上一一对应：不同输入不能得到同一个输出。图像上可用水平线检验，任意水平线至多与图像相交一次。',
+      '由 y=f(x) 求反函数时，交换 x、y 后解出 y，并把原函数的值域写成反函数的定义域。点 (a,b) 会变成 (b,a)，所以两幅图像关于直线 y=x 对称。f⁻¹(x) 表示逆映射，不等于 1/f(x)。',
+    ],
+    steps: [
+      { label: '先查存在性', detail: '确定原定义域和值域，用单调性或水平线检验判断是否一一对应；必要时限制定义域。' },
+      { label: '交换并求解', detail: '从 y=f(x) 交换 x 与 y，再解出新的 y=f⁻¹(x)。' },
+      { label: '核对两种证据', detail: '检查 f(f⁻¹(x))=x、f⁻¹(f(x))=x，并确认对应点关于 y=x 对称。' },
+    ],
+    example: {
+      prompt: '求 f(x)=x²（x≥0）的反函数，并解释为什么必须限制 x≥0。',
+      reasoning: ['在 x≥0 上，x² 严格递增且值域为 [0,+∞)，每个输出只有一个原输入。', '交换 x=y² 并结合 y≥0，得 y=√x；反函数定义域是原值域 [0,+∞)。'],
+      result: 'f⁻¹(x)=√x（x≥0）。若原定义域是全体实数，2 与 -2 都映到 4，无法唯一反向。',
+    },
+    selfCheck: { question: 'f(x)=2x-3 的反函数是什么？', answer: '交换 x=2y-3，解得 y=(x+3)/2；所以 f⁻¹(x)=(x+3)/2，定义域为 R。' },
+    pitfall: '上标 -1 不是倒数。求出表达式后若没有交换定义域和值域，或原函数并非一一对应，写出的式子就不一定是反函数。',
+  },
   'math-log-domain': {
     templateId: 'math-log-domain',
     teachingPoint: '先用真数大于零确定定义域，再使用积、商、幂的对数法则做等价变形',
@@ -1779,6 +1819,8 @@ const focusedLessonSpecs: Record<string, FocusedLessonSpec> = {
 }
 
 export const scienceLessonRegressionMap: Readonly<Record<string, string>> = {
+  '等式与不等式的性质': 'math-equality-inequality-properties',
+  '反函数': 'math-inverse-function',
   '对数运算与定义域': 'math-log-domain',
   '正弦型函数的参数意义': 'math-trig-model',
   '三角函数的周期与最值': 'math-trig-model',
