@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { allTopics, demoIds, semesterPlans, type SemesterId } from '../src/curriculum'
 import { subjects, type SubjectId } from '../src/data'
+import { G10_MATH_VISUAL_TOPICS } from '../src/components/math-visuals/g10MathVisualTopics'
 import { APPLIED_LESSON_TEMPLATE_REGRESSIONS } from '../src/lessonApplied'
 import { humanitiesRegressionTemplateByTitle } from '../src/lessonHumanities'
 import { scienceLessonRegressionMap } from '../src/lessonScience'
@@ -295,6 +296,161 @@ test('every mapped interactive demo renders and remains numerically valid', asyn
   }
 
   expect(errors).toEqual([])
+})
+
+test('every high-one first-semester math topic has a working concept visual at every width', async ({ page }, testInfo) => {
+  test.setTimeout(120_000)
+  await page.goto('/')
+
+  const entries = allTopics.filter((entry) => entry.semester.id === 'g10-1' && entry.subjectId === 'math')
+  expect(entries.map((entry) => entry.topic.title)).toEqual([...G10_MATH_VISUAL_TOPICS])
+
+  for (const entry of entries) {
+    if (testInfo.project.name === 'desktop-chromium') {
+      await openTopic(page, entry)
+    } else {
+      await page.locator('.global-search input').fill(entry.topic.title)
+      await page.locator('.search-results button')
+        .filter({ hasText: entry.topic.title })
+        .filter({ hasText: '高一上' })
+        .filter({ hasText: '数学' })
+        .first()
+        .click()
+    }
+    const visual = page.locator(`[data-math-concept-visual="${entry.topic.title}"]`)
+    await expect(visual, `${entry.topic.title}: concept visual`).toBeVisible()
+    const bounds = await visual.evaluate((element) => {
+      const rect = element.getBoundingClientRect()
+      return { height: rect.height, width: rect.width }
+    })
+    expect(bounds.width, `${entry.topic.title}: visual width`).toBeGreaterThan(240)
+    expect(bounds.height, `${entry.topic.title}: visual height`).toBeGreaterThan(160)
+
+    const range = visual.locator('input[type="range"]').first()
+    if (await range.count()) await range.fill(await range.getAttribute('max') ?? '1')
+    const alternative = visual.locator('button[aria-pressed="false"]').first()
+    if (await alternative.count()) await alternative.click()
+    await expect(visual, `${entry.topic.title}: valid visual output`).not.toContainText(/NaN|Infinity|undefined/)
+    await expectNoPageOverflow(page, `${testInfo.project.name}/${entry.topic.title}`)
+  }
+})
+
+test('representative math concept visuals fit desktop and narrow screens', async ({ page }, testInfo) => {
+  await page.goto('/')
+  const representativeTitles = ['交集并集与补集', '一元二次不等式', '对数概念与换底', '函数的单调性', '函数模型的比较与检验']
+
+  for (const title of representativeTitles) {
+    await page.locator('.global-search input').fill(title)
+    const result = page.locator('.search-results button')
+      .filter({ hasText: title })
+      .filter({ hasText: '高一上' })
+      .filter({ hasText: '数学' })
+      .first()
+    await result.click()
+    const visual = page.locator(`[data-math-concept-visual="${title}"]`)
+    await expect(visual).toBeVisible()
+    const range = visual.locator('input[type="range"]').first()
+    if (await range.count()) await range.fill(await range.getAttribute('max') ?? '1')
+    await expect(visual).not.toContainText(/NaN|Infinity|undefined/)
+    await expectNoPageOverflow(page, `${testInfo.project.name}/${title}`)
+  }
+})
+
+test('switching logarithm laws keeps the exponent control and formula synchronized', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Interaction state regression only needs one browser')
+  await page.goto('/')
+  const entry = allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'math' && item.topic.title === '对数运算与定义域')
+  expect(entry).toBeTruthy()
+  if (!entry) return
+  await openTopic(page, entry)
+
+  const visual = page.locator('[data-math-concept-visual="对数运算与定义域"]')
+  await visual.locator('input[type="range"]').nth(1).fill('4.5')
+  await visual.getByRole('button', { name: '幂的对数' }).click()
+  await expect(visual.locator('input[type="range"]').nth(1)).toHaveValue('2')
+  await expect(visual).toContainText('lg 4 ≈ 2 × 0.301 ≈ 0.602')
+
+  await visual.locator('input[type="range"]').nth(1).fill('5')
+  await expect(visual).toContainText('lg 32 ≈ 5 × 0.301 ≈ 1.505')
+})
+
+test('audited math diagrams preserve domains, endpoints and symmetry cues', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Diagram semantics regression only needs one browser')
+  await page.goto('/')
+  const mathEntry = (title: string) => allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'math' && item.topic.title === title)
+
+  const subset = mathEntry('子集与集合相等')
+  expect(subset).toBeTruthy()
+  if (!subset) return
+  await openTopic(page, subset)
+  const subsetVisual = page.locator('[data-math-concept-visual="子集与集合相等"]')
+  await expect(subsetVisual.locator('.slv-b-mark')).toHaveAttribute('cx', '560')
+  await subsetVisual.getByRole('button', { name: '集合相等' }).click()
+  await expect(subsetVisual.locator('.slv-mutual-inclusion')).toContainText('A ⊆ B')
+
+  const quadratic = mathEntry('一元二次不等式')
+  expect(quadratic).toBeTruthy()
+  if (!quadratic) return
+  await openTopic(page, quadratic)
+  const quadraticVisual = page.locator('[data-math-concept-visual="一元二次不等式"]')
+  await quadraticVisual.locator('input[type="range"]').fill('-2')
+  await expect(quadraticVisual.locator('.slv-boundary-test')).toHaveCount(1)
+  await expect(quadraticVisual.locator('.slv-test-point')).toHaveCount(0)
+
+  const parity = mathEntry('函数的奇偶性')
+  expect(parity).toBeTruthy()
+  if (!parity) return
+  await openTopic(page, parity)
+  const parityVisual = page.locator('[data-math-concept-visual="函数的奇偶性"]')
+  await parityVisual.getByRole('button', { name: '奇函数' }).click()
+  await expect(parityVisual.locator('.fmv-origin-center')).toHaveCount(1)
+  await expect(parityVisual.locator('.fmv-symmetry')).toHaveCount(0)
+
+  const piecewise = mathEntry('分段函数与实际计费')
+  expect(piecewise).toBeTruthy()
+  if (!piecewise) return
+  await openTopic(page, piecewise)
+  const piecewiseVisual = page.locator('[data-math-concept-visual="分段函数与实际计费"]')
+  await expect(piecewiseVisual.locator('.fmv-open-end')).toHaveCount(7)
+  await expect(piecewiseVisual.locator('.fmv-closed-end')).toHaveCount(7)
+
+  const power = mathEntry('幂函数模型')
+  expect(power).toBeTruthy()
+  if (!power) return
+  await openTopic(page, power)
+  const powerVisual = page.locator('[data-math-concept-visual="幂函数模型"]')
+  await powerVisual.getByRole('button', { name: 'a = −1' }).click()
+  await expect(powerVisual.locator('polyline.fmv-curve')).toHaveCount(2)
+  await expect(powerVisual.locator('.fmv-asymptote')).toHaveCount(1)
+  await powerVisual.getByRole('button', { name: 'a = 1/2' }).click()
+  await expect(powerVisual.locator('.fmv-domain-endpoint')).toHaveCount(1)
+})
+
+test('a math concept visual passes serious and critical WCAG checks in both themes', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'narrow-chromium', 'Axe is covered at desktop and 390px mobile widths')
+  await page.addInitScript(() => localStorage.setItem('huzhi-theme', 'light'))
+  await page.goto('/')
+  const title = '基本不等式及等号条件'
+  await page.locator('.global-search input').fill(title)
+  await page.locator('.search-results button')
+    .filter({ hasText: title })
+    .filter({ hasText: '高一上' })
+    .filter({ hasText: '数学' })
+    .first()
+    .click()
+  const visualSelector = `[data-math-concept-visual="${title}"]`
+  await expect(page.locator(visualSelector)).toBeVisible()
+
+  for (const theme of ['light', 'dark'] as const) {
+    if (theme === 'dark') await page.locator('.icon-button').click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+    const results = await new AxeBuilder({ page })
+      .include(visualSelector)
+      .withTags(['wcag2a', 'wcag2aa'])
+      .analyze()
+    const blocking = results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
+    expect(blocking, `${testInfo.project.name}/${theme}: math visual accessibility violations`).toEqual([])
+  }
 })
 
 test('desktop, mobile and narrow layouts avoid horizontal overflow', async ({ page }, testInfo) => {

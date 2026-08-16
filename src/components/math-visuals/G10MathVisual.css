@@ -1,0 +1,11 @@
+.g10-math-visual {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+@media (max-width: 680px) {
+  .g10-math-visual { padding-inline: 17px; }
+}

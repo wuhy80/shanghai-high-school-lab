@@ -1,0 +1,959 @@
+.slv-frame {
+  margin: 22px 0 30px;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+}
+
+.slv-heading {
+  padding: 24px 0 18px;
+}
+
+.slv-heading p {
+  margin: 0 0 5px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.slv-heading h3 {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.4;
+}
+
+.slv-heading > span {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.slv-controls {
+  display: grid;
+  gap: 16px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  background: var(--surface);
+}
+
+.slv-controls-wrap {
+  grid-template-columns: minmax(260px, 1.2fr) minmax(190px, 1fr);
+  align-items: center;
+}
+
+.slv-two-controls,
+.slv-three-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.slv-three-controls {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.slv-range {
+  min-width: 0;
+}
+
+.slv-range > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.slv-range output {
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.slv-range input {
+  width: 100%;
+  min-height: 24px;
+  display: block;
+  margin: 0;
+  cursor: pointer;
+}
+
+.slv-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-3);
+}
+
+.slv-toggle button {
+  min-height: 38px;
+  flex: 1 1 120px;
+  padding: 7px 10px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.slv-toggle button:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.slv-toggle button[aria-pressed='true'] {
+  color: var(--accent-ink);
+  background: var(--surface);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--ink) 10%, transparent);
+  font-weight: 700;
+}
+
+.slv-canvas {
+  min-width: 0;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background-color: var(--surface-2);
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--line-strong) 55%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.slv-canvas svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.slv-canvas svg text {
+  fill: var(--muted);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.slv-canvas svg circle,
+.slv-canvas svg line,
+.slv-canvas svg rect,
+.slv-canvas svg ellipse,
+.slv-canvas svg path {
+  transition: fill .24s ease, stroke .24s ease, opacity .24s ease, transform .24s ease;
+}
+
+.slv-set-a-fill {
+  fill: color-mix(in srgb, var(--accent) 10%, transparent);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.slv-set-b-fill {
+  fill: color-mix(in srgb, var(--plot-secondary) 9%, transparent);
+  stroke: var(--plot-secondary);
+  stroke-width: 2;
+}
+
+.slv-a-fill,
+.slv-set-label.slv-a-fill,
+.slv-amgm .slv-a-fill {
+  fill: var(--accent);
+  color: var(--accent);
+}
+
+.slv-b-fill,
+.slv-set-label.slv-b-fill,
+.slv-amgm .slv-b-fill {
+  fill: var(--plot-secondary);
+  color: var(--plot-secondary);
+}
+
+.slv-set-label {
+  fill: var(--ink) !important;
+  font-size: 15px !important;
+  font-weight: 700;
+}
+
+.slv-set-label.slv-a-fill { fill: var(--accent) !important; }
+.slv-set-label.slv-b-fill { fill: var(--plot-secondary) !important; }
+
+.slv-member circle {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.slv-member text,
+.slv-venn-point text,
+.slv-subset-elements text {
+  fill: var(--ink) !important;
+  font-weight: 700;
+}
+
+.slv-member.is-current circle {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.slv-member.is-current text {
+  fill: var(--accent-button-ink) !important;
+}
+
+.slv-candidate circle {
+  fill: var(--surface);
+  stroke: var(--plot-secondary);
+  stroke-width: 2.5;
+}
+
+.slv-candidate text {
+  fill: var(--plot-secondary) !important;
+  font-weight: 700;
+}
+
+.slv-candidate.is-in circle {
+  stroke: var(--accent);
+}
+
+.slv-candidate.is-in text {
+  fill: var(--accent) !important;
+}
+
+.slv-relation-arrow {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.slv-symbol {
+  font-size: 24px !important;
+  font-weight: 700;
+}
+
+.slv-equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.slv-equation code,
+.slv-formula-line code,
+.slv-solution code {
+  color: var(--ink);
+  font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.slv-a-mark {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.slv-b-mark {
+  fill: color-mix(in srgb, var(--plot-secondary) 15%, var(--surface));
+  stroke: var(--plot-secondary);
+}
+
+.slv-counter-mark {
+  fill: var(--contrast-soft);
+  stroke: var(--plot-secondary);
+  stroke-width: 2.5;
+}
+
+.slv-relation-text {
+  fill: var(--ink) !important;
+  font-size: 16px !important;
+  font-weight: 700;
+}
+
+.slv-subset.is-equal .slv-set-b-fill {
+  stroke-width: 8;
+}
+
+.slv-subset.is-equal .slv-set-a-fill {
+  stroke-width: 3;
+}
+
+.slv-mutual-inclusion {
+  fill: var(--muted) !important;
+  font-size: 13px !important;
+  font-weight: 700;
+}
+
+.slv-universe {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+.slv-venn-point circle {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+.slv-venn-point.is-active circle {
+  fill: var(--accent);
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.slv-venn-point.is-active text {
+  fill: var(--accent-button-ink) !important;
+}
+
+.slv-proposition {
+  padding: 32px 24px;
+}
+
+.slv-negation-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 14px;
+}
+
+.slv-negation-pair > div:not(.slv-not-symbol) {
+  min-height: 126px;
+  display: grid;
+  align-content: center;
+  gap: 9px;
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--line-strong);
+  background: var(--surface);
+}
+
+.slv-negation-pair > div.is-true {
+  border-top-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.slv-negation-pair small,
+.slv-condition-flow small,
+.slv-coefficient-map small,
+.slv-fraction-status small {
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.slv-negation-pair strong {
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.slv-negation-pair > div > span {
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.slv-not-symbol {
+  align-self: center;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.slv-quantifier-rule {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.slv-quantifier-rule code {
+  color: var(--accent-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.slv-condition {
+  padding: 36px 28px;
+}
+
+.slv-condition-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, .55fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.slv-condition-flow > div:not(.slv-logic-arrow) {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  padding: 18px;
+  border-top: 3px solid var(--accent);
+  background: var(--surface);
+  text-align: center;
+}
+
+.slv-condition-flow > div:last-child {
+  border-top-color: var(--plot-secondary);
+}
+
+.slv-condition-flow strong {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.slv-condition-flow span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.slv-logic-arrow {
+  text-align: center;
+}
+
+.slv-logic-arrow b,
+.slv-logic-arrow span {
+  display: block;
+}
+
+.slv-logic-arrow b {
+  color: var(--accent);
+  font-family: Cambria, serif;
+  font-size: 22px;
+}
+
+.slv-logic-arrow span {
+  margin-top: 7px;
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.slv-counterexample {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.slv-counterexample strong {
+  color: var(--plot-secondary);
+}
+
+.slv-factor-chain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.slv-factor-chain code {
+  color: var(--ink);
+  font-family: Cambria, "Times New Roman", serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.slv-factor-chain span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.slv-axis {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.slv-tick {
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+.slv-root-one circle,
+.slv-center-point circle {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+
+.slv-root-two circle {
+  fill: var(--plot-secondary);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+
+.slv-root-one text,
+.slv-center-point text {
+  fill: var(--accent) !important;
+  font-weight: 700;
+}
+
+.slv-root-two text {
+  fill: var(--plot-secondary) !important;
+  font-weight: 700;
+}
+
+.slv-coefficient-map {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.slv-coefficient-map > span {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 13px;
+  background: var(--surface);
+}
+
+.slv-coefficient-map b {
+  color: var(--accent-ink);
+  font-size: 20px;
+}
+
+.slv-coefficient-map em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.slv-sign-table {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  margin-bottom: 12px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.slv-sign-table > div {
+  display: grid;
+  grid-template-columns: 70px 1fr 55px 1fr 55px 1fr;
+  align-items: center;
+  min-height: 43px;
+  text-align: center;
+}
+
+.slv-sign-table > div + div {
+  border-top: 1px solid var(--line);
+}
+
+.slv-sign-table b {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.slv-sign-table span,
+.slv-sign-table i {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.slv-sign-table div:last-child span {
+  color: var(--accent-ink);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.slv-answer-band {
+  stroke: transparent;
+  stroke-linecap: round;
+  stroke-width: 10;
+}
+
+.slv-answer-band.is-active {
+  stroke: var(--accent);
+}
+
+.slv-open-end,
+.slv-forbidden-end {
+  fill: var(--surface-2);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.slv-forbidden-end {
+  stroke: var(--plot-secondary);
+}
+
+.slv-closed-end {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.slv-test-point circle {
+  fill: var(--plot-secondary);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+
+.slv-test-point text {
+  fill: var(--plot-secondary) !important;
+  font-weight: 700;
+}
+
+.slv-test-point.is-valid circle {
+  fill: var(--accent);
+}
+
+.slv-test-point.is-valid text {
+  fill: var(--accent) !important;
+}
+
+.slv-test-point.is-undefined circle {
+  fill: var(--surface-2);
+  stroke: var(--plot-secondary);
+  stroke-width: 3;
+}
+
+.slv-test-point.is-undefined text {
+  fill: var(--plot-secondary) !important;
+}
+
+.slv-boundary-test path {
+  fill: var(--plot-secondary);
+}
+
+.slv-boundary-test text {
+  fill: var(--plot-secondary) !important;
+  font-weight: 700;
+}
+
+.slv-boundary-test.is-valid path {
+  fill: var(--accent);
+}
+
+.slv-boundary-test.is-valid text {
+  fill: var(--accent) !important;
+}
+
+.slv-fraction-status {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 13px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.slv-fraction-status > span {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-bottom: 2px solid var(--line-strong);
+  background: var(--surface);
+  text-align: center;
+}
+
+.slv-fraction-status b {
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.slv-fraction-status > strong {
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.slv-formula-line,
+.slv-solution {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0;
+}
+
+.slv-formula-line strong,
+.slv-solution > span {
+  color: var(--accent);
+  font-size: 22px;
+}
+
+.slv-grid-line {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.slv-am-bar {
+  fill: color-mix(in srgb, var(--accent) 40%, var(--surface));
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.slv-gm-bar {
+  fill: color-mix(in srgb, var(--plot-secondary) 36%, var(--surface));
+  stroke: var(--plot-secondary);
+  stroke-width: 2;
+}
+
+.slv-gap-line {
+  stroke: var(--plot-tertiary);
+  stroke-width: 4;
+  stroke-dasharray: 5 4;
+}
+
+.slv-equality {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 11px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 13px;
+}
+
+.slv-equality strong {
+  color: var(--ink);
+}
+
+.slv-equality code {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.slv-equality.is-equal {
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  background: var(--accent-soft);
+}
+
+.slv-distance-readout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.slv-distance-readout span {
+  padding: 10px;
+  color: var(--muted);
+  background: var(--surface);
+  text-align: center;
+  font-size: 12px;
+}
+
+.slv-distance-readout b {
+  color: var(--accent-ink);
+  font-size: 14px;
+}
+
+.slv-radius-brace {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.slv-takeaway {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 13px;
+  align-items: start;
+  margin: 0;
+  padding: 14px 16px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-top: 0;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.slv-takeaway > strong {
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.slv-takeaway code {
+  color: var(--ink);
+  font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.slv-takeaway b.slv-a {
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .slv-controls-wrap,
+  .slv-two-controls,
+  .slv-three-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .slv-negation-pair,
+  .slv-condition-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .slv-negation-pair > div:not(.slv-not-symbol),
+  .slv-condition-flow > div:not(.slv-logic-arrow) {
+    min-height: 0;
+  }
+
+  .slv-not-symbol,
+  .slv-logic-arrow {
+    padding: 3px 0;
+  }
+
+  .slv-quantifier-rule,
+  .slv-factor-chain,
+  .slv-counterexample {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .slv-sign-table > div {
+    grid-template-columns: 48px 1fr 36px 1fr 36px 1fr;
+  }
+
+  .slv-sign-table span,
+  .slv-sign-table i {
+    font-size: 11px;
+  }
+
+  .slv-coefficient-map {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .slv-frame {
+    margin-top: 15px;
+  }
+
+  .slv-heading {
+    padding: 20px 0 15px;
+  }
+
+  .slv-heading h3 {
+    font-size: 19px;
+  }
+
+  .slv-controls,
+  .slv-canvas {
+    padding: 12px;
+  }
+
+  .slv-toggle {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .slv-toggle button {
+    width: 100%;
+  }
+
+  .slv-canvas svg text {
+    font-size: 25px;
+  }
+
+  .slv-canvas svg .slv-set-label,
+  .slv-canvas svg .slv-relation-text {
+    font-size: 26px !important;
+  }
+
+  .slv-canvas svg .slv-symbol {
+    font-size: 34px !important;
+  }
+
+  .slv-equation,
+  .slv-formula-line,
+  .slv-solution,
+  .slv-equality {
+    flex-wrap: wrap;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .slv-proposition,
+  .slv-condition {
+    padding: 18px 12px;
+  }
+
+  .slv-negation-pair strong,
+  .slv-condition-flow strong {
+    font-size: 14px;
+  }
+
+  .slv-sign-table {
+    overflow: hidden;
+  }
+
+  .slv-sign-table > div {
+    grid-template-columns: 34px 1fr 28px 1fr 28px 1fr;
+  }
+
+  .slv-sign-table span,
+  .slv-sign-table i,
+  .slv-sign-table b {
+    font-size: 11px;
+  }
+
+  .slv-fraction-status {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .slv-fraction-status > strong {
+    display: none;
+  }
+
+  .slv-fraction-status > span:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .slv-coefficient-map > span {
+    grid-template-columns: auto auto;
+  }
+
+  .slv-coefficient-map em {
+    grid-column: 1 / -1;
+  }
+
+  .slv-distance-readout {
+    grid-template-columns: 1fr;
+  }
+
+  .slv-takeaway {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slv-canvas svg circle,
+  .slv-canvas svg line,
+  .slv-canvas svg rect,
+  .slv-canvas svg ellipse,
+  .slv-canvas svg path,
+  .slv-candidate {
+    transition: none;
+  }
+}
