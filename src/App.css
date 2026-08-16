@@ -710,9 +710,9 @@
   .mobile-course-bar { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
   .mobile-course-bar > div { min-width: 0; }
   .mobile-course-bar small, .mobile-course-bar strong { display: block; }
-  .mobile-course-bar small { color: var(--accent); font-size: 8px; }
-  .mobile-course-bar strong { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
-  .mobile-course-bar button { min-height: 34px; display: flex; align-items: center; gap: 6px; flex: none; padding: 6px 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-2); cursor: pointer; font-size: 10px; }
+  .mobile-course-bar small { color: var(--accent); font-size: 11px; }
+  .mobile-course-bar strong { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+  .mobile-course-bar button { min-height: 38px; display: flex; align-items: center; gap: 6px; flex: none; padding: 7px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-2); cursor: pointer; font-size: 12px; }
   .workspace { min-height: 0; display: block; }
   .catalog-sidebar { position: fixed; z-index: 60; left: 0; top: 0; width: min(350px, calc(100vw - 28px)); height: 100vh; max-height: none; padding-top: 18px; visibility: hidden; pointer-events: none; transform: translateX(-105%); transition: transform .2s ease, visibility 0s linear .2s; box-shadow: var(--shadow); }
   .catalog-open .catalog-sidebar { visibility: visible; pointer-events: auto; transform: translateX(0); transition-delay: 0s; }
@@ -756,7 +756,7 @@
   .semester-nav > div { min-width: 570px; }
   .mobile-course-bar { padding-inline: 12px; }
   .main-content { padding-inline: 12px; }
-  .topic-focus { font-size: 11px; }
+  .topic-focus { font-size: 14px; }
   .topic-index { display: none; }
   .concept-path { display: block; overflow: visible; }
   .concept-path > div { min-height: 68px; min-width: 0; margin-bottom: 8px; }

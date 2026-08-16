@@ -1,6 +1,7 @@
 import type { SubjectId } from './data'
 import { buildAppliedLesson } from './lessonApplied'
 import { buildHumanitiesLesson } from './lessonHumanities'
+import { buildMathLesson } from './lessonMath'
 import { buildScienceLesson } from './lessonScience'
 import type { LessonContent, LessonContext } from './lessonTypes'
 
@@ -73,7 +74,8 @@ const subjectMethods: Record<SubjectId, {
 }
 
 export function buildLessonContent(subjectId: SubjectId, context: LessonContext): LessonContent {
-  const specificLesson = buildHumanitiesLesson(subjectId, context)
+  const specificLesson = (subjectId === 'math' ? buildMathLesson(context) : undefined)
+    ?? buildHumanitiesLesson(subjectId, context)
     ?? buildScienceLesson(subjectId, context)
     ?? buildAppliedLesson(subjectId, context)
   if (specificLesson) return specificLesson

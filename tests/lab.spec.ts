@@ -7,6 +7,36 @@ import { APPLIED_LESSON_TEMPLATE_REGRESSIONS } from '../src/lessonApplied'
 import { humanitiesRegressionTemplateByTitle } from '../src/lessonHumanities'
 import { scienceLessonRegressionMap } from '../src/lessonScience'
 
+const expectedG10MathLessonTemplates = new Map([
+  ['集合的表示与元素关系', 'g10-math-set-language'],
+  ['子集与集合相等', 'g10-math-subset-equality'],
+  ['交集并集与补集', 'g10-math-set-operations'],
+  ['命题及其否定', 'g10-math-proposition-negation'],
+  ['充分条件与必要条件', 'g10-math-sufficient-necessary'],
+  ['等式与不等式的性质', 'g10-math-equivalence-properties'],
+  ['一元二次方程根的结构', 'g10-math-quadratic-roots'],
+  ['一元二次不等式', 'g10-math-quadratic-inequality'],
+  ['分式不等式', 'g10-math-rational-inequality'],
+  ['绝对值不等式', 'g10-math-absolute-inequality'],
+  ['基本不等式及等号条件', 'g10-math-amgm'],
+  ['幂与分数指数幂', 'g10-math-fractional-powers'],
+  ['指数幂的运算', 'g10-math-exponent-laws'],
+  ['对数概念与换底', 'g10-math-log-definition'],
+  ['对数运算与定义域', 'g10-math-log-laws-domain'],
+  ['幂函数的图像与性质', 'g10-math-power-function'],
+  ['指数函数的图像与性质', 'g10-math-exponential-function'],
+  ['指数增长与衰减', 'g10-math-exponential-growth'],
+  ['对数函数的图像与性质', 'g10-math-log-function'],
+  ['函数定义域与值域', 'g10-math-domain-range'],
+  ['分段函数与实际计费', 'g10-math-piecewise-model'],
+  ['函数的单调性', 'g10-math-monotonicity'],
+  ['函数的奇偶性', 'g10-math-parity'],
+  ['函数的零点', 'g10-math-function-zeros'],
+  ['函数图像与参数变换', 'g10-math-graph-transform'],
+  ['函数模型的比较与检验', 'g10-math-model-comparison'],
+  ['反函数', 'g10-math-inverse-function'],
+])
+
 const expectedSemesterIds: SemesterId[] = ['g10-1', 'g10-2', 'g11-1', 'g11-2', 'g12-1', 'g12-2']
 const expectedSubjectIds = subjects.map((subject) => subject.id).sort()
 const subjectName = (subjectId: SubjectId) => subjects.find((subject) => subject.id === subjectId)?.name ?? subjectId
@@ -140,6 +170,18 @@ test('high-one first-semester math follows the Shanghai textbook chapter and sec
   await expect(page.locator('.chapter-directory')).toHaveCount(5)
   await expect(page.locator('.chapter-directory details')).toHaveCount(14)
   await expect(page.locator('.book-meta')).toContainText('5 章 · 14 节 · 27 个知识点')
+})
+
+test('every high-one first-semester math topic uses its own substantive lesson', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static lesson routing only needs one project')
+
+  const entries = allTopics.filter((entry) => entry.semester.id === 'g10-1' && entry.subjectId === 'math')
+  expect(entries).toHaveLength(expectedG10MathLessonTemplates.size)
+  for (const entry of entries) {
+    expect(entry.topic.lesson.templateId, entry.topic.title).toBe(expectedG10MathLessonTemplates.get(entry.topic.title))
+    expect(entry.topic.lesson.core, `${entry.topic.title}: core explicitly names the topic`).toContain(entry.topic.title)
+    expect(entry.topic.lesson.example.prompt, `${entry.topic.title}: concrete worked example`).toMatch(/[0-9a-zA-Z=<>≤≥∈∩∪√²³]|出租车|药物|同学/)
+  }
 })
 
 test('every topic contains a substantive lesson and each subject uses varied concept templates', async ({ page: _page }, testInfo) => {
