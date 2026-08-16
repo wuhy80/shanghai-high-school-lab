@@ -1,5 +1,7 @@
 import { semesterSeeds } from './curriculumSeeds'
 import type { SubjectId } from './data'
+import { buildLessonContent } from './lessonContent'
+import type { LessonContent } from './lessonTypes'
 
 export type SemesterId = 'g10-1' | 'g10-2' | 'g11-1' | 'g11-2' | 'g12-1' | 'g12-2'
 export type TopicMode = 'demo' | 'explain'
@@ -13,6 +15,7 @@ export type KnowledgeTopic = {
   question: string
   keyPoints: [string, string, string]
   pitfall: string
+  lesson: LessonContent
   mode: TopicMode
   visual: VisualKind
   demoId?: string
@@ -100,32 +103,6 @@ const visualBySubject: Record<SubjectId, VisualKind> = {
   biology: 'process', politics: 'relation', history: 'timeline', geography: 'process', information: 'flow',
 }
 
-const methodBySubject: Record<SubjectId, string> = {
-  chinese: '回到具体语句、篇章结构和写作语境，用文本证据支持判断。',
-  math: '区分定义、条件和结论，结合代数运算、图像或几何关系交叉验证。',
-  english: '把词汇和语法放回语篇，联系说话目的、上下文与文体选择。',
-  physics: '先选研究对象和过程，再建立物理模型、规定正方向并检查单位。',
-  chemistry: '在宏观现象、微观粒子与符号表达之间建立对应，并写清条件。',
-  biology: '沿结构、过程、功能和调节关系组织证据，注意生命系统的层次。',
-  politics: '辨认材料主体、制度条件与因果链，使用教材概念而非口号替代论证。',
-  history: '把事件放入具体时空，区分背景、原因、过程、影响与史料证据。',
-  geography: '明确时空尺度和区域位置，用要素联系与过程链解释地理现象。',
-  information: '先界定输入、数据结构和目标，再用算法或系统流程检验结果。',
-}
-
-const pitfallBySubject: Record<SubjectId, string> = {
-  chinese: '不要脱离上下文套用术语，也不要只复述内容而缺少语言证据。',
-  math: '不要忽略定义域、取值范围、等号条件和特殊情形。',
-  english: '不要逐词翻译后再硬套规则；同一形式在不同语境中功能可能不同。',
-  physics: '不要把公式当作无条件等式；模型适用范围和方向约定必须先说明。',
-  chemistry: '不要只看化学式配平；反应条件、实际粒子和守恒关系同样重要。',
-  biology: '不要把相关性直接当作因果，也不要把个体层面的结论机械外推到所有层次。',
-  politics: '不要混淆不同主体、权力边界和制度层级，材料结论须有概念依据。',
-  history: '不要用单一原因解释复杂事件，也不要用后来的结果倒推当时必然如此。',
-  geography: '不要忽略尺度、季节和区域差异；示意图中的一般规律不等于任何地点都相同。',
-  information: '不要只验证正常输入；边界值、异常数据、效率与安全约束都要检查。',
-}
-
 function buildSemester(seed: SemesterSeed): SemesterPlan {
   const courses = Object.fromEntries(Object.entries(seed.courses).map(([rawSubjectId, course]) => {
     const subjectId = rawSubjectId as SubjectId
@@ -137,17 +114,19 @@ function buildSemester(seed: SemesterSeed): SemesterPlan {
       topics: unit.topics.map((title) => {
         topicIndex += 1
         const demoId = demoByTitle[title]
+        const lesson = buildLessonContent(subjectId, {
+          title,
+          unitTitle: unit.title,
+          unitFocus: unit.focus,
+        })
         return {
           id: `${seed.id}-${subjectId}-t${topicIndex}`,
           title,
           focus: unit.focus,
-          question: `学习“${title}”时，怎样把它与“${unit.title}”的核心关系连接起来？`,
-          keyPoints: [
-            `先说清“${title}”涉及的对象、概念与成立条件。`,
-            unit.focus,
-            methodBySubject[subjectId],
-          ],
-          pitfall: pitfallBySubject[subjectId],
+          question: lesson.guidingQuestion,
+          keyPoints: lesson.steps.map((step) => step.detail) as [string, string, string],
+          pitfall: lesson.pitfall,
+          lesson,
           mode: demoId ? 'demo' as const : 'explain' as const,
           visual: visualBySubject[subjectId],
           demoId,

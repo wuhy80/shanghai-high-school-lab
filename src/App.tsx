@@ -165,6 +165,15 @@ function App() {
         itemTopic.focus,
         itemTopic.question,
         ...itemTopic.keyPoints,
+        itemTopic.lesson.core,
+        ...itemTopic.lesson.explanation,
+        ...itemTopic.lesson.steps.flatMap((step) => [step.label, step.detail]),
+        itemTopic.lesson.example.prompt,
+        ...itemTopic.lesson.example.reasoning,
+        itemTopic.lesson.example.result,
+        itemTopic.lesson.selfCheck.question,
+        itemTopic.lesson.selfCheck.answer,
+        itemTopic.lesson.pitfall,
       ].filter(Boolean).join(' ').toLocaleLowerCase('zh-CN').includes(value)
     })
   }, [query])
@@ -407,9 +416,8 @@ function App() {
             className={`knowledge-panel ${topic.demoId ? 'demo-panel' : 'explanation-panel'}`}
             aria-labelledby={`directory-topic-${topic.id}`}
           >
-            {topic.demoId
-              ? <DemoStage key={topic.id} topicId={topic.demoId} />
-              : <KnowledgeDetail course={course} subjectName={subject.name} topic={topic} unit={unit} />}
+            {topic.demoId && <DemoStage key={topic.id} topicId={topic.demoId} />}
+            <KnowledgeDetail course={course} subjectName={subject.name} topic={topic} unit={unit} />
           </div>
 
           <nav className="topic-pagination" aria-label="前后知识点">

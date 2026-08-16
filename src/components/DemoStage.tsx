@@ -3,6 +3,17 @@ import { ArrowDown, Dices, Pause, Play, RefreshCw } from 'lucide-react'
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
+const greatestCommonDivisor = (left: number, right: number): number => right === 0 ? Math.abs(left) : greatestCommonDivisor(right, left % right)
+
+function formatRadians(angle: number) {
+  if (angle === 0) return '0'
+  const divisor = greatestCommonDivisor(angle, 180)
+  const numerator = angle / divisor
+  const denominator = 180 / divisor
+  const numeratorLabel = numerator === 1 ? '' : numerator
+  return denominator === 1 ? `${numeratorLabel}π` : `${numeratorLabel}π/${denominator}`
+}
+
 type RangeFieldProps = {
   label: string
   value: number
@@ -12,11 +23,12 @@ type RangeFieldProps = {
   unit?: string
   onChange: (value: number) => void
   format?: (value: number) => string
+  tone?: 'primary' | 'secondary' | 'tertiary'
 }
 
-function RangeField({ label, value, min, max, step = 1, unit = '', onChange, format }: RangeFieldProps) {
+function RangeField({ label, value, min, max, step = 1, unit = '', onChange, format, tone }: RangeFieldProps) {
   return (
-    <label className="range-field">
+    <label className={`range-field${tone ? ` tone-${tone}` : ''}`}>
       <span><b>{label}</b><output>{format ? format(value) : value}{unit}</output></span>
       <input type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
       <i><small>{min}{unit}</small><small>{max}{unit}</small></i>
@@ -51,11 +63,13 @@ function LabFrame({ formula, status, controls, children, insight }: LabFrameProp
 function PlotGrid({ xLabel = 'x', yLabel = 'y' }: { xLabel?: string; yLabel?: string }) {
   return (
     <g className="plot-grid" aria-hidden="true">
-      {[80, 160, 240, 320, 400, 480, 560].map((x) => <line key={`x-${x}`} x1={x} y1="24" x2={x} y2="316" />)}
-      {[64, 124, 184, 244, 304].map((y) => <line key={`y-${y}`} x1="48" y1={y} x2="576" y2={y} />)}
+      {[-5, -4, -3, -2, -1, 1, 2, 3, 4, 5].map((value) => <line key={`x-${value}`} x1={48 + (value + 5) * 52.8} y1="20" x2={48 + (value + 5) * 52.8} y2="320" />)}
+      {[-6, -4, -2, 2, 4, 6, 8].map((value) => <line key={`y-${value}`} x1="48" y1={184 - value * 18} x2="576" y2={184 - value * 18} />)}
       <line className="axis" x1="48" y1="184" x2="582" y2="184" />
       <line className="axis" x1="312" y1="20" x2="312" y2="320" />
-      <text x="570" y="174">{xLabel}</text><text x="320" y="36">{yLabel}</text>
+      {[-4, -2, 2, 4].map((value) => <text className="axis-number" key={`x-label-${value}`} x={48 + (value + 5) * 52.8} y="202" textAnchor="middle">{value}</text>)}
+      {[-4, 4, 8].map((value) => <text className="axis-number" key={`y-label-${value}`} x="302" y={188 - value * 18} textAnchor="end">{value}</text>)}
+      <text className="axis-name" x="570" y="174">{xLabel}</text><text className="axis-name" x="320" y="36">{yLabel}</text>
     </g>
   )
 }
@@ -71,28 +85,46 @@ function FunctionLab() {
   }).join(' '), [a, h, k])
   const direction = a > 0 ? '开口向上' : '开口向下'
   const width = Math.abs(a) > 1 ? '更窄' : Math.abs(a) < 1 ? '更宽' : '标准宽度'
+  const vertexX = 48 + (h + 5) * 52.8
+  const vertexY = 184 - k * 18
+  const unitX = 48 + (h + 6) * 52.8
+  const unitY = 184 - (k + a) * 18
 
   return (
     <LabFrame
-      formula={<><span>y = </span><b>{a}</b><span>(x {h >= 0 ? '−' : '+'} {Math.abs(h)})² {k >= 0 ? '+' : '−'} {Math.abs(k)}</span></>}
+      formula={<><span>y = </span><b className="math-token math-a">{a}</b><span>(x </span><b className="math-token math-h">{h >= 0 ? '−' : '+'} {Math.abs(h)}</b><span>)² </span><b className="math-token math-k">{k >= 0 ? '+' : '−'} {Math.abs(k)}</b></>}
       status={a === 0 ? `常数函数 y = ${k}` : `顶点 (${h}, ${k})`}
       controls={<>
         <p className="control-title">参数</p>
-        <RangeField label="伸缩 a" value={a} min={-3} max={3} step={0.25} onChange={setA} />
-        <RangeField label="水平 h" value={h} min={-3} max={3} step={0.5} onChange={setH} />
-        <RangeField label="竖直 k" value={k} min={-4} max={4} step={0.5} onChange={setK} />
-        <button className="secondary-button" onClick={() => { setA(1); setH(0); setK(0) }}><RefreshCw size={15} />重置</button>
+        <RangeField label="伸缩 a" value={a} min={-3} max={3} step={0.25} onChange={setA} tone="secondary" />
+        <RangeField label="水平 h" value={h} min={-3} max={3} step={0.5} onChange={setH} tone="primary" />
+        <RangeField label="竖直 k" value={k} min={-4} max={4} step={0.5} onChange={setK} tone="tertiary" />
+        <button type="button" className="secondary-button" onClick={() => { setA(1); setH(0); setK(0) }}><RefreshCw size={15} />重置</button>
       </>}
       insight={a === 0 ? <>当 <em>a = 0</em> 时，二次项消失，函数退化为常数函数 <em>y = {k}</em>。</> : <>图像{direction}，相对 <em>y = x²</em> {width}，对称轴为 <em>x = {h}</em>。</>}
     >
-      <svg className="plot function-plot" viewBox="0 0 624 340" role="img" aria-label={`二次函数图像，顶点为 ${h}, ${k}`}>
+      <svg className="plot math-plot function-plot" viewBox="0 0 624 340" role="img" aria-label={`二次函数 y 等于 ${a} 乘 x 减 ${h} 的平方再加 ${k}；顶点为 ${h}, ${k}`}>
+        <title>二次函数参数如何改变图像</title>
+        <desc>红色曲线是当前函数，青色投影表示水平位移 h，金色投影表示竖直位移 k，顶点右侧一步的竖线表示函数值变化 a。</desc>
         <defs><clipPath id="function-clip"><rect x="48" y="20" width="528" height="300" /></clipPath></defs>
         <PlotGrid />
         <polyline className="reference-curve" points={Array.from({ length: 101 }, (_, index) => { const x = -5 + index / 10; return `${48 + (x + 5) * 52.8},${184 - x * x * 18}` }).join(' ')} clipPath="url(#function-clip)" />
-        <polyline className="primary-curve" points={points} clipPath="url(#function-clip)" />
-        {a !== 0 && <><line className="guide-line" x1={48 + (h + 5) * 52.8} y1="24" x2={48 + (h + 5) * 52.8} y2="316" /><circle className="active-point" cx={48 + (h + 5) * 52.8} cy={184 - k * 18} r="6" /><text className="point-label" x={58 + (h + 5) * 52.8} y={174 - k * 18}>({h}, {k})</text></>}
+        <text className="reference-label math-secondary-label" x="420" y="116">参照 y = x²</text>
+        <polyline className="function-curve" points={points} clipPath="url(#function-clip)" />
+        <g className="function-construction">
+          <line className="h-guide" x1="312" y1={vertexY} x2={vertexX} y2={vertexY} />
+          <line className="k-guide" x1={vertexX} y1="184" x2={vertexX} y2={vertexY} />
+          <text className="h-label" x={h === 0 ? vertexX - 10 : (312 + vertexX) / 2} y={clamp(vertexY + 22, 42, 310)} textAnchor={h === 0 ? 'end' : 'middle'}>h = {h}</text>
+          <text className="k-label" x={clamp(vertexX + 10, 58, 544)} y={k === 0 ? vertexY - 32 : clamp((184 + vertexY) / 2 - 7, 34, 306)}>k = {k}</text>
+          <line className="unit-run" x1={vertexX} y1={vertexY} x2={unitX} y2={vertexY} />
+          <line className="a-rise" x1={unitX} y1={vertexY} x2={unitX} y2={unitY} />
+          <circle className="a-point" cx={unitX} cy={unitY} r="4" />
+          <text className="a-label" x={clamp(unitX + 8, 70, 530)} y={clamp((vertexY + unitY) / 2 - 6, 30, 306)}>Δy = a = {a}</text>
+          <circle className="function-vertex" cx={vertexX} cy={vertexY} r="6" />
+          <text className="point-label" x={clamp(vertexX + 10, 64, 514)} y={clamp(vertexY - 11, 30, 310)}>顶点 ({h}, {k})</text>
+        </g>
       </svg>
-      <div className="plot-legend"><span><i className="legend-primary" />当前函数</span><span><i className="legend-reference" />y = x²</span></div>
+      <div className="plot-legend function-legend"><span><i className="legend-function" />当前函数</span><span><i className="legend-reference" />参照函数</span></div>
     </LabFrame>
   )
 }
@@ -123,29 +155,54 @@ function ProbabilityLab() {
   }, [probability, trials, seed])
   const observed = simulation.success / trials
   const path = simulation.convergence.map((value, index) => `${54 + index / Math.max(1, trials - 1) * 516},${292 - value * 236}`).join(' ')
+  const typicalBand = useMemo(() => {
+    const upper = Array.from({ length: trials }, (_, index) => {
+      const count = index + 1
+      const spread = 2 * Math.sqrt(probability * (1 - probability) / count)
+      return `${54 + index / Math.max(1, trials - 1) * 516},${292 - clamp(probability + spread, 0, 1) * 236}`
+    })
+    const lower = Array.from({ length: trials }, (_, index) => {
+      const count = trials - index
+      const spread = 2 * Math.sqrt(probability * (1 - probability) / count)
+      return `${54 + (count - 1) / Math.max(1, trials - 1) * 516},${292 - clamp(probability - spread, 0, 1) * 236}`
+    })
+    return [...upper, ...lower].join(' ')
+  }, [probability, trials])
+  const theoryY = 292 - probability * 236
+  const observedY = 292 - observed * 236
 
   return (
     <LabFrame
-      formula={<><span>P(正面) = </span><b>{probability.toFixed(2)}</b></>}
-      status={`${trials} 次试验`}
+      formula={<><span>理论 </span><b className="math-token math-theory">p = {probability.toFixed(2)}</b><span>　样本 </span><b className="math-token math-observed">p̂ = {observed.toFixed(3)}</b></>}
+      status={`${trials} 次 · 偏差 ${Math.abs(observed - probability).toFixed(3)}`}
       controls={<>
         <p className="control-title">随机试验</p>
-        <RangeField label="理论概率" value={probability} min={0.1} max={0.9} step={0.05} onChange={setProbability} format={(value) => value.toFixed(2)} />
-        <RangeField label="试验次数" value={trials} min={20} max={500} step={20} onChange={setTrials} unit=" 次" />
-        <button className="primary-button" onClick={() => setSeed((value) => value + 1)}><Dices size={16} />重新模拟</button>
+        <RangeField label="理论概率 p" value={probability} min={0.1} max={0.9} step={0.05} onChange={setProbability} format={(value) => value.toFixed(2)} tone="secondary" />
+        <RangeField label="试验次数 n" value={trials} min={20} max={500} step={20} onChange={setTrials} unit=" 次" tone="tertiary" />
+        <button type="button" className="primary-button" onClick={() => setSeed((value) => value + 1)}><Dices size={16} />重新模拟</button>
         <div className="mini-stats"><span><small>正面</small><b>{simulation.success}</b></span><span><small>反面</small><b>{trials - simulation.success}</b></span></div>
       </>}
-      insight={<>本轮频率为 <em>{observed.toFixed(3)}</em>，与理论概率相差 <em>{Math.abs(observed - probability).toFixed(3)}</em>。</>}
+      insight={<>累计频率会随机波动，但试验次数增大时典型波动尺度约按 <em>1/√n</em> 缩小。阴影是 ±2 个标准差的参考范围，不是必然边界。</>}
     >
-      <svg className="plot probability-plot" viewBox="0 0 624 340" role="img" aria-label={`随机试验频率折线，最终频率 ${observed.toFixed(3)}`}>
-        <g className="chart-frame">
-          {[0, .25, .5, .75, 1].map((value) => <g key={value}><line x1="54" y1={292 - value * 236} x2="570" y2={292 - value * 236} /><text x="18" y={296 - value * 236}>{value.toFixed(2)}</text></g>)}
+      <svg className="plot math-plot probability-plot" viewBox="0 0 624 340" role="img" aria-label={`理论概率 ${probability.toFixed(2)}，${trials} 次随机试验后累计频率为 ${observed.toFixed(3)}`}>
+        <title>累计频率向理论概率靠近</title>
+        <desc>红色虚线是理论概率，青色折线是累计频率，浅色带表示正负两个标准差的典型波动范围。</desc>
+        <defs><clipPath id="probability-clip"><rect x="54" y="56" width="516" height="236" /></clipPath></defs>
+        <g className="chart-frame" clipPath="url(#probability-clip)">
+          {[0, .25, .5, .75, 1].map((value) => <line key={value} x1="54" y1={292 - value * 236} x2="570" y2={292 - value * 236} />)}
+          <polygon className="probability-band" points={typicalBand} />
           <line className="theory-line" x1="54" y1={292 - probability * 236} x2="570" y2={292 - probability * 236} />
           <polyline className="primary-curve" points={path} />
-          <circle className="active-point" cx="570" cy={292 - observed * 236} r="6" />
-          <text className="value-label" x="548" y={278 - observed * 236}>{observed.toFixed(3)}</text>
-          <text x="54" y="322">1</text><text x="548" y="322">{trials} 次</text>
+          <line className="deviation-line" x1="558" y1={theoryY} x2="558" y2={observedY} />
+          <circle className="active-point" cx="570" cy={observedY} r="6" />
         </g>
+        {[0, .25, .5, .75, 1].map((value) => <text className="axis-number" key={`probability-label-${value}`} x="45" y={296 - value * 236} textAnchor="end">{value.toFixed(2)}</text>)}
+        <text className="math-theory-label" x="394" y={clamp(theoryY + (observedY <= theoryY ? 22 : -16), 42, 304)}>理论 p = {probability.toFixed(2)}</text>
+        <text className="value-label" x="394" y={clamp(observedY + (observedY <= theoryY ? -16 : 22), 42, 304)}>累计 p̂ = {observed.toFixed(3)}</text>
+        <text className="probability-band-label math-secondary-label" x="62" y="42">阴影：约 ±2σ 参考带</text>
+        <text className="axis-number" x="54" y="322">1</text><text className="axis-number" x="548" y="322">{trials}</text>
+        <text className="axis-name" x="302" y="330" textAnchor="middle">试验次数 n</text>
+        <text className="axis-name probability-y-title" x="15" y="174" textAnchor="middle" transform="rotate(-90 15 174)">累计频率 p̂ₙ</text>
       </svg>
     </LabFrame>
   )
@@ -724,28 +781,41 @@ function UnitCircleLab() {
   const quadrant = normalized === 0 || normalized === 90 || normalized === 180 || normalized === 270
     ? '坐标轴上'
     : `第${['一', '二', '三', '四'][Math.floor(normalized / 90)]}象限`
+  const radianLabel = formatRadians(angle)
+  const cosineLabelX = clamp((312 + x) / 2, 226, 398)
+  const sineLabelY = clamp((170 + y) / 2, 70, 270)
+  const sineLabelX = x > 380 ? x - 10 : x < 244 ? x + 10 : x + (cosine >= 0 ? 10 : -10)
+  const sineLabelAnchor = x > 380 ? 'end' : x < 244 ? 'start' : cosine >= 0 ? 'start' : 'end'
+  const angleLabelRadians = (normalized === 0 ? 0 : normalized / 2) * Math.PI / 180
 
   return (
     <LabFrame
-      formula={<><span>P(cos θ, sin θ) = </span><b>({cosine.toFixed(3)}, {sine.toFixed(3)})</b></>}
-      status={`${angle}° · ${quadrant}`}
+      formula={<><span>P(</span><b className="math-token math-cos">cos θ = {cosine.toFixed(3)}</b><span>, </span><b className="math-token math-sin">sin θ = {sine.toFixed(3)}</b><span>)</span></>}
+      status={`${angle}° = ${radianLabel} · ${quadrant}`}
       controls={<>
         <p className="control-title">角度</p>
-        <RangeField label="θ" value={angle} min={0} max={360} step={1} unit="°" onChange={setAngle} />
-        <div className="angle-presets">{[0, 30, 45, 60, 90, 180].map((value) => <button key={value} className={angle === value ? 'active' : ''} onClick={() => setAngle(value)}>{value}°</button>)}</div>
-        <div className="coordinate-readout"><span><small>cos θ</small><b>{cosine.toFixed(3)}</b></span><span><small>sin θ</small><b>{sine.toFixed(3)}</b></span></div>
+        <RangeField label="转角 θ" value={angle} min={0} max={360} step={1} unit="°" onChange={setAngle} tone="tertiary" />
+        <div className="angle-presets">{[0, 30, 45, 60, 90, 180, 270, 360].map((value) => <button type="button" key={value} className={angle === value ? 'active' : ''} onClick={() => setAngle(value)}>{value}°</button>)}</div>
+        <div className="coordinate-readout"><span className="cosine-readout"><small>横投影 cos θ</small><b>{cosine.toFixed(3)}</b></span><span className="sine-readout"><small>纵投影 sin θ</small><b>{sine.toFixed(3)}</b></span></div>
       </>}
-      insight={<>单位圆上点的横坐标是 <em>cos θ</em>，纵坐标是 <em>sin θ</em>；象限决定两者的正负。</>}
+      insight={<>半径恒为 1，所以点 P 的横、纵投影就是 <em>cos θ</em> 与 <em>sin θ</em>；转过坐标轴时，投影方向改变，正负号随之改变。</>}
     >
-      <svg className="plot unit-circle-plot" viewBox="0 0 624 340" role="img" aria-label={`单位圆中 ${angle} 度对应点的坐标为 ${cosine.toFixed(3)}, ${sine.toFixed(3)}`}>
+      <svg className="plot math-plot unit-circle-plot" viewBox="0 0 624 340" role="img" aria-label={`单位圆中 ${angle} 度等于 ${radianLabel}，对应点的余弦为 ${cosine.toFixed(3)}，正弦为 ${sine.toFixed(3)}`}>
+        <title>单位圆中的正弦与余弦投影</title>
+        <desc>红色水平线段表示余弦，青色竖直线段表示正弦，金色圆心角表示角度。</desc>
         <line className="circle-axis" x1="142" y1="170" x2="482" y2="170" /><line className="circle-axis" x1="312" y1="12" x2="312" y2="328" />
         <circle className="unit-circle" cx="312" cy="170" r="118" />
         <path className="angle-sector" d={`M 312 170 L 372 170 A 60 60 0 ${normalized > 180 ? 1 : 0} 0 ${312 + Math.cos(radians) * 60} ${170 - Math.sin(radians) * 60} Z`} />
         <line className="radius-line" x1="312" y1="170" x2={x} y2={y} />
-        <line className="coordinate-guide" x1={x} y1={y} x2={x} y2="170" /><line className="coordinate-guide" x1={x} y1={y} x2="312" y2={y} />
+        <line className="cosine-segment" x1="312" y1="170" x2={x} y2="170" />
+        <line className="sine-segment" x1={x} y1="170" x2={x} y2={y} />
+        <circle className="projection-foot" cx={x} cy="170" r="4" />
         <circle className="active-point" cx={x} cy={y} r="7" />
-        <text className="value-label" x={clamp(x + 12, 70, 520)} y={clamp(y - 12, 24, 310)}>P</text>
-        <text x="474" y="160">1</text><text x="132" y="160">−1</text><text x="320" y="56">1</text><text x="320" y="294">−1</text>
+        <text className="cosine-label" x={cosineLabelX} y="193" textAnchor="middle">cos θ = {cosine.toFixed(3)}</text>
+        <text className="sine-label" x={sineLabelX} y={sineLabelY} textAnchor={sineLabelAnchor}>sin θ = {sine.toFixed(3)}</text>
+        <text className="angle-label" x={312 + Math.cos(angleLabelRadians) * 43} y={174 - Math.sin(angleLabelRadians) * 43} textAnchor="middle">θ</text>
+        <text className="point-label" x={clamp(x + (cosine >= 0 ? 12 : -12), 166, 458)} y={clamp(y - 12, 28, 310)} textAnchor={cosine >= 0 ? 'start' : 'end'}>P({cosine.toFixed(2)}, {sine.toFixed(2)})</text>
+        <text className="axis-number math-secondary-label" x="474" y="160">1</text><text className="axis-number math-secondary-label" x="132" y="160">−1</text><text className="axis-number math-secondary-label" x="320" y="56">1</text><text className="axis-number math-secondary-label" x="320" y="294">−1</text>
       </svg>
     </LabFrame>
   )

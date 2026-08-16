@@ -15,7 +15,7 @@
 .theme-geography { --accent: #13777e; --accent-strong: #0d6066; --accent-soft: #e4f2f2; --accent-ink: #105f65; }
 .theme-politics { --accent: #6553a3; --accent-strong: #52428a; --accent-soft: #eeebf8; --accent-ink: #514284; }
 
-:root[data-theme='dark'] .app-shell { --accent: #69d0bd; --accent-strong: #8cddcf; --accent-soft: #203a35; --accent-ink: #a5e1d6; }
+:root[data-theme='dark'] .app-shell { --accent: #69d0bd; --accent-strong: #8cddcf; --accent-soft: #203a35; --accent-ink: #a5e1d6; --plot-secondary: #f18470; --plot-tertiary: #e5bd58; }
 :root[data-theme='dark'] .theme-physics { --accent: #79bce9; --accent-strong: #9bceed; --accent-soft: #1d3447; --accent-ink: #b3d9f1; }
 :root[data-theme='dark'] .theme-chemistry { --accent: #d98dce; --accent-strong: #e5acd9; --accent-soft: #3a2838; --accent-ink: #ebb9e4; }
 :root[data-theme='dark'] .theme-biology { --accent: #9dce83; --accent-strong: #b5dc9f; --accent-soft: #293824; --accent-ink: #c3e3b2; }
@@ -110,6 +110,13 @@
 .lab-toolbar { min-height: 57px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 18px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
 .formula-display { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif; color: var(--muted); font-size: 15px; }
 .formula-display b { color: var(--accent); font-size: 18px; font-weight: 700; }
+.formula-display .math-token.math-a,
+.formula-display .math-token.math-theory,
+.formula-display .math-token.math-cos { color: var(--plot-secondary); }
+.formula-display .math-token.math-h,
+.formula-display .math-token.math-observed,
+.formula-display .math-token.math-sin { color: var(--accent); }
+.formula-display .math-token.math-k { color: var(--plot-tertiary); }
 .live-status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; white-space: nowrap; }
 .live-status > span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
 .lab-body { min-height: 482px; display: grid; grid-template-columns: minmax(225px, 260px) minmax(0, 1fr); }
@@ -128,6 +135,11 @@
 .range-field input { width: 100%; height: 4px; display: block; margin: 0; cursor: pointer; }
 .range-field > i { display: flex; justify-content: space-between; margin-top: 7px; color: var(--faint); font-style: normal; }
 .range-field small { font-size: 9px; }
+.range-field.tone-primary b, .range-field.tone-primary output { color: var(--accent); }
+.range-field.tone-secondary b, .range-field.tone-secondary output { color: var(--plot-secondary); }
+.range-field.tone-tertiary b, .range-field.tone-tertiary output { color: var(--plot-tertiary); }
+.range-field.tone-secondary input { accent-color: var(--plot-secondary); }
+.range-field.tone-tertiary input { accent-color: var(--plot-tertiary); }
 .primary-button, .secondary-button { width: 100%; min-height: 36px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 11px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
 .primary-button { color: var(--accent-button-ink); border: 1px solid var(--accent); background: var(--accent); }
 .primary-button:hover { background: var(--accent-strong); }
@@ -162,6 +174,26 @@
 .plot-legend i { width: 16px; height: 2px; }
 .legend-primary { background: var(--accent); }
 .legend-reference { background: var(--line-strong); }
+.legend-function { background: var(--plot-secondary); }
+
+.math-plot .axis-name { fill: var(--ink); font-weight: 700; }
+.math-plot .axis-number { fill: var(--faint); font-variant-numeric: tabular-nums; }
+.function-curve { fill: none; stroke: var(--plot-secondary); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.reference-label { fill: var(--faint) !important; }
+.h-guide { stroke: var(--accent); stroke-width: 2.2; }
+.k-guide { stroke: var(--plot-tertiary); stroke-width: 2.2; }
+.unit-run { stroke: var(--line-strong); stroke-width: 1.4; stroke-dasharray: 4 4; }
+.a-rise { stroke: var(--plot-secondary); stroke-width: 2.2; }
+.a-point { fill: var(--plot-secondary); stroke: var(--surface); stroke-width: 2; }
+.function-vertex { fill: var(--surface); stroke: var(--plot-secondary); stroke-width: 3; }
+.function-plot .h-label { fill: var(--accent); font-weight: 700; }
+.function-plot .k-label { fill: var(--plot-tertiary); font-weight: 700; }
+.function-plot .a-label { fill: var(--plot-secondary); font-weight: 700; }
+
+.probability-band { fill: color-mix(in srgb, var(--plot-secondary) 15%, transparent); stroke: none; }
+.chart-frame > .deviation-line { stroke: var(--ink); stroke-width: 1.4; stroke-dasharray: 2 3; }
+.math-theory-label { fill: var(--plot-secondary) !important; font-weight: 700; }
+.probability-band-label { fill: var(--plot-secondary) !important; }
 
 .theory-line { stroke: var(--plot-secondary) !important; stroke-width: 1.4 !important; stroke-dasharray: 6 5; }
 .velocity-vector { stroke: var(--plot-secondary); stroke-width: 2; }
@@ -233,7 +265,7 @@
 .market-axis { marker-end: url(#market-arrow); }.demand-curve { stroke: var(--accent); stroke-width: 3; }.supply-curve { stroke: var(--plot-secondary); stroke-width: 3; }.curve-label { font-size: 14px !important; font-weight: 800; }.curve-label.demand { fill: var(--accent); }.curve-label.supply { fill: var(--plot-secondary); }
 .economy-flow { position: relative; width: min(690px, 96%); height: 410px; }.sector { position: absolute; width: 154px; min-height: 92px; display: flex; flex-direction: column; justify-content: center; padding: 12px; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 5px; background: var(--surface); text-align: center; }.sector small, .sector strong, .sector span { display: block; }.sector small { color: var(--accent); font-size: 8px; }.sector strong { margin-top: 4px; font-size: 16px; }.sector span { margin-top: 5px; color: var(--muted); font-size: 9px; }.sector.households { left: 4%; top: 48px; }.sector.firms { right: 4%; top: 48px; border-top-color: var(--plot-secondary); }.sector.government { left: 50%; bottom: 44px; transform: translateX(-50%); border-top-color: var(--plot-tertiary); }.flow-arrow { position: absolute; height: 1px; background: var(--line-strong); }.flow-arrow::after { content: ''; position: absolute; right: -1px; top: -4px; border: 4px solid transparent; border-left-color: var(--line-strong); }.flow-arrow span { position: absolute; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: 9px; white-space: nowrap; }.flow-arrow.wages { left: 29%; right: 29%; top: 78px; }.flow-arrow.wages span { bottom: 7px; }.flow-arrow.spending { left: 29%; right: 29%; top: 122px; transform: rotate(180deg); }.flow-arrow.spending span { top: 7px; transform: translateX(-50%) rotate(180deg); }.flow-arrow.taxes { left: 22%; bottom: 146px; width: 180px; transform: rotate(38deg); }.flow-arrow.taxes span { bottom: 7px; transform: translateX(-50%) rotate(-38deg); }.flow-arrow.purchase { right: 22%; bottom: 146px; width: 180px; transform: rotate(-38deg); }.flow-arrow.purchase span { bottom: 7px; transform: translateX(-50%) rotate(38deg); }.savings-node { position: absolute; left: 4%; bottom: 24px; padding: 9px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); }.savings-node small, .savings-node strong { display: block; }.savings-node small { color: var(--muted); font-size: 8px; }.savings-node strong { margin-top: 3px; font-size: 11px; }
 
-.angle-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.angle-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .angle-presets button { min-height: 30px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: var(--surface-2); cursor: pointer; font-size: 10px; }
 .angle-presets button.active { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
 .coordinate-readout, .circuit-readout, .water-balance { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 5px; background: var(--line); }
@@ -241,11 +273,19 @@
 .coordinate-readout small, .coordinate-readout b, .circuit-readout small, .circuit-readout b, .water-balance small, .water-balance b { display: block; }
 .coordinate-readout small, .circuit-readout small, .water-balance small { color: var(--faint); font-size: 9px; }
 .coordinate-readout b, .circuit-readout b, .water-balance b { margin-top: 3px; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+.coordinate-readout .cosine-readout small, .coordinate-readout .cosine-readout b { color: var(--plot-secondary); }
+.coordinate-readout .sine-readout small, .coordinate-readout .sine-readout b { color: var(--accent); }
 .circle-axis, .vi-chart > line { stroke: var(--line-strong); stroke-width: 1.4; }
 .unit-circle { fill: color-mix(in srgb, var(--surface) 74%, transparent); stroke: var(--line-strong); stroke-width: 2; }
-.angle-sector { fill: var(--accent-soft); stroke: none; }
-.radius-line { stroke: var(--accent); stroke-width: 3; }
+.angle-sector { fill: color-mix(in srgb, var(--plot-tertiary) 18%, transparent); stroke: var(--plot-tertiary); stroke-width: 1; }
+.radius-line { stroke: var(--plot-tertiary); stroke-width: 2.4; }
 .coordinate-guide { stroke: var(--plot-secondary); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.cosine-segment { stroke: var(--plot-secondary); stroke-width: 4; stroke-linecap: round; }
+.sine-segment { stroke: var(--accent); stroke-width: 4; stroke-linecap: round; }
+.projection-foot { fill: var(--surface); stroke: var(--line-strong); stroke-width: 2; }
+.unit-circle-plot .cosine-label { fill: var(--plot-secondary); font-weight: 700; }
+.unit-circle-plot .sine-label { fill: var(--accent); font-weight: 700; }
+.unit-circle-plot .angle-label { fill: var(--plot-tertiary); font-weight: 700; }
 .circuit-wire { fill: none; stroke: var(--line-strong); stroke-width: 3; }
 .battery-short, .battery-long { stroke: var(--plot-secondary); stroke-width: 4; }
 .resistor { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linejoin: round; }
@@ -510,15 +550,19 @@
 .topic-focus { max-width: 780px; margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
 .knowledge-panel { min-width: 0; }
 
-.knowledge-detail { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); }
+.demo-panel .knowledge-detail { margin-top: 26px; }
+.knowledge-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); }
 .knowledge-question { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 14px; padding: 26px 28px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
 .detail-section-icon { width: 38px; height: 38px; display: grid; place-items: center; flex: none; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); background: var(--accent-soft); }
 .knowledge-question p, .detail-section-heading p { margin: 0 0 5px; color: var(--accent); font-size: 9px; font-weight: 700; }
 .knowledge-question h2 { max-width: 850px; margin: 0; font-size: 18px; line-height: 1.55; }
-.concept-relation, .key-points { padding: 26px 28px; }
-.concept-relation { border-right: 1px solid var(--line); }
+.lesson-core { max-width: 980px; display: block; margin-top: 12px; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1.75; }
 .detail-section-heading { display: flex; align-items: flex-start; gap: 10px; color: var(--accent); }
 .detail-section-heading h3 { margin: 0; color: var(--ink); font-size: 14px; }
+.lesson-explanation { grid-column: 1 / -1; padding: 28px; border-bottom: 1px solid var(--line); }
+.lesson-prose { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 20px; }
+.lesson-prose p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.85; }
+.lesson-prose p + p { padding-left: 28px; border-left: 1px solid var(--line); }
 .concept-path { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 7px; margin-top: 22px; }
 .concept-path > div { min-width: 0; min-height: 86px; display: flex; flex-direction: column; justify-content: center; padding: 10px; border-top: 3px solid var(--line-strong); background: var(--surface-2); }
 .concept-path > div.current { border-top-color: var(--accent); background: var(--accent-soft); }
@@ -528,11 +572,25 @@
 .concept-path strong { margin-top: 5px; overflow-wrap: anywhere; font-size: 10px; line-height: 1.45; }
 .unit-focus { display: flex; align-items: flex-start; gap: 8px; margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.65; }
 .unit-focus svg { flex: none; margin-top: 1px; color: var(--accent); }
-.key-points ol { margin: 21px 0 0; padding: 0; list-style: none; }
-.key-points li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; padding: 13px 0; border-top: 1px solid var(--line); }
-.key-points li:last-child { border-bottom: 1px solid var(--line); }
-.key-points li span { color: var(--accent); font-size: 10px; }
-.key-points li p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.reasoning-steps, .worked-example { padding: 28px; border-bottom: 1px solid var(--line); }
+.reasoning-steps { border-right: 1px solid var(--line); }
+.reasoning-steps > ol, .worked-example > ol { margin: 20px 0 0; padding: 0; list-style: none; }
+.reasoning-steps li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 14px 0; border-top: 1px solid var(--line); }
+.reasoning-steps li:last-child { border-bottom: 1px solid var(--line); }
+.reasoning-steps li > span { color: var(--accent); font-size: 11px; }
+.reasoning-steps li strong { font-size: 13px; }
+.reasoning-steps li p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.worked-example blockquote { margin: 20px 0 0; padding: 13px 15px; border-left: 3px solid var(--accent); color: var(--ink); background: var(--surface-2); font-size: 13px; line-height: 1.7; }
+.worked-example li { padding: 11px 0; border-top: 1px solid var(--line); }
+.worked-example li > span { color: var(--accent); font-size: 10px; font-weight: 700; }
+.worked-example li p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.example-result { display: flex; align-items: flex-start; gap: 8px; margin: 13px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.7; }
+.example-result svg { flex: none; margin-top: 2px; color: var(--accent); }
+.lesson-check { grid-column: 1 / -1; padding: 24px 28px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.lesson-check > p { margin: 17px 0 0; color: var(--ink); font-size: 13px; line-height: 1.7; }
+.lesson-check details { margin-top: 12px; border-top: 1px solid var(--line); }
+.lesson-check summary { padding: 12px 0; color: var(--accent-ink); cursor: pointer; font-size: 12px; font-weight: 700; }
+.lesson-check details p { margin: 0 0 10px; padding: 0 0 0 18px; border-left: 2px solid var(--accent); color: var(--muted); font-size: 12px; line-height: 1.7; }
 .common-pitfall { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 11px; padding: 17px 28px; color: var(--muted); border-top: 1px solid color-mix(in srgb, var(--contrast) 25%, var(--line)); background: var(--contrast-soft); }
 .common-pitfall svg { flex: none; color: var(--contrast); }
 .common-pitfall h3 { margin: 0; color: var(--ink); font-size: 11px; }
@@ -590,14 +648,20 @@
 .topic-index small { font-size: 13px; }
 .knowledge-question p, .detail-section-heading p { font-size: 11px; }
 .knowledge-question h2 { font-size: 20px; }
+.lesson-core { font-size: 15px; }
 .detail-section-heading h3 { font-size: 16px; }
+.lesson-prose p { font-size: 15px; }
 .concept-path small { font-size: 10px; }
 .concept-path strong { font-size: 12px; }
 .unit-focus { font-size: 13px; }
-.key-points li span { font-size: 11px; }
-.key-points li p { font-size: 13px; }
+.reasoning-steps li > span, .worked-example li > span { font-size: 12px; }
+.reasoning-steps li strong { font-size: 15px; }
+.reasoning-steps li p, .worked-example li p, .example-result { font-size: 14px; }
+.worked-example blockquote { font-size: 15px; }
+.lesson-check > p { font-size: 15px; }
+.lesson-check summary, .lesson-check details p { font-size: 14px; }
 .common-pitfall h3 { font-size: 13px; }
-.common-pitfall p { font-size: 12px; }
+.common-pitfall p { font-size: 14px; }
 
 .formula-display { font-size: 17px; }
 .formula-display b { font-size: 20px; }
@@ -669,8 +733,10 @@
   .topic-index span { font-size: 19px; }
   .topic-index i { width: 18px; }
   .knowledge-detail { display: block; }
-  .knowledge-question, .concept-relation, .key-points { padding: 20px 17px; }
-  .concept-relation { border-right: 0; border-bottom: 1px solid var(--line); }
+  .knowledge-question, .lesson-explanation, .reasoning-steps, .worked-example, .lesson-check { padding: 20px 17px; }
+  .lesson-prose { grid-template-columns: 1fr; gap: 14px; }
+  .lesson-prose p + p { padding: 14px 0 0; border-top: 1px solid var(--line); border-left: 0; }
+  .reasoning-steps { border-right: 0; }
   .concept-path { grid-template-columns: 1fr auto 1fr auto 1fr; overflow-x: auto; }
   .concept-path > div { min-width: 126px; }
   .concept-path > span { transform: none; }
@@ -690,4 +756,14 @@
   .topic-pagination { grid-template-columns: 1fr; }
   .topic-pagination .next-topic { grid-column: 1; justify-content: flex-end; }
   .pagination-spacer { display: none; }
+
+  .math-plot text { font-size: 24px; }
+  .math-plot .axis-number { font-size: 20px; }
+  .math-plot .axis-name { font-size: 21px; }
+  .math-plot .math-secondary-label,
+  .probability-plot .probability-y-title,
+  .function-plot .point-label,
+  .unit-circle-plot .point-label { display: none; }
+  .function-legend { font-size: 12px; }
+  .unit-circle-plot { transform: scale(1.25); }
 }

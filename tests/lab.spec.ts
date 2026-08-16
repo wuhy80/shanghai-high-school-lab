@@ -2,6 +2,9 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { allTopics, demoIds, semesterPlans, type SemesterId } from '../src/curriculum'
 import { subjects, type SubjectId } from '../src/data'
+import { APPLIED_LESSON_TEMPLATE_REGRESSIONS } from '../src/lessonApplied'
+import { humanitiesRegressionTemplateByTitle } from '../src/lessonHumanities'
+import { scienceLessonRegressionMap } from '../src/lessonScience'
 
 const expectedSemesterIds: SemesterId[] = ['g10-1', 'g10-2', 'g11-1', 'g11-2', 'g12-1', 'g12-2']
 const expectedSubjectIds = subjects.map((subject) => subject.id).sort()
@@ -108,6 +111,114 @@ test('curriculum contains six complete semesters with valid, unique topics', asy
   expect([...mappedDemoIds].sort(), 'every implemented demo should be reachable from the curriculum').toEqual([...demoIds].sort())
 })
 
+test('every topic contains a substantive lesson and each subject uses varied concept templates', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static lesson quality validation only needs one project')
+
+  const templatesBySubject = new Map<SubjectId, Map<string, number>>()
+  const templatesByCourse = new Map<string, Set<string>>()
+  const templateUseByCourse = new Map<string, Map<string, number>>()
+  const lessonQualityErrors: string[] = []
+
+  for (const entry of allTopics) {
+    const { lesson } = entry.topic
+    const label = `${entry.semester.id}/${entry.subjectId}/${entry.topic.title}`
+    const expectLength = (value: string, minimum: number, field: string) => {
+      if (value.trim().length < minimum) {
+        lessonQualityErrors.push(`${label}: ${field} has ${value.trim().length} characters, expected at least ${minimum}`)
+      }
+    }
+
+    expectLength(lesson.templateId, 4, 'template id')
+    expectLength(lesson.guidingQuestion, 10, 'guiding question')
+    expectLength(lesson.core, 24, 'core concept')
+    if (!lesson.core.includes(entry.topic.title)) lessonQualityErrors.push(`${label}: core concept does not name this topic`)
+    expect(lesson.explanation, `${label}: explanation paragraphs`).toHaveLength(2)
+    lesson.explanation.forEach((paragraph, index) => expectLength(paragraph, 32, `explanation ${index + 1}`))
+    expect(lesson.steps, `${label}: reasoning steps`).toHaveLength(3)
+    lesson.steps.forEach((step, index) => {
+      expectLength(step.label, 2, `step ${index + 1} label`)
+      expectLength(step.detail, 18, `step ${index + 1} detail`)
+    })
+    expectLength(lesson.example.prompt, 10, 'worked example prompt')
+    expect(lesson.example.reasoning, `${label}: worked example reasoning`).toHaveLength(2)
+    lesson.example.reasoning.forEach((reason, index) => expectLength(reason, 14, `worked example reasoning ${index + 1}`))
+    expectLength(lesson.example.result, 5, 'worked example conclusion')
+    expectLength(lesson.selfCheck.question, 8, 'self-check question')
+    expectLength(lesson.selfCheck.answer, 12, 'self-check answer')
+    expectLength(lesson.pitfall, 16, 'topic-specific misconception or boundary')
+
+    const totalLessonLength = [
+      lesson.guidingQuestion,
+      lesson.core,
+      ...lesson.explanation,
+      ...lesson.steps.flatMap((step) => [step.label, step.detail]),
+      lesson.example.prompt,
+      ...lesson.example.reasoning,
+      lesson.example.result,
+      lesson.selfCheck.question,
+      lesson.selfCheck.answer,
+      lesson.pitfall,
+    ].join('').trim().length
+    if (totalLessonLength < 320) lessonQualityErrors.push(`${label}: complete lesson has only ${totalLessonLength} characters, expected at least 320`)
+
+    const subjectTemplates = templatesBySubject.get(entry.subjectId) ?? new Map<string, number>()
+    subjectTemplates.set(lesson.templateId, (subjectTemplates.get(lesson.templateId) ?? 0) + 1)
+    templatesBySubject.set(entry.subjectId, subjectTemplates)
+
+    const courseKey = `${entry.semester.id}/${entry.subjectId}`
+    const courseTemplates = templatesByCourse.get(courseKey) ?? new Set<string>()
+    courseTemplates.add(lesson.templateId)
+    templatesByCourse.set(courseKey, courseTemplates)
+    const courseTemplateUse = templateUseByCourse.get(courseKey) ?? new Map<string, number>()
+    courseTemplateUse.set(lesson.templateId, (courseTemplateUse.get(lesson.templateId) ?? 0) + 1)
+    templateUseByCourse.set(courseKey, courseTemplateUse)
+  }
+
+  for (const subject of subjects) {
+    const templates = templatesBySubject.get(subject.id) ?? new Map<string, number>()
+    const total = [...templates.values()].reduce((sum, count) => sum + count, 0)
+    const largestFamily = Math.max(0, ...templates.values())
+    if (templates.size < 10) lessonQualityErrors.push(`${subject.name}: only ${templates.size} distinct concept templates, expected at least 10`)
+    if (largestFamily / total >= 0.7) lessonQualityErrors.push(`${subject.name}: one template covers ${largestFamily}/${total} topics`)
+    if (templates.has(`${subject.id}-unit-method`)) lessonQualityErrors.push(`${subject.name}: old generic fallback is still used`)
+  }
+
+  for (const [courseKey, templateIds] of templatesByCourse) {
+    if (templateIds.size < 3) lessonQualityErrors.push(`${courseKey}: only ${templateIds.size} concept families, expected at least 3`)
+    const largestUse = Math.max(0, ...(templateUseByCourse.get(courseKey)?.values() ?? []))
+    if (largestUse > 6) lessonQualityErrors.push(`${courseKey}: one lesson body is reused by ${largestUse} topics, expected at most 6`)
+  }
+
+  expect(lessonQualityErrors, 'lesson fields below the substantive-content thresholds').toEqual([])
+})
+
+test('explicit topic regression routes keep ambiguous titles in the intended lesson family', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static lesson route validation only needs one project')
+
+  const assertRoutes = (routes: Readonly<Record<string, string>>, source: string) => {
+    for (const [rawKey, expectedTemplateId] of Object.entries(routes)) {
+      const separator = rawKey.indexOf(':')
+      const hasSubject = separator > 0
+      const subjectId = hasSubject ? rawKey.slice(0, separator) as SubjectId : undefined
+      const title = hasSubject ? rawKey.slice(separator + 1) : rawKey
+      const matches = allTopics.filter((entry) => entry.topic.title === title && (!subjectId || entry.subjectId === subjectId))
+      expect(matches.length, `${source}: regression topic ${rawKey} exists`).toBeGreaterThan(0)
+      for (const match of matches) {
+        const actualTemplateId = match.topic.lesson.templateId
+        const matchesFamily = actualTemplateId === expectedTemplateId || actualTemplateId.startsWith(`${expectedTemplateId}--`)
+        expect(matchesFamily, `${source}: ${match.semester.id}/${match.subjectId}/${title} expected ${expectedTemplateId}, received ${actualTemplateId}`).toBe(true)
+      }
+    }
+  }
+
+  assertRoutes(APPLIED_LESSON_TEMPLATE_REGRESSIONS, 'applied subjects')
+  assertRoutes(scienceLessonRegressionMap, 'science subjects')
+  assertRoutes(
+    Object.fromEntries(Object.entries(humanitiesRegressionTemplateByTitle).map(([key, route]) => [key, route.familyId])),
+    'humanities subjects',
+  )
+})
+
 test('semester-first navigation and global search open the exact course topic', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'Full navigation traversal runs on desktop')
   await page.goto('/')
@@ -165,6 +276,9 @@ test('every mapped interactive demo renders and remains numerically valid', asyn
     const visual = page.locator('.visual-panel')
     await expect(lab, `${demoId}: lab frame`).toBeVisible()
     await expect(visual, `${demoId}: visual panel`).toBeVisible()
+    await expect(page.locator('.knowledge-detail'), `${demoId}: complete lesson below demo`).toBeVisible()
+    await expect(page.locator('.worked-example'), `${demoId}: worked example below demo`).toBeVisible()
+    await expect(page.locator('.lesson-check'), `${demoId}: self-check below demo`).toBeVisible()
     const visualSize = await visual.evaluate((element) => {
       const bounds = element.getBoundingClientRect()
       return { height: bounds.height, width: bounds.width }
