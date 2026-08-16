@@ -556,6 +556,68 @@
 .search-summary, .search-more { margin: 0; padding: 8px 10px; color: var(--faint); font-size: 9px; }
 .search-more { border-top: 1px solid var(--line); }
 
+/* Readable learning typography */
+.brand-name { font-size: 19px; }
+.brand-edition { font-size: 12px; }
+.global-search input { font-size: 14px; }
+.search-results strong { font-size: 14px; }
+.search-results small { font-size: 12px; }
+.search-summary, .search-more { font-size: 11px; }
+.curriculum-tag { font-size: 13px; }
+
+.semester-nav > p { font-size: 12px; }
+.semester-nav strong { font-size: 15px; }
+.semester-nav small { font-size: 11px; }
+.subject-nav button span { font-size: 14px; }
+.subject-nav button small { font-size: 11px; }
+.mobile-course-bar small { font-size: 10px; }
+.mobile-course-bar strong, .mobile-course-bar button { font-size: 12px; }
+
+.catalog-header p { font-size: 11px; }
+.catalog-header h2 { font-size: 17px; }
+.book-meta, .book-meta strong { font-size: 11px; }
+.course-note { font-size: 12px; }
+.unit-directory summary > span, .unit-directory summary small { font-size: 11px; }
+.unit-directory summary strong { font-size: 13px; }
+.unit-directory details > p { font-size: 11px; }
+.unit-directory li button > span, .unit-directory li button small { font-size: 10px; }
+.unit-directory li button strong { font-size: 12px; }
+
+.content-breadcrumb { font-size: 12px; }
+.eyebrow { font-size: 12px; }
+.topic-heading h1 { font-size: 32px; }
+.topic-focus { font-size: 14px; }
+.topic-index small { font-size: 13px; }
+.knowledge-question p, .detail-section-heading p { font-size: 11px; }
+.knowledge-question h2 { font-size: 20px; }
+.detail-section-heading h3 { font-size: 16px; }
+.concept-path small { font-size: 10px; }
+.concept-path strong { font-size: 12px; }
+.unit-focus { font-size: 13px; }
+.key-points li span { font-size: 11px; }
+.key-points li p { font-size: 13px; }
+.common-pitfall h3 { font-size: 13px; }
+.common-pitfall p { font-size: 12px; }
+
+.formula-display { font-size: 17px; }
+.formula-display b { font-size: 20px; }
+.live-status { font-size: 13px; }
+.control-title { font-size: 13px; }
+.range-field b, .select-field span { font-size: 13px; }
+.range-field output { font-size: 14px; }
+.range-field small, .control-panel small { font-size: 11px; }
+.control-panel button { font-size: 12px; }
+.mini-stats small, .solar-readout small, .flow-balance small { font-size: 11px; }
+.mini-stats b, .solar-readout b, .flow-balance b { font-size: 15px; }
+.plot text { font-size: 12px; }
+.visual-panel small { font-size: 11px; }
+.visual-panel strong { font-size: 14px; }
+.insight-bar { font-size: 14px; }
+.insight-bar strong { font-size: 12px; }
+.topic-pagination small { font-size: 10px; }
+.topic-pagination strong { font-size: 12px; }
+.content-footer { font-size: 11px; }
+
 @media (max-width: 1180px) {
   .semester-nav { grid-template-columns: 110px minmax(0, 1fr); padding-inline: 18px; }
   .subject-nav { padding-inline: 12px; overflow-x: auto; scrollbar-width: thin; }

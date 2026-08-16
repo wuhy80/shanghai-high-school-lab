@@ -245,7 +245,7 @@ function App() {
               setSearchOpen(true)
             }}
             onFocus={() => setSearchOpen(true)}
-            placeholder="搜索学期、学科、教材、单元或知识点"
+            placeholder="搜索学期、学科、教材或知识点"
             aria-label="搜索全部课程内容"
           />
           {query && (
