@@ -1,0 +1,173 @@
+import { semesterSeeds } from './curriculumSeeds'
+import type { SubjectId } from './data'
+
+export type SemesterId = 'g10-1' | 'g10-2' | 'g11-1' | 'g11-2' | 'g12-1' | 'g12-2'
+export type TopicMode = 'demo' | 'explain'
+export type VisualKind = 'model' | 'structure' | 'process' | 'timeline' | 'relation' | 'flow'
+export type CourseBasis = 'catalog' | 'school' | 'review'
+
+export type KnowledgeTopic = {
+  id: string
+  title: string
+  focus: string
+  question: string
+  keyPoints: [string, string, string]
+  pitfall: string
+  mode: TopicMode
+  visual: VisualKind
+  demoId?: string
+}
+
+export type CurriculumUnit = {
+  id: string
+  title: string
+  focus: string
+  topics: KnowledgeTopic[]
+}
+
+export type CoursePlan = {
+  book: string
+  publisher: string
+  basis: CourseBasis
+  note?: string
+  units: CurriculumUnit[]
+}
+
+export type SemesterPlan = {
+  id: SemesterId
+  grade: '高一' | '高二' | '高三'
+  term: '第一学期' | '第二学期'
+  label: string
+  shortLabel: string
+  description: string
+  sourceLabel: string
+  sourceUrl: string
+  courses: Record<SubjectId, CoursePlan>
+}
+
+export type UnitSeed = {
+  title: string
+  focus: string
+  topics: string[]
+}
+
+export type CourseSeed = Omit<CoursePlan, 'units'> & { units: UnitSeed[] }
+export type SemesterSeed = Omit<SemesterPlan, 'courses'> & { courses: Record<SubjectId, CourseSeed> }
+
+export const demoIds = [
+  'function', 'probability', 'unit-circle', 'projectile', 'wave', 'circuit', 'equilibrium', 'titration',
+  'reaction-rate', 'genetics', 'enzyme', 'photosynthesis', 'argument', 'imagery', 'classical-syntax',
+  'syntax', 'tense', 'conditional', 'timeline', 'revolution', 'causality', 'solar', 'circulation',
+  'water-cycle', 'market', 'flow', 'rule-of-law',
+] as const
+
+const demoByTitle: Record<string, (typeof demoIds)[number]> = {
+  '函数图像与参数变换': 'function',
+  '随机试验与频率': 'probability',
+  '单位圆与三角函数': 'unit-circle',
+  '平抛与斜抛运动': 'projectile',
+  '波的叠加与干涉': 'wave',
+  '欧姆定律与伏安特性': 'circuit',
+  '闭合电路欧姆定律': 'circuit',
+  '化学平衡移动': 'equilibrium',
+  '化学平衡移动与常数': 'equilibrium',
+  '浓度压强对平衡的影响': 'equilibrium',
+  '酸碱中和滴定': 'titration',
+  '浓度温度与反应速率': 'reaction-rate',
+  '孟德尔遗传组合': 'genetics',
+  '温度pH与酶活性': 'enzyme',
+  '光照CO₂与光合速率': 'photosynthesis',
+  '论点论据与论证链': 'argument',
+  '诗词意象与情感': 'imagery',
+  '特殊句式与语序还原': 'classical-syntax',
+  '英语复杂句拆解': 'syntax',
+  '时态与时间轴': 'tense',
+  '真实与虚拟条件句': 'conditional',
+  '虚拟语气与真实距离': 'conditional',
+  '上海近现代史节点': 'timeline',
+  '两次工业革命比较': 'revolution',
+  '历史事件因果层次': 'causality',
+  '正午太阳高度': 'solar',
+  '海陆热力环流': 'circulation',
+  '自然与城市水循环': 'water-cycle',
+  '供给需求与均衡': 'market',
+  '国民经济循环': 'flow',
+  '立法程序与法治原则': 'rule-of-law',
+}
+
+const visualBySubject: Record<SubjectId, VisualKind> = {
+  chinese: 'structure', math: 'model', english: 'structure', physics: 'model', chemistry: 'process',
+  biology: 'process', politics: 'relation', history: 'timeline', geography: 'process', information: 'flow',
+}
+
+const methodBySubject: Record<SubjectId, string> = {
+  chinese: '回到具体语句、篇章结构和写作语境，用文本证据支持判断。',
+  math: '区分定义、条件和结论，结合代数运算、图像或几何关系交叉验证。',
+  english: '把词汇和语法放回语篇，联系说话目的、上下文与文体选择。',
+  physics: '先选研究对象和过程，再建立物理模型、规定正方向并检查单位。',
+  chemistry: '在宏观现象、微观粒子与符号表达之间建立对应，并写清条件。',
+  biology: '沿结构、过程、功能和调节关系组织证据，注意生命系统的层次。',
+  politics: '辨认材料主体、制度条件与因果链，使用教材概念而非口号替代论证。',
+  history: '把事件放入具体时空，区分背景、原因、过程、影响与史料证据。',
+  geography: '明确时空尺度和区域位置，用要素联系与过程链解释地理现象。',
+  information: '先界定输入、数据结构和目标，再用算法或系统流程检验结果。',
+}
+
+const pitfallBySubject: Record<SubjectId, string> = {
+  chinese: '不要脱离上下文套用术语，也不要只复述内容而缺少语言证据。',
+  math: '不要忽略定义域、取值范围、等号条件和特殊情形。',
+  english: '不要逐词翻译后再硬套规则；同一形式在不同语境中功能可能不同。',
+  physics: '不要把公式当作无条件等式；模型适用范围和方向约定必须先说明。',
+  chemistry: '不要只看化学式配平；反应条件、实际粒子和守恒关系同样重要。',
+  biology: '不要把相关性直接当作因果，也不要把个体层面的结论机械外推到所有层次。',
+  politics: '不要混淆不同主体、权力边界和制度层级，材料结论须有概念依据。',
+  history: '不要用单一原因解释复杂事件，也不要用后来的结果倒推当时必然如此。',
+  geography: '不要忽略尺度、季节和区域差异；示意图中的一般规律不等于任何地点都相同。',
+  information: '不要只验证正常输入；边界值、异常数据、效率与安全约束都要检查。',
+}
+
+function buildSemester(seed: SemesterSeed): SemesterPlan {
+  const courses = Object.fromEntries(Object.entries(seed.courses).map(([rawSubjectId, course]) => {
+    const subjectId = rawSubjectId as SubjectId
+    let topicIndex = 0
+    const units = course.units.map((unit, unitIndex) => ({
+      id: `${seed.id}-${subjectId}-u${unitIndex + 1}`,
+      title: unit.title,
+      focus: unit.focus,
+      topics: unit.topics.map((title) => {
+        topicIndex += 1
+        const demoId = demoByTitle[title]
+        return {
+          id: `${seed.id}-${subjectId}-t${topicIndex}`,
+          title,
+          focus: unit.focus,
+          question: `学习“${title}”时，怎样把它与“${unit.title}”的核心关系连接起来？`,
+          keyPoints: [
+            `先说清“${title}”涉及的对象、概念与成立条件。`,
+            unit.focus,
+            methodBySubject[subjectId],
+          ],
+          pitfall: pitfallBySubject[subjectId],
+          mode: demoId ? 'demo' as const : 'explain' as const,
+          visual: visualBySubject[subjectId],
+          demoId,
+        }
+      }),
+    }))
+    return [subjectId, { ...course, units }]
+  })) as Record<SubjectId, CoursePlan>
+  return { ...seed, courses }
+}
+
+export const semesterPlans: SemesterPlan[] = semesterSeeds.map(buildSemester)
+
+export const getSemester = (semesterId: SemesterId) =>
+  semesterPlans.find((semester) => semester.id === semesterId) ?? semesterPlans[0]
+
+export const flattenTopics = (semester: SemesterPlan) => Object.entries(semester.courses).flatMap(([subjectId, course]) =>
+  course.units.flatMap((unit) => unit.topics.map((topic) => ({ subjectId: subjectId as SubjectId, course, unit, topic }))),
+)
+
+export const allTopics = semesterPlans.flatMap((semester) =>
+  flattenTopics(semester).map((entry) => ({ semester, ...entry })),
+)

@@ -37,7 +37,7 @@ function LabFrame({ formula, status, controls, children, insight }: LabFrameProp
     <section className="lab-frame">
       <header className="lab-toolbar">
         <div className="formula-display">{formula}</div>
-        <div className="live-status"><span aria-hidden="true" />{status}</div>
+        <div className="live-status" aria-live="polite"><span aria-hidden="true" />{status}</div>
       </header>
       <div className="lab-body">
         <aside className="control-panel">{controls}</aside>
@@ -75,24 +75,22 @@ function FunctionLab() {
   return (
     <LabFrame
       formula={<><span>y = </span><b>{a}</b><span>(x {h >= 0 ? '−' : '+'} {Math.abs(h)})² {k >= 0 ? '+' : '−'} {Math.abs(k)}</span></>}
-      status={`顶点 (${h}, ${k})`}
+      status={a === 0 ? `常数函数 y = ${k}` : `顶点 (${h}, ${k})`}
       controls={<>
         <p className="control-title">参数</p>
-        <RangeField label="伸缩 a" value={a} min={-3} max={3} step={0.25} onChange={(value) => setA(value === 0 ? 0.25 : value)} />
+        <RangeField label="伸缩 a" value={a} min={-3} max={3} step={0.25} onChange={setA} />
         <RangeField label="水平 h" value={h} min={-3} max={3} step={0.5} onChange={setH} />
         <RangeField label="竖直 k" value={k} min={-4} max={4} step={0.5} onChange={setK} />
         <button className="secondary-button" onClick={() => { setA(1); setH(0); setK(0) }}><RefreshCw size={15} />重置</button>
       </>}
-      insight={<>图像{direction}，相对 <em>y = x²</em> {width}，对称轴为 <em>x = {h}</em>。</>}
+      insight={a === 0 ? <>当 <em>a = 0</em> 时，二次项消失，函数退化为常数函数 <em>y = {k}</em>。</> : <>图像{direction}，相对 <em>y = x²</em> {width}，对称轴为 <em>x = {h}</em>。</>}
     >
       <svg className="plot function-plot" viewBox="0 0 624 340" role="img" aria-label={`二次函数图像，顶点为 ${h}, ${k}`}>
         <defs><clipPath id="function-clip"><rect x="48" y="20" width="528" height="300" /></clipPath></defs>
         <PlotGrid />
         <polyline className="reference-curve" points={Array.from({ length: 101 }, (_, index) => { const x = -5 + index / 10; return `${48 + (x + 5) * 52.8},${184 - x * x * 18}` }).join(' ')} clipPath="url(#function-clip)" />
         <polyline className="primary-curve" points={points} clipPath="url(#function-clip)" />
-        <line className="guide-line" x1={48 + (h + 5) * 52.8} y1="24" x2={48 + (h + 5) * 52.8} y2="316" />
-        <circle className="active-point" cx={48 + (h + 5) * 52.8} cy={184 - k * 18} r="6" />
-        <text className="point-label" x={58 + (h + 5) * 52.8} y={174 - k * 18}>({h}, {k})</text>
+        {a !== 0 && <><line className="guide-line" x1={48 + (h + 5) * 52.8} y1="24" x2={48 + (h + 5) * 52.8} y2="316" /><circle className="active-point" cx={48 + (h + 5) * 52.8} cy={184 - k * 18} r="6" /><text className="point-label" x={58 + (h + 5) * 52.8} y={174 - k * 18}>({h}, {k})</text></>}
       </svg>
       <div className="plot-legend"><span><i className="legend-primary" />当前函数</span><span><i className="legend-reference" />y = x²</span></div>
     </LabFrame>
@@ -193,7 +191,7 @@ function ProjectileLab() {
         <RangeField label="重力加速度" value={gravity} min={3.7} max={12} step={0.1} unit=" m/s²" onChange={(value) => { setGravity(value); setProgress(0) }} />
         <button className="primary-button" onClick={() => { if (progress >= 1) setProgress(0); setPlaying(!playing) }}>{playing ? <Pause size={16} /> : <Play size={16} />}{playing ? '暂停' : progress >= 1 ? '重播' : '播放'}</button>
       </>}
-      insight={<>射程 <em>{distance.toFixed(1)} m</em>，最高点 <em>{maxHeight.toFixed(1)} m</em>；同一初速度下，45° 附近射程最大。</>}
+      insight={<>忽略空气阻力且等高起落时，射程 <em>{distance.toFixed(1)} m</em>、最高点 <em>{maxHeight.toFixed(1)} m</em>；同一初速度下 45° 射程最大。</>}
     >
       <svg className="plot projectile-plot" viewBox="0 0 624 340" role="img" aria-label={`抛体轨迹，射程 ${distance.toFixed(1)} 米`}>
         <defs><marker id="velocity-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>
@@ -374,7 +372,7 @@ function EnzymeLab() {
   const phCurve = Array.from({ length: 101 }, (_, index) => { const value = index * .14; return `${335 + index * 2.35},${286 - activityAt(37, value) * 218}` }).join(' ')
   return (
     <LabFrame
-      formula={<><span>相对酶活性 = </span><b>{(activity * 100).toFixed(0)}%</b></>}
+      formula={<><span>某中性酶模型 · 相对活性 = </span><b>{(activity * 100).toFixed(0)}%</b></>}
       status={activity > .75 ? '活性较高' : activity > .35 ? '活性受限' : '活性较低'}
       controls={<>
         <p className="control-title">环境条件</p>
@@ -382,7 +380,7 @@ function EnzymeLab() {
         <RangeField label="pH" value={ph} min={0} max={14} step={0.1} onChange={setPh} format={(value) => value.toFixed(1)} />
         <div className="activity-gauge"><span style={{ width: `${activity * 100}%` }} /><small>相对活性</small><b>{(activity * 100).toFixed(0)}%</b></div>
       </>}
-      insight={<>偏离最适温度或最适 pH 都会降低活性；高温还可能破坏酶的空间结构。</>}
+      insight={<>该曲线是最适温度 37℃、最适 pH 7 的示意模型；不同酶的最适条件不同，高温还可能破坏酶的空间结构。</>}
     >
       <svg className="plot enzyme-plot" viewBox="0 0 624 340" role="img" aria-label={`当前条件下酶的相对活性为 ${(activity * 100).toFixed(0)}%`}>
         <g className="small-multiple"><text x="54" y="38">温度</text><line x1="54" y1="286" x2="289" y2="286" /><line x1="54" y1="58" x2="54" y2="286" /><polyline className="primary-curve" points={tempCurve} /><circle className="active-point" cx={54 + temperature / 60 * 235} cy={286 - activityAt(temperature, 7) * 218} r="6" /><text x="54" y="314">0℃</text><text x="261" y="314">60℃</text></g>
@@ -452,7 +450,7 @@ function ImageryLab() {
       <svg className="plot imagery-map" viewBox="0 0 624 340" role="img" aria-label={`诗词意象图，当前选择${current.name}`}>
         <defs><radialGradient id="imagery-glow"><stop offset="0" stopColor="currentColor" stopOpacity=".18"/><stop offset="1" stopColor="currentColor" stopOpacity="0"/></radialGradient></defs>
         <circle className="imagery-orbit" cx="312" cy="154" r="116" /><circle className="imagery-orbit inner" cx="312" cy="154" r="62" />
-        {imagery.map((item) => <g key={item.id} className={`imagery-item ${item.id === selected ? 'active' : ''}`} onClick={() => setSelected(item.id)} role="button" aria-label={`选择${item.name}`}><circle className="glow" cx={item.x} cy={item.y} r="42" /><circle cx={item.x} cy={item.y} r={item.id === selected ? 28 : 23} /><text x={item.x} y={item.y + 6} textAnchor="middle">{item.name}</text></g>)}
+        {imagery.map((item) => <g key={item.id} className={`imagery-item ${item.id === selected ? 'active' : ''}`} onClick={() => setSelected(item.id)}><circle className="glow" cx={item.x} cy={item.y} r="42" /><circle cx={item.x} cy={item.y} r={item.id === selected ? 28 : 23} /><text x={item.x} y={item.y + 6} textAnchor="middle">{item.name}</text></g>)}
         <g className="poem-caption"><text x="312" y="292" textAnchor="middle">{current.lines}</text><text x="312" y="318" textAnchor="middle">{current.emotion}</text></g>
       </svg>
     </LabFrame>
@@ -551,7 +549,7 @@ function TimelineLab() {
     >
       <svg className="plot history-timeline" viewBox="0 0 624 340" role="img" aria-label={`1843 至 1990 年上海近现代历史时间轴，当前为 ${current.title}`}>
         <line className="history-axis" x1="62" y1="174" x2="562" y2="174" />
-        {historyEvents.map((event, index) => { const x = xForYear(event.year); const above = index % 2 === 0; return <g key={event.year} className={index === selected ? 'active' : ''} onClick={() => setSelected(index)} role="button" aria-label={`${event.year} ${event.title}`}><line x1={x} y1="174" x2={x} y2={above ? 110 : 238} /><circle cx={x} cy="174" r={index === selected ? 9 : 6} /><text className="event-year" x={x} y={above ? 92 : 264} textAnchor="middle">{event.year}</text><text className="event-title" x={x} y={above ? 72 : 284} textAnchor="middle">{event.title}</text></g> })}
+        {historyEvents.map((event, index) => { const x = xForYear(event.year); const above = index % 2 === 0; return <g key={event.year} className={`history-event ${index === selected ? 'active' : ''}`} onClick={() => setSelected(index)}><line x1={x} y1="174" x2={x} y2={above ? 110 : 238} /><circle cx={x} cy="174" r={index === selected ? 9 : 6} /><text className="event-year" x={x} y={above ? 92 : 264} textAnchor="middle">{event.year}</text><text className="event-title" x={x} y={above ? 72 : 284} textAnchor="middle">{event.title}</text></g> })}
         <g className="history-detail"><text x="312" y="314" textAnchor="middle">全国进程：{current.national}</text></g>
       </svg>
     </LabFrame>
@@ -606,7 +604,7 @@ function SolarLab() {
         <button className="secondary-button" onClick={() => setLatitude(31.2)}>定位上海 31.2°N</button>
         <div className="solar-readout"><span><small>太阳直射纬度</small><b>{declination.toFixed(1)}°</b></span><span><small>正午高度</small><b>{altitude.toFixed(1)}°</b></span></div>
       </>}
-      insight={<>上海纬度约 31.2°N；太阳直射点向北靠近上海时，正午太阳高度增大。</>}
+      insight={<>按太阳赤纬近似模型计算；上海纬度约 31.2°N，太阳直射点向北靠近上海时，正午太阳高度增大。</>}
     >
       <svg className="plot solar-plot" viewBox="0 0 624 340" role="img" aria-label={`纬度 ${latitude.toFixed(1)} 度处正午太阳高度 ${altitude.toFixed(1)} 度`}>
         <defs><radialGradient id="sun-glow"><stop offset="0" stopColor="currentColor" stopOpacity=".38"/><stop offset="1" stopColor="currentColor" stopOpacity="0"/></radialGradient></defs>
@@ -638,7 +636,7 @@ function CirculationLab() {
       </>}
       insight={<>近地面空气从高压流向低压；{mode === 'day' ? '白天陆地升温快，形成海风' : '夜晚陆地降温快，形成陆风'}。</>}
     >
-      <svg className={`plot circulation-plot strength-${Math.ceil(difference / 6)}`} viewBox="0 0 624 340" role="img" aria-label={`${mode === 'day' ? '白天海风' : '夜晚陆风'}热力环流示意图`}>
+      <svg className={`plot circulation-plot ${mode} strength-${Math.ceil(difference / 6)}`} viewBox="0 0 624 340" role="img" aria-label={`${mode === 'day' ? '白天海风' : '夜晚陆风'}热力环流示意图`}>
         <defs><marker id="air-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>
         <rect className={leftHot ? 'land hot' : 'land cold'} x="36" y="262" width="276" height="44" /><rect className={leftHot ? 'sea cold' : 'sea hot'} x="312" y="262" width="276" height="44" />
         <text x="174" y="290" textAnchor="middle">陆地 · {leftHot ? '较热' : '较冷'}</text><text x="450" y="290" textAnchor="middle">海洋 · {leftHot ? '较冷' : '较热'}</text>
@@ -668,7 +666,7 @@ function MarketLab() {
         <RangeField label="供给移动" value={supply} min={-4} max={4} step={1} onChange={setSupply} format={(value) => value > 0 ? `右移 ${value}` : value < 0 ? `左移 ${Math.abs(value)}` : '不变'} />
         <div className="scenario-buttons"><button onClick={() => { setDemand(3); setSupply(0) }}>收入增加</button><button onClick={() => { setDemand(0); setSupply(-3) }}>成本上升</button><button onClick={() => { setDemand(0); setSupply(0) }}>恢复</button></div>
       </>}
-      insight={<>需求{demand === 0 ? '未移动' : demand > 0 ? '增加' : '减少'}、供给{supply === 0 ? '未移动' : supply > 0 ? '增加' : '减少'}，均衡点移动到 <em>Q {quantity.toFixed(0)} / P {price.toFixed(0)}</em>。</>}
+      insight={<>在其他条件不变且商品为普通商品的简化模型中，需求{demand === 0 ? '未移动' : demand > 0 ? '增加' : '减少'}、供给{supply === 0 ? '未移动' : supply > 0 ? '增加' : '减少'}，均衡点为 <em>Q {quantity.toFixed(0)} / P {price.toFixed(0)}</em>。</>}
     >
       <svg className="plot market-plot" viewBox="0 0 624 340" role="img" aria-label={`供求曲线，均衡价格 ${price.toFixed(0)}，均衡数量 ${quantity.toFixed(0)}`}>
         <defs><marker id="market-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>
@@ -699,7 +697,7 @@ function FlowLab() {
         <RangeField label="税收" value={tax} min={5} max={35} step={5} unit="" onChange={(value) => setTax(Math.min(value, 100 - consumption))} />
         <div className="flow-balance"><span><small>收入</small><b>100</b></span><span><small>支出与储蓄</small><b>{consumption + tax + savings}</b></span></div>
       </>}
-      insight={<>居民获得企业支付的收入，再以消费、税收和储蓄进入其他部门；图中每条流都有对应去向。</>}
+      insight={<>这是省略国外部门的简化循环：居民获得收入，再以消费、税收和储蓄进入企业、政府与金融市场。</>}
     >
       <div className="economy-flow" role="img" aria-label="居民、企业和政府之间的国民经济循环图">
         <div className="sector households"><small>HOUSEHOLDS</small><strong>居民</strong><span>可支配收入 {100 - tax}</span></div>
@@ -715,13 +713,305 @@ function FlowLab() {
   )
 }
 
+function UnitCircleLab() {
+  const [angle, setAngle] = useState(30)
+  const radians = angle * Math.PI / 180
+  const cosine = Math.abs(Math.cos(radians)) < 1e-10 ? 0 : Math.cos(radians)
+  const sine = Math.abs(Math.sin(radians)) < 1e-10 ? 0 : Math.sin(radians)
+  const x = 312 + cosine * 118
+  const y = 170 - sine * 118
+  const normalized = ((angle % 360) + 360) % 360
+  const quadrant = normalized === 0 || normalized === 90 || normalized === 180 || normalized === 270
+    ? '坐标轴上'
+    : `第${['一', '二', '三', '四'][Math.floor(normalized / 90)]}象限`
+
+  return (
+    <LabFrame
+      formula={<><span>P(cos θ, sin θ) = </span><b>({cosine.toFixed(3)}, {sine.toFixed(3)})</b></>}
+      status={`${angle}° · ${quadrant}`}
+      controls={<>
+        <p className="control-title">角度</p>
+        <RangeField label="θ" value={angle} min={0} max={360} step={1} unit="°" onChange={setAngle} />
+        <div className="angle-presets">{[0, 30, 45, 60, 90, 180].map((value) => <button key={value} className={angle === value ? 'active' : ''} onClick={() => setAngle(value)}>{value}°</button>)}</div>
+        <div className="coordinate-readout"><span><small>cos θ</small><b>{cosine.toFixed(3)}</b></span><span><small>sin θ</small><b>{sine.toFixed(3)}</b></span></div>
+      </>}
+      insight={<>单位圆上点的横坐标是 <em>cos θ</em>，纵坐标是 <em>sin θ</em>；象限决定两者的正负。</>}
+    >
+      <svg className="plot unit-circle-plot" viewBox="0 0 624 340" role="img" aria-label={`单位圆中 ${angle} 度对应点的坐标为 ${cosine.toFixed(3)}, ${sine.toFixed(3)}`}>
+        <line className="circle-axis" x1="142" y1="170" x2="482" y2="170" /><line className="circle-axis" x1="312" y1="12" x2="312" y2="328" />
+        <circle className="unit-circle" cx="312" cy="170" r="118" />
+        <path className="angle-sector" d={`M 312 170 L 372 170 A 60 60 0 ${normalized > 180 ? 1 : 0} 0 ${312 + Math.cos(radians) * 60} ${170 - Math.sin(radians) * 60} Z`} />
+        <line className="radius-line" x1="312" y1="170" x2={x} y2={y} />
+        <line className="coordinate-guide" x1={x} y1={y} x2={x} y2="170" /><line className="coordinate-guide" x1={x} y1={y} x2="312" y2={y} />
+        <circle className="active-point" cx={x} cy={y} r="7" />
+        <text className="value-label" x={clamp(x + 12, 70, 520)} y={clamp(y - 12, 24, 310)}>P</text>
+        <text x="474" y="160">1</text><text x="132" y="160">−1</text><text x="320" y="56">1</text><text x="320" y="294">−1</text>
+      </svg>
+    </LabFrame>
+  )
+}
+
+function CircuitLab() {
+  const [voltage, setVoltage] = useState(6)
+  const [resistance, setResistance] = useState(10)
+  const current = voltage / resistance
+  const power = voltage * current
+  const line = Array.from({ length: 61 }, (_, index) => {
+    const u = index / 5
+    const i = u / resistance
+    return `${64 + u / 12 * 222},${286 - i / 6 * 214}`
+  }).join(' ')
+  return (
+    <LabFrame
+      formula={<><span>I = U / R = </span><b>{current.toFixed(2)} A</b></>}
+      status={`功率 ${power.toFixed(2)} W`}
+      controls={<>
+        <p className="control-title">直流电路</p>
+        <RangeField label="电源电压 U" value={voltage} min={1} max={12} step={0.5} unit=" V" onChange={setVoltage} format={(value) => value.toFixed(1)} />
+        <RangeField label="电阻 R" value={resistance} min={2} max={30} step={1} unit=" Ω" onChange={setResistance} />
+        <div className="circuit-readout"><span><small>电流</small><b>{current.toFixed(2)} A</b></span><span><small>功率</small><b>{power.toFixed(2)} W</b></span></div>
+      </>}
+      insight={<>对同一线性电阻，电流随电压成正比、随电阻成反比；模型假设温度不变。</>}
+    >
+      <svg className="plot circuit-plot" viewBox="0 0 624 340" role="img" aria-label={`电压 ${voltage} 伏、电阻 ${resistance} 欧姆的电路，电流 ${current.toFixed(2)} 安培`}>
+        <defs><marker id="current-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>
+        <g className="vi-chart"><line x1="64" y1="286" x2="286" y2="286" /><line x1="64" y1="286" x2="64" y2="64" /><polyline className="primary-curve" points={line} /><circle className="active-point" cx={64 + voltage / 12 * 222} cy={286 - current / 6 * 214} r="6" /><text x="64" y="316">0</text><text x="250" y="316">U / V</text><text x="30" y="70">I / A</text><text x="34" y="290">0</text><text x="34" y="70">6</text></g>
+        <g className="circuit-diagram">
+          <path className="circuit-wire" d="M 374 100 H 534 V 250 H 374 V 100" />
+          <line className="battery-short" x1="362" y1="152" x2="386" y2="152" /><line className="battery-long" x1="354" y1="188" x2="394" y2="188" />
+          <path className="resistor" d="M 420 100 l 12 -12 l 18 24 l 18 -24 l 18 24 l 18 -12" />
+          <path className="current-arrow" d="M 506 250 H 430" markerEnd="url(#current-arrow)" />
+          <text x="462" y="72" textAnchor="middle">R = {resistance} Ω</text><text x="414" y="224">U = {voltage.toFixed(1)} V</text><text className="value-label" x="448" y="280">I = {current.toFixed(2)} A</text>
+        </g>
+      </svg>
+    </LabFrame>
+  )
+}
+
+function ReactionRateLab() {
+  const [temperature, setTemperature] = useState(30)
+  const [concentration, setConcentration] = useState(1)
+  const rate = concentration ** 1.2 * 2 ** ((temperature - 20) / 10)
+  const relative = clamp(rate / 12 * 100, 2, 100)
+  const particles = Math.round(12 + concentration * 12)
+  return (
+    <LabFrame
+      formula={<><span>示意速率 v ∝ c¹·² × 2</span><sup>(T−20)/10</sup><span> = </span><b>{rate.toFixed(2)}</b></>}
+      status={`相对碰撞频率 ${relative.toFixed(0)}%`}
+      controls={<>
+        <p className="control-title">反应条件</p>
+        <RangeField label="温度" value={temperature} min={10} max={60} step={1} unit=" ℃" onChange={setTemperature} />
+        <RangeField label="反应物浓度" value={concentration} min={0.2} max={2} step={0.1} unit=" mol/L" onChange={setConcentration} format={(value) => value.toFixed(1)} />
+        <div className="rate-meter"><span style={{ width: `${relative}%` }} /><small>速率示意</small><b>{rate.toFixed(2)}</b></div>
+      </>}
+      insight={<>升温使粒子运动更快并增加有效碰撞比例，增大浓度会提高碰撞频率；真实速率方程需由实验确定。</>}
+    >
+      <div className="reaction-rate-vessel" role="img" aria-label={`温度 ${temperature} 摄氏度、浓度 ${concentration.toFixed(1)} 摩尔每升的粒子碰撞模型`}>
+        <div className="reaction-liquid" style={{ opacity: .45 + concentration * .2 }} />
+        {Array.from({ length: particles }, (_, index) => <span key={index} className={index % 2 ? 'reactant-a' : 'reactant-b'} style={{ left: `${6 + (index * 41) % 88}%`, top: `${8 + (index * 57) % 78}%`, animationDuration: `${clamp(3.2 - temperature / 28, .7, 2.9)}s`, animationDelay: `${index * -.13}s` }} />)}
+        <div className="collision-core"><span style={{ transform: `scale(${.7 + relative / 180})` }} /><strong>有效碰撞</strong><b>{relative.toFixed(0)}%</b></div>
+        <div className="rate-thermometer"><i style={{ height: `${(temperature - 10) / 50 * 100}%` }} /><span>{temperature}℃</span></div>
+      </div>
+    </LabFrame>
+  )
+}
+
+function PhotosynthesisLab() {
+  const [light, setLight] = useState(60)
+  const [carbon, setCarbon] = useState(400)
+  const lightFactor = light / (light + 35)
+  const carbonFactor = carbon / (carbon + 300)
+  const rate = Math.min(lightFactor, carbonFactor) * 100
+  const limiting = lightFactor < carbonFactor ? '光照强度' : carbonFactor < lightFactor ? 'CO₂ 浓度' : '共同限制'
+  const saturationCurve = (startX: number, factor: 'light' | 'carbon') => Array.from({ length: 101 }, (_, index) => {
+    const fraction = index / 100
+    const value = factor === 'light' ? fraction * 100 / (fraction * 100 + 35) : fraction * 1000 / (fraction * 1000 + 300)
+    return `${startX + fraction * 222},${286 - value * 210}`
+  }).join(' ')
+  return (
+    <LabFrame
+      formula={<><span>CO₂ + H₂O </span><b>→</b><span> 有机物 + O₂</span></>}
+      status={`当前限制因素：${limiting}`}
+      controls={<>
+        <p className="control-title">环境条件</p>
+        <RangeField label="相对光照" value={light} min={0} max={100} step={1} unit="%" onChange={setLight} />
+        <RangeField label="CO₂ 浓度" value={carbon} min={100} max={1000} step={10} unit=" ppm" onChange={setCarbon} />
+        <div className="photosynthesis-rate"><small>光合速率示意</small><strong>{rate.toFixed(0)}%</strong><span><i style={{ width: `${rate}%` }} /></span></div>
+      </>}
+      insight={<>短板因素决定当前光合速率；只提高非限制因素，速率不会持续同步增加。</>}
+    >
+      <svg className="plot photosynthesis-plot" viewBox="0 0 624 340" role="img" aria-label={`光合作用限制因素为${limiting}，相对速率 ${rate.toFixed(0)}%`}>
+        <g><text x="54" y="42">光照响应</text><line x1="54" y1="286" x2="276" y2="286" /><line x1="54" y1="286" x2="54" y2="60" /><polyline className="primary-curve" points={saturationCurve(54, 'light')} /><circle className="active-point" cx={54 + light / 100 * 222} cy={286 - lightFactor * 210} r="6" /><text x="54" y="316">0</text><text x="246" y="316">100%</text></g>
+        <g><text x="348" y="42">CO₂ 响应</text><line x1="348" y1="286" x2="570" y2="286" /><line x1="348" y1="286" x2="348" y2="60" /><polyline className="secondary-curve" points={saturationCurve(348, 'carbon')} /><circle className="active-point secondary" cx={348 + carbon / 1000 * 222} cy={286 - carbonFactor * 210} r="6" /><text x="348" y="316">0</text><text x="526" y="316">1000 ppm</text></g>
+      </svg>
+    </LabFrame>
+  )
+}
+
+const classicalSamples = [
+  { type: '定语后置', original: ['蚓', '无', '爪牙之利', '筋骨之强'], marker: '“之”连接中心语与后置定语', modern: '蚯蚓没有锋利的爪牙、强健的筋骨', order: ['蚓', '无', '利爪牙', '强筋骨'] },
+  { type: '被动句', original: ['不', '拘', '于时'], marker: '“于”引出动作施加者或范围', modern: '不被时俗拘束', order: ['不', '被时俗', '拘束'] },
+  { type: '宾语前置', original: ['何', '以', '解忧'], marker: '疑问代词作宾语时常置于动词或介词前', modern: '用什么排解忧愁', order: ['以何', '解忧'] },
+]
+
+function ClassicalSyntaxLab() {
+  const [selected, setSelected] = useState(0)
+  const sample = classicalSamples[selected]
+  return (
+    <LabFrame
+      formula={<><span>语境 + 标志词 + 语序 → </span><b>{sample.type}</b></>}
+      status={sample.original.join('')}
+      controls={<>
+        <p className="control-title">特殊句式</p>
+        <div className="classical-options">{classicalSamples.map((item, index) => <button key={item.type} className={selected === index ? 'active' : ''} onClick={() => setSelected(index)}><b>{item.type}</b><span>{item.original.join('')}</span></button>)}</div>
+      </>}
+      insight={<>{sample.marker}；翻译时先按现代汉语语序还原，再结合上下文调整词义。</>}
+    >
+      <div className="classical-diagram" role="img" aria-label={`${sample.original.join('')} 是${sample.type}，现代汉语为${sample.modern}`}>
+        <p>原句结构</p>
+        <div className="classical-tokens">{sample.original.map((token, index) => <span key={`${token}-${index}`} className={index >= 2 ? 'marked' : ''}>{token}<small>{index >= 2 ? '关键成分' : '主干'}</small></span>)}</div>
+        <ArrowDown size={22} aria-hidden="true" />
+        <p>语序还原</p>
+        <div className="classical-tokens reordered">{sample.order.map((token, index) => <span key={`${token}-${index}`}>{token}<small>{index === 0 ? '主语/介宾' : '句子成分'}</small></span>)}</div>
+        <blockquote>{sample.modern}</blockquote>
+      </div>
+    </LabFrame>
+  )
+}
+
+const conditionalSamples = [
+  { id: 'real', label: '真实条件', formula: 'If + present, will + verb', example: 'If it rains, we will stay indoors.', condition: '可能下雨', result: '将留在室内', relation: '将来可能发生' },
+  { id: 'present', label: '与现在相反', formula: 'If + past, would + verb', example: 'If I had more time, I would read more.', condition: '现在时间不足', result: '假设有更多时间', relation: '对现在的虚拟' },
+  { id: 'past', label: '与过去相反', formula: 'If + had done, would have done', example: 'If she had left earlier, she would have caught the train.', condition: '过去没有早走', result: '设想另一结果', relation: '对过去的虚拟' },
+]
+
+function ConditionalLab() {
+  const [selected, setSelected] = useState(0)
+  const sample = conditionalSamples[selected]
+  return (
+    <LabFrame
+      formula={<><span>{sample.formula.split(',')[0]}, </span><b>{sample.formula.split(',')[1]}</b></>}
+      status={sample.relation}
+      controls={<>
+        <p className="control-title">条件类型</p>
+        <div className="conditional-options">{conditionalSamples.map((item, index) => <button key={item.id} className={selected === index ? 'active' : ''} onClick={() => setSelected(index)}><span>{item.label}</span><small>{item.relation}</small></button>)}</div>
+      </>}
+      insight={<><em>{sample.example}</em> 判断虚拟语气时，先确认说话者认为条件是真实、可能，还是与事实相反。</>}
+    >
+      <div className="conditional-map" role="img" aria-label={`${sample.label}结构图，例句 ${sample.example}`}>
+        <div className="conditional-fact"><small>FACT / CONTEXT</small><strong>{sample.condition}</strong></div>
+        <div className="conditional-split"><i /><span>IF</span></div>
+        <div className="conditional-result"><small>CONSEQUENCE</small><strong>{sample.result}</strong></div>
+        <div className="conditional-timeline"><span>PAST</span><i className={sample.id} /><b>NOW</b><span>FUTURE</span></div>
+        <p>{sample.example}</p>
+      </div>
+    </LabFrame>
+  )
+}
+
+const causalityCases = [
+  { label: '辛亥革命', stages: [{ name: '长期背景', detail: '民族危机加深，清末新政未能解决统治危机' }, { name: '思想与组织', detail: '民主革命思想传播，革命团体和同盟会发展' }, { name: '直接诱因', detail: '保路运动与武昌起义推动革命形势迅速扩展' }, { name: '影响', detail: '结束君主专制制度，民主共和观念传播' }] },
+  { label: '改革开放', stages: [{ name: '长期背景', detail: '现代化建设需要调整发展思路和体制机制' }, { name: '思想准备', detail: '真理标准问题讨论推动思想解放' }, { name: '关键决策', detail: '十一届三中全会作出改革开放的历史性决策' }, { name: '影响', detail: '经济活力增强，对外开放格局逐步形成' }] },
+]
+
+function CausalityLab() {
+  const [caseIndex, setCaseIndex] = useState(0)
+  const [stage, setStage] = useState(0)
+  const item = causalityCases[caseIndex]
+  return (
+    <LabFrame
+      formula={<><span>背景 ≠ 诱因　原因 + 行动 → </span><b>历史影响</b></>}
+      status={`${item.label} · ${item.stages[stage].name}`}
+      controls={<>
+        <p className="control-title">历史主题</p>
+        <div className="segmented-control two">{causalityCases.map((entry, index) => <button key={entry.label} className={caseIndex === index ? 'active' : ''} onClick={() => { setCaseIndex(index); setStage(0) }}>{entry.label}</button>)}</div>
+        <p className="control-title spaced">解释层次</p>
+        <div className="causality-stages">{item.stages.map((entry, index) => <button key={entry.name} className={stage === index ? 'active' : ''} onClick={() => setStage(index)}><b>0{index + 1}</b><span>{entry.name}</span></button>)}</div>
+      </>}
+      insight={<>{item.stages[stage].detail}。历史解释应区分不同层次，避免把单一事件当作全部原因。</>}
+    >
+      <div className="causality-chain" role="group" aria-label={`${item.label}历史因果链，当前为${item.stages[stage].name}`}>
+        {item.stages.map((entry, index) => <button type="button" key={entry.name} className={stage === index ? 'active' : ''} aria-pressed={stage === index} onClick={() => setStage(index)}><span>0{index + 1}</span><strong>{entry.name}</strong><small>{entry.detail}</small></button>)}
+        <i className="causal-line" />
+      </div>
+    </LabFrame>
+  )
+}
+
+function WaterCycleLab() {
+  const [temperature, setTemperature] = useState(24)
+  const [mode, setMode] = useState<'natural' | 'urban'>('natural')
+  const evaporation = clamp(30 + (temperature - 10) * 2.4, 20, 100)
+  const runoff = mode === 'urban' ? 72 : 38
+  const infiltration = 100 - runoff
+  return (
+    <LabFrame
+      formula={<><span>蒸发 → 水汽输送 → 降水 → </span><b>径流 / 下渗</b></>}
+      status={`${mode === 'natural' ? '自然地表' : '城市地表'} · 径流 ${runoff}%`}
+      controls={<>
+        <p className="control-title">地表条件</p>
+        <div className="segmented-control two"><button className={mode === 'natural' ? 'active' : ''} onClick={() => setMode('natural')}>自然</button><button className={mode === 'urban' ? 'active' : ''} onClick={() => setMode('urban')}>城市</button></div>
+        <p className="control-title spaced">海面温度</p>
+        <RangeField label="温度" value={temperature} min={10} max={35} step={1} unit=" ℃" onChange={setTemperature} />
+        <div className="water-balance"><span><small>地表径流</small><b>{runoff}%</b></span><span><small>下渗</small><b>{infiltration}%</b></span></div>
+      </>}
+      insight={<>温度升高会增强蒸发；城市不透水面增多时，下渗减少、地表径流增大。比例仅作过程比较。</>}
+    >
+      <svg className={`plot water-cycle-plot ${mode}`} viewBox="0 0 624 340" role="img" aria-label={`${mode === 'natural' ? '自然' : '城市'}地表水循环，径流 ${runoff}%，下渗 ${infiltration}%`}>
+        <defs><marker id="water-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>
+        <path className="ocean" d="M 36 252 Q 120 230 220 252 V 318 H 36 Z" /><path className="landform" d="M 220 252 L 326 126 L 404 200 L 480 160 L 588 252 V 318 H 220 Z" />
+        <g className="cloud"><circle cx="322" cy="76" r="26" /><circle cx="352" cy="64" r="35" /><circle cx="388" cy="80" r="27" /><rect x="316" y="78" width="80" height="25" /></g>
+        <path className="evaporation-flow" style={{ strokeWidth: 1.5 + evaporation / 35 }} d="M 118 230 C 116 168 164 132 240 116" markerEnd="url(#water-arrow)" />
+        <path className="vapor-flow" d="M 246 112 C 286 88 306 84 328 84" markerEnd="url(#water-arrow)" />
+        <path className="rain-flow" d="M 362 108 C 368 138 390 160 410 188" markerEnd="url(#water-arrow)" />
+        <path className="runoff-flow" style={{ strokeWidth: 1.5 + runoff / 22 }} d="M 468 210 C 416 248 324 264 228 268" markerEnd="url(#water-arrow)" />
+        <path className="infiltration-flow" style={{ strokeWidth: 1 + infiltration / 25 }} d="M 448 238 V 302" markerEnd="url(#water-arrow)" />
+        {mode === 'urban' && <g className="city-blocks"><rect x="430" y="188" width="28" height="46" /><rect x="464" y="176" width="34" height="58" /><rect x="504" y="198" width="25" height="36" /></g>}
+        <text x="96" y="294">海洋</text><text x="115" y="178">蒸发 {evaporation.toFixed(0)}</text><text x="426" y="280">径流 {runoff}%</text><text x="466" y="316">下渗 {infiltration}%</text>
+      </svg>
+    </LabFrame>
+  )
+}
+
+const lawSteps = [
+  { name: '提出草案', owner: '有权主体', detail: '依照法定权限和程序提出法律案。' },
+  { name: '审议论证', owner: '立法机关', detail: '通过审议、调研和意见征集完善草案。' },
+  { name: '表决通过', owner: '法定会议', detail: '达到法定人数和票数要求后通过。' },
+  { name: '公布施行', owner: '依法公布', detail: '正式公布，并按规定日期开始施行。' },
+]
+
+function RuleOfLawLab() {
+  const [step, setStep] = useState(0)
+  return (
+    <LabFrame
+      formula={<><span>科学立法 + 民主立法 + </span><b>依法立法</b></>}
+      status={`第 ${step + 1} 步 · ${lawSteps[step].name}`}
+      controls={<>
+        <p className="control-title">立法过程简图</p>
+        <div className="law-step-list">{lawSteps.map((item, index) => <button key={item.name} className={step === index ? 'active' : ''} onClick={() => setStep(index)}><b>0{index + 1}</b><span>{item.name}</span></button>)}</div>
+      </>}
+      insight={<>{lawSteps[step].detail} 实际程序依法律种类和立法主体有所不同，图示用于理解共同原则。</>}
+    >
+      <div className="law-process" role="group" aria-label={`立法过程简图，当前步骤${lawSteps[step].name}`}>
+        <div className="law-progress"><span style={{ width: `${step / (lawSteps.length - 1) * 100}%` }} /></div>
+        <div className="law-nodes">{lawSteps.map((item, index) => <button type="button" key={item.name} className={step === index ? 'active' : index < step ? 'complete' : ''} aria-pressed={step === index} onClick={() => setStep(index)}><i>{index + 1}</i><strong>{item.name}</strong><small>{item.owner}</small></button>)}</div>
+        <div className="law-detail"><small>CURRENT STAGE</small><strong>{lawSteps[step].name}</strong><p>{lawSteps[step].detail}</p></div>
+      </div>
+    </LabFrame>
+  )
+}
+
 export function DemoStage({ topicId }: { topicId: string }) {
   const demos: Record<string, () => ReactNode> = {
-    function: () => <FunctionLab />, probability: () => <ProbabilityLab />, projectile: () => <ProjectileLab />, wave: () => <WaveLab />,
-    equilibrium: () => <EquilibriumLab />, titration: () => <TitrationLab />, genetics: () => <GeneticsLab />, enzyme: () => <EnzymeLab />,
-    argument: () => <ArgumentLab />, imagery: () => <ImageryLab />, syntax: () => <SyntaxLab />, tense: () => <TenseLab />,
-    timeline: () => <TimelineLab />, revolution: () => <RevolutionLab />, solar: () => <SolarLab />, circulation: () => <CirculationLab />,
-    market: () => <MarketLab />, flow: () => <FlowLab />,
+    function: () => <FunctionLab />, probability: () => <ProbabilityLab />, 'unit-circle': () => <UnitCircleLab />,
+    projectile: () => <ProjectileLab />, wave: () => <WaveLab />, circuit: () => <CircuitLab />,
+    equilibrium: () => <EquilibriumLab />, titration: () => <TitrationLab />, 'reaction-rate': () => <ReactionRateLab />,
+    genetics: () => <GeneticsLab />, enzyme: () => <EnzymeLab />, photosynthesis: () => <PhotosynthesisLab />,
+    argument: () => <ArgumentLab />, imagery: () => <ImageryLab />, 'classical-syntax': () => <ClassicalSyntaxLab />,
+    syntax: () => <SyntaxLab />, tense: () => <TenseLab />, conditional: () => <ConditionalLab />,
+    timeline: () => <TimelineLab />, revolution: () => <RevolutionLab />, causality: () => <CausalityLab />,
+    solar: () => <SolarLab />, circulation: () => <CirculationLab />, 'water-cycle': () => <WaterCycleLab />,
+    market: () => <MarketLab />, flow: () => <FlowLab />, 'rule-of-law': () => <RuleOfLawLab />,
   }
   return demos[topicId]?.() ?? <FunctionLab />
 }

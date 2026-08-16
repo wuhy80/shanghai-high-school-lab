@@ -1,55 +1,233 @@
-import { expect, test } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+import { expect, test, type Page } from '@playwright/test'
+import { allTopics, demoIds, semesterPlans, type SemesterId } from '../src/curriculum'
+import { subjects, type SubjectId } from '../src/data'
 
-const catalog = [
-  ['数学', ['函数变换', '概率模拟']],
-  ['物理', ['抛体运动', '波的叠加']],
-  ['化学', ['化学平衡', '酸碱滴定']],
-  ['生物', ['遗传组合', '酶的活性']],
-  ['语文', ['论证结构', '诗词意象']],
-  ['英语', ['句法拆解', '时态轴']],
-  ['历史', ['近代时间轴', '工业革命']],
-  ['地理', ['正午太阳高度', '热力环流']],
-  ['思想政治', ['供给与需求', '国民经济循环']],
-] as const
+const expectedSemesterIds: SemesterId[] = ['g10-1', 'g10-2', 'g11-1', 'g11-2', 'g12-1', 'g12-2']
+const expectedSubjectIds = subjects.map((subject) => subject.id).sort()
+const subjectName = (subjectId: SubjectId) => subjects.find((subject) => subject.id === subjectId)?.name ?? subjectId
 
-test('all subject labs render without browser errors', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.includes('mobile'), 'Desktop sidebar traversal')
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
+async function selectSemester(page: Page, semesterId: SemesterId) {
+  const semester = semesterPlans.find((item) => item.id === semesterId)
+  if (!semester) throw new Error(`Unknown semester: ${semesterId}`)
+  await page.locator('.semester-nav button').filter({ hasText: semester.shortLabel }).click()
+}
+
+async function selectSubject(page: Page, subjectId: SubjectId) {
+  await page.locator('.subject-nav button').filter({ hasText: subjectName(subjectId) }).click()
+}
+
+async function openTopic(page: Page, entry: (typeof allTopics)[number]) {
+  await selectSemester(page, entry.semester.id)
+  await selectSubject(page, entry.subjectId)
+  const topicButton = page.locator(`[id="directory-topic-${entry.topic.id}"]`)
+  const unitDetails = topicButton.locator('xpath=ancestor::details')
+  if (!await unitDetails.evaluate((element) => (element as HTMLDetailsElement).open)) {
+    await unitDetails.locator('summary').click()
+  }
+  await topicButton.click()
+  await expect(page.getByRole('heading', { level: 1, name: entry.topic.title, exact: true })).toBeVisible()
+}
+
+async function expectNoPageOverflow(page: Page, label: string) {
+  const overflow = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }))
+  expect(overflow.scrollWidth - overflow.clientWidth, `${label}: horizontal page overflow`).toBeLessThanOrEqual(1)
+}
+
+test('curriculum contains six complete semesters with valid, unique topics', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static curriculum validation only needs one project')
+
+  expect(semesterPlans.map((semester) => semester.id)).toEqual(expectedSemesterIds)
+  expect(new Set(semesterPlans.map((semester) => semester.id)).size).toBe(6)
+  expect(subjects).toHaveLength(10)
+
+  const semesterLabels = new Set<string>()
+  const unitIds = new Set<string>()
+  const topicIds = new Set<string>()
+  const mappedDemoIds = new Set<string>()
+  const allowedDemoIds = new Set<string>(demoIds)
+
+  for (const semester of semesterPlans) {
+    expect(semester.label.trim(), `${semester.id}: semester label`).not.toBe('')
+    expect(semester.shortLabel.trim(), `${semester.id}: semester short label`).not.toBe('')
+    expect(semester.description.trim(), `${semester.id}: semester description`).not.toBe('')
+    expect(semester.sourceLabel.trim(), `${semester.id}: source label`).not.toBe('')
+    expect(semester.sourceUrl, `${semester.id}: official source URL`).toMatch(/^https:\/\//)
+    expect(semesterLabels.has(semester.label), `${semester.id}: duplicate semester label`).toBe(false)
+    semesterLabels.add(semester.label)
+    expect(Object.keys(semester.courses).sort(), `${semester.id}: ten subjects`).toEqual(expectedSubjectIds)
+
+    for (const subject of subjects) {
+      const course = semester.courses[subject.id]
+      expect(course.book.trim(), `${semester.id}/${subject.id}: book`).not.toBe('')
+      expect(course.publisher.trim(), `${semester.id}/${subject.id}: publisher`).not.toBe('')
+      expect(['catalog', 'school', 'review']).toContain(course.basis)
+      expect(course.units.length, `${semester.id}/${subject.id}: unit count`).toBeGreaterThanOrEqual(4)
+
+      const courseTopicTitles = new Set<string>()
+      const courseTopicCount = course.units.reduce((total, unit) => total + unit.topics.length, 0)
+      expect(courseTopicCount, `${semester.id}/${subject.id}: topic count`).toBeGreaterThanOrEqual(20)
+
+      for (const unit of course.units) {
+        expect(unit.id.trim(), `${semester.id}/${subject.id}: unit id`).not.toBe('')
+        expect(unit.title.trim(), `${semester.id}/${subject.id}/${unit.id}: unit title`).not.toBe('')
+        expect(unit.focus.trim(), `${semester.id}/${subject.id}/${unit.id}: unit focus`).not.toBe('')
+        expect(unit.topics.length, `${semester.id}/${subject.id}/${unit.id}: topics`).toBeGreaterThan(0)
+        expect(unitIds.has(unit.id), `${unit.id}: duplicate unit id`).toBe(false)
+        unitIds.add(unit.id)
+
+        for (const topic of unit.topics) {
+          expect(topic.id.trim(), `${unit.id}: topic id`).not.toBe('')
+          expect(topic.title.trim(), `${topic.id}: title`).not.toBe('')
+          expect(topic.focus.trim(), `${topic.id}: focus`).not.toBe('')
+          expect(topic.question.trim(), `${topic.id}: question`).not.toBe('')
+          expect(topic.pitfall.trim(), `${topic.id}: pitfall`).not.toBe('')
+          expect(topic.keyPoints).toHaveLength(3)
+          for (const point of topic.keyPoints) expect(point.trim(), `${topic.id}: empty key point`).not.toBe('')
+          expect(topicIds.has(topic.id), `${topic.id}: duplicate topic id`).toBe(false)
+          expect(courseTopicTitles.has(topic.title), `${semester.id}/${subject.id}: duplicate topic title ${topic.title}`).toBe(false)
+          topicIds.add(topic.id)
+          courseTopicTitles.add(topic.title)
+
+          if (topic.demoId) {
+            expect(allowedDemoIds.has(topic.demoId), `${topic.id}: invalid demo id ${topic.demoId}`).toBe(true)
+            expect(topic.mode, `${topic.id}: demo mode`).toBe('demo')
+            mappedDemoIds.add(topic.demoId)
+          } else {
+            expect(topic.mode, `${topic.id}: explanation mode`).toBe('explain')
+          }
+        }
+      }
+    }
+  }
+
+  expect(topicIds.size, 'flattened topic count').toBe(allTopics.length)
+  expect([...mappedDemoIds].sort(), 'every implemented demo should be reachable from the curriculum').toEqual([...demoIds].sort())
+})
+
+test('semester-first navigation and global search open the exact course topic', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Full navigation traversal runs on desktop')
   await page.goto('/')
 
-  for (const [subject, topics] of catalog) {
-    await page.locator('.subject-sidebar nav button').filter({ hasText: subject }).click()
-    for (const topic of topics) {
-      await page.getByRole('tab', { name: new RegExp(topic) }).click()
-      await expect(page.locator('.lab-frame')).toBeVisible()
-      await expect(page.locator('.visual-panel').locator(':scope > svg, :scope > .equilibrium-vessel, :scope > .punnett-wrap, :scope > .argument-map, :scope > .syntax-tree, :scope > .revolution-network, :scope > .economy-flow').first()).toBeVisible()
+  await expect(page.locator('.semester-nav button')).toHaveCount(6)
+  await expect(page.locator('.subject-nav button')).toHaveCount(10)
+  for (const semester of semesterPlans) {
+    await selectSemester(page, semester.id)
+    await expect(page.locator('.semester-nav button.active')).toContainText(semester.shortLabel)
+    await expect(page.locator('.catalog-header')).toContainText(semester.label)
+    await expect(page.locator('.unit-directory details')).toHaveCount(semester.courses.chinese.units.length)
+  }
+
+  const target = allTopics.find((candidate) => (
+    candidate.semester.id === 'g12-2'
+    && allTopics.filter((entry) => entry.topic.title === candidate.topic.title).length === 1
+  ))
+  expect(target, 'a unique high-three second-semester search target').toBeTruthy()
+  if (!target) return
+
+  await page.getByRole('searchbox', { name: '搜索全部课程内容' }).fill(target.topic.title)
+  const result = page.locator('.search-results button')
+    .filter({ hasText: target.topic.title })
+    .filter({ hasText: target.semester.shortLabel })
+    .filter({ hasText: subjectName(target.subjectId) })
+  await expect(result).toHaveCount(1)
+  await result.click()
+
+  await expect(page.locator('.semester-nav button.active')).toContainText(target.semester.shortLabel)
+  await expect(page.locator('.subject-nav button.active')).toContainText(subjectName(target.subjectId))
+  await expect(page.locator('.catalog-header h2')).toHaveText(target.course.book)
+  await expect(page.getByRole('heading', { level: 1, name: target.topic.title, exact: true })).toBeVisible()
+  await expect(page.locator(`[id="directory-topic-${target.topic.id}"]`)).toHaveAttribute('aria-current', 'page')
+})
+
+test('every mapped interactive demo renders and remains numerically valid', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Complete demo traversal runs on desktop')
+  test.setTimeout(90_000)
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`))
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(`console: ${message.text()}`)
+  })
+  await page.goto('/')
+
+  const demos = new Map<string, (typeof allTopics)[number]>()
+  for (const entry of allTopics) {
+    if (entry.topic.demoId && !demos.has(entry.topic.demoId)) demos.set(entry.topic.demoId, entry)
+  }
+  expect([...demos.keys()].sort()).toEqual([...demoIds].sort())
+
+  for (const [demoId, entry] of demos) {
+    await openTopic(page, entry)
+    const lab = page.locator('.lab-frame')
+    const visual = page.locator('.visual-panel')
+    await expect(lab, `${demoId}: lab frame`).toBeVisible()
+    await expect(visual, `${demoId}: visual panel`).toBeVisible()
+    const visualSize = await visual.evaluate((element) => {
+      const bounds = element.getBoundingClientRect()
+      return { height: bounds.height, width: bounds.width }
+    })
+    expect(visualSize.width, `${demoId}: visual width`).toBeGreaterThan(100)
+    expect(visualSize.height, `${demoId}: visual height`).toBeGreaterThan(100)
+
+    const ranges = lab.locator('input[type="range"]')
+    for (let index = 0; index < await ranges.count(); index += 1) {
+      const range = ranges.nth(index)
+      await range.fill(await range.getAttribute('max') ?? '1')
     }
+    await expect(lab, `${demoId}: invalid numeric output`).not.toContainText(/NaN|Infinity|undefined/)
   }
 
   expect(errors).toEqual([])
 })
 
-test('grade and subject filters update the available topics', async ({ page }) => {
+test('desktop, mobile and narrow layouts avoid horizontal overflow', async ({ page }, testInfo) => {
   await page.goto('/')
-  await page.locator('.grade-filter button', { hasText: '高三' }).click()
-  await expect(page.getByRole('tab', { name: /概率模拟/ })).toBeVisible()
-  await expect(page.getByRole('tab', { name: /函数变换/ })).toHaveCount(0)
+  await expectNoPageOverflow(page, `${testInfo.project.name} initial page`)
 
-  await page.locator('.grade-filter button', { hasText: '高一' }).click()
-  await expect(page.getByRole('tab', { name: /函数变换/ })).toBeVisible()
-  await expect(page.getByRole('tab', { name: /概率模拟/ })).toHaveCount(0)
+  const demo = allTopics.find((entry) => entry.topic.demoId)
+  expect(demo, 'at least one interactive demo').toBeTruthy()
+  if (demo) {
+    if (testInfo.project.name === 'desktop-chromium') {
+      await openTopic(page, demo)
+    } else {
+      await page.getByRole('button', { name: '课程目录', exact: true }).click()
+      await expect(page.locator('.catalog-sidebar')).toBeVisible()
+      await expectNoPageOverflow(page, `${testInfo.project.name} open catalog`)
+      await page.locator('.catalog-close').click()
+      await expect(page.locator('.catalog-sidebar')).toBeHidden()
 
-  await page.getByPlaceholder('搜索学科或知识点').fill('太阳')
-  await page.getByRole('option', { name: /正午太阳高度/ }).click()
-  await expect(page.getByRole('heading', { name: '地理实验台' })).toBeVisible()
+      await page.getByRole('searchbox', { name: '搜索全部课程内容' }).fill(demo.topic.title)
+      await page.locator('.search-results button')
+        .filter({ hasText: demo.topic.title })
+        .filter({ hasText: demo.semester.shortLabel })
+        .first()
+        .click()
+    }
+    await expect(page.locator('.lab-frame')).toBeVisible()
+    await expectNoPageOverflow(page, `${testInfo.project.name} interactive demo`)
+  }
+
+  if (testInfo.project.name === 'desktop-chromium') {
+    await expect(page.locator('.catalog-sidebar')).toBeVisible()
+    await expect(page.locator('.mobile-course-bar')).toBeHidden()
+  } else {
+    await expect(page.locator('.mobile-course-bar')).toBeVisible()
+  }
 })
 
-test('mobile layout has no document-level horizontal overflow', async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.name.includes('mobile'), 'Mobile viewport only')
+test('desktop and 390px layouts pass serious and critical WCAG checks in both themes', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'narrow-chromium', 'Axe is covered at desktop and 390px mobile widths')
+  await page.addInitScript(() => localStorage.setItem('huzhi-theme', 'light'))
   await page.goto('/')
-  const sizes = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }))
-  expect(sizes.content).toBeLessThanOrEqual(sizes.viewport + 1)
-  await expect(page.locator('.mobile-subjects')).toBeVisible()
-  await expect(page.locator('.subject-sidebar')).toBeHidden()
+
+  for (const theme of ['light', 'dark'] as const) {
+    if (theme === 'dark') await page.locator('.icon-button').click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+    const blocking = results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
+    expect(blocking, `${testInfo.project.name}/${theme}: serious or critical accessibility violations`).toEqual([])
+  }
 })
