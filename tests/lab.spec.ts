@@ -172,6 +172,63 @@ test('high-one first-semester math follows the Shanghai textbook chapter and sec
   await expect(page.locator('.book-meta')).toContainText('5 章 · 14 节 · 27 个知识点')
 })
 
+test('all six math semesters preserve the audited textbook or review-board structure', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static textbook structure only needs one project')
+
+  const expected = {
+    'g10-1': {
+      book: '普通高中教科书·数学（必修 第一册）', unitCount: 14, topicCount: 27,
+      chapters: ['第1章 集合与逻辑', '第2章 等式与不等式', '第3章 幂、指数与对数', '第4章 幂函数、指数函数与对数函数', '第5章 函数的概念、性质及应用'],
+    },
+    'g10-2': {
+      book: '普通高中教科书·数学（必修 第二册、第四册）', unitCount: 30, topicCount: 208,
+      chapters: ['第6章 三角', '第7章 三角函数', '第8章 平面向量', '第9章 复数', '必修第四册 引论', '第1部分 数学建模活动案例', '第2部分 数学建模活动 A', '第3部分 数学建模活动 B', '附录'],
+    },
+    'g11-1': {
+      book: '普通高中教科书·数学（必修 第三、四册）', unitCount: 30, topicCount: 181,
+      chapters: ['必修第三册 · 第10章 空间直线与平面', '必修第三册 · 第11章 简单几何体', '必修第三册 · 第12章 概率初步', '必修第三册 · 第13章 统计', '必修第四册 · 第1部分 数学建模活动案例', '必修第四册 · 第2部分 数学建模活动A', '必修第四册 · 第3部分 数学建模活动B'],
+    },
+    'g11-2': {
+      book: '普通高中教科书·数学（选择性必修 第一、三册）', unitCount: 27, topicCount: 194,
+      chapters: ['选择性必修第一册 · 第1章 坐标平面上的直线', '选择性必修第一册 · 第2章 圆锥曲线', '选择性必修第一册 · 第3章 空间向量及其应用', '选择性必修第一册 · 第4章 数列', '选择性必修第三册 · 第1部分 数学建模活动案例', '选择性必修第三册 · 第2部分 数学建模活动A', '选择性必修第三册 · 第3部分 数学建模活动B'],
+    },
+    'g12-1': {
+      book: '普通高中教科书·数学（选择性必修 第二册、第三册）', unitCount: 23, topicCount: 187,
+      chapters: ['选择性必修第二册 · 第5章 导数及其应用', '选择性必修第二册 · 第6章 计数原理', '选择性必修第二册 · 第7章 概率初步（续）', '选择性必修第二册 · 第8章 成对数据的统计分析', '选择性必修第三册 · 第1部分 数学建模活动案例', '选择性必修第三册 · 第2部分 数学建模活动A', '选择性必修第三册 · 第3部分 数学建模活动B'],
+    },
+    'g12-2': {
+      book: '上海高中数学专题复习（无统一新授教材）', unitCount: 21, topicCount: 193,
+      chapters: ['第一单元 集合、命题与不等式', '第二单元 函数与导数', '第三单元 三角与平面向量', '第四单元 数列', '第五单元 解析几何', '第六单元 立体几何', '第七单元 复数、计数、概率与统计', '第八单元 数学思想方法', '第九单元 应用型问题', '第十单元 创新型问题', '第十一单元 综合表达与校验'],
+    },
+  } satisfies Record<SemesterId, { book: string; unitCount: number; topicCount: number; chapters: string[] }>
+
+  for (const semester of semesterPlans) {
+    const course = semester.courses.math
+    const semesterExpected = expected[semester.id]
+    expect(course.book, `${semester.id}: math book`).toBe(semesterExpected.book)
+    expect(course.units.length, `${semester.id}: math section count`).toBe(semesterExpected.unitCount)
+    expect(course.units.every((unit) => Boolean(unit.chapter)), `${semester.id}: every math section has a chapter or review board`).toBe(true)
+    expect([...new Set(course.units.map((unit) => unit.chapter))], `${semester.id}: chapter order`).toEqual(semesterExpected.chapters)
+    expect(course.units.reduce((sum, unit) => sum + unit.topics.length, 0), `${semester.id}: math topic count`).toBe(semesterExpected.topicCount)
+  }
+
+  expect(semesterPlans.find((semester) => semester.id === 'g12-2')?.courses.math.basis).toBe('review')
+  expect(semesterPlans.find((semester) => semester.id === 'g12-2')?.courses.math.note).toContain('不冒充官方新教材目录')
+})
+
+test('high-three first-semester math keeps the official section order', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static textbook section order only needs one project')
+  const mathCourse = semesterPlans.find((semester) => semester.id === 'g12-1')?.courses.math
+  expect(mathCourse?.units.map((unit) => unit.title)).toEqual([
+    '5.1 导数的概念及意义', '5.2 导数的运算', '5.3 导数的应用',
+    '6.1 乘法原理与加法原理', '6.2 排列', '6.3 组合', '6.4 计数原理在古典概率中的应用', '6.5 二项式定理',
+    '7.1 条件概率与相关公式', '7.2 随机变量的分布与特征', '7.3 常用分布',
+    '8.1 成对数据的相关分析', '8.2 一元线性回归分析', '8.3 2×2列联表',
+    '1.1 刹车距离', '1.2 易拉罐的设计', '1.3 珠穆朗玛峰顶上有多少氧气', '1.4 水葫芦的生长',
+    '2.1 铅球投掷', '2.2 电梯调度', '3.1 存款计划', '3.2 民生巨变40年', '3.3 教室里的照明',
+  ])
+})
+
 test('every high-one first-semester math topic uses its own substantive lesson', async ({ page: _page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'Static lesson routing only needs one project')
 
@@ -290,6 +347,30 @@ test('explicit topic regression routes keep ambiguous titles in the intended les
     Object.fromEntries(Object.entries(humanitiesRegressionTemplateByTitle).map(([key, route]) => [key, route.familyId])),
     'humanities subjects',
   )
+})
+
+test('advanced math topics use subject-specific lesson families instead of broad fallback examples', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static math lesson routing only needs one project')
+
+  const expectedFamilies = new Map([
+    ['正弦函数的单调区间与最值', 'math-trigonometric-function--'],
+    ['正弦定理的几何意义', 'math-triangle-solving--'],
+    ['直线倾斜角的定义', 'math-line-coordinate-geometry--'],
+    ['椭圆离心率', 'math-conic-definition-equation--'],
+    ['异面直线所成的角', 'math-solid-geometry--'],
+    ['样本均值与总体均值估计', 'math-statistics-inference--'],
+    ['独立事件的概率乘法', 'math-probability-statistics--'],
+    ['等差数列的单调性', 'math-sequence-recurrence--'],
+  ])
+
+  for (const [title, familyPrefix] of expectedFamilies) {
+    const matches = allTopics.filter((entry) => entry.subjectId === 'math' && entry.topic.title === title)
+    expect(matches.length, `${title}: topic exists`).toBeGreaterThan(0)
+    for (const match of matches) {
+      expect(match.topic.lesson.templateId.startsWith(familyPrefix), `${match.semester.id}/${title}: lesson family`).toBe(true)
+      expect(match.topic.lesson.example.prompt.length, `${match.semester.id}/${title}: worked example`).toBeGreaterThan(18)
+    }
+  }
 })
 
 test('semester-first navigation and global search open the exact course topic', async ({ page }, testInfo) => {
@@ -426,6 +507,59 @@ test('representative math concept visuals fit desktop and narrow screens', async
     await expect(visual).not.toContainText(/NaN|Infinity|undefined/)
     await expectNoPageOverflow(page, `${testInfo.project.name}/${title}`)
   }
+})
+
+test('representative advanced math visuals fit and remain interactive at every width', async ({ page }, testInfo) => {
+  await page.goto('/')
+  const representatives = [
+    { semester: '高一下', title: '正弦定理的几何意义' },
+    { semester: '高二上', title: '异面直线所成的角' },
+    { semester: '高二下', title: '椭圆离心率' },
+    { semester: '高三上', title: '*7.1.3 贝叶斯公式' },
+    { semester: '高三上', title: '7.3.3 正态分布' },
+    { semester: '高三下', title: '导数与最优化模型' },
+  ]
+
+  for (const representative of representatives) {
+    await page.locator('.global-search input').fill(representative.title)
+    await page.locator('.search-results button')
+      .filter({ hasText: representative.title })
+      .filter({ hasText: representative.semester })
+      .filter({ hasText: '数学' })
+      .first()
+      .click()
+    const visual = page.locator(`[data-math-concept-visual="${representative.title}"]`)
+    await expect(visual, `${representative.semester}/${representative.title}: visual`).toBeVisible()
+    const range = visual.locator('input[type="range"]').first()
+    if (await range.count()) await range.fill(await range.getAttribute('max') ?? '1')
+    const alternate = visual.locator('button[aria-pressed="false"]').first()
+    if (await alternate.count()) await alternate.click()
+    await expect(visual).not.toContainText(/NaN|Infinity|undefined/)
+    await expect(visual.locator('svg').first()).toBeVisible()
+    await expectNoPageOverflow(page, `${testInfo.project.name}/${representative.semester}/${representative.title}`)
+  }
+})
+
+test('curve-equation visual keeps a valid SVG arc at the 360-degree endpoint', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'SVG endpoint regression only needs one browser')
+  const browserErrors: string[] = []
+  page.on('pageerror', (error) => browserErrors.push(error.message))
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text())
+  })
+  await page.goto('/')
+  const title = '轨迹方程的直接法'
+  await page.locator('.global-search input').fill(title)
+  await page.locator('.search-results button')
+    .filter({ hasText: title })
+    .filter({ hasText: '高二下' })
+    .filter({ hasText: '数学' })
+    .first()
+    .click()
+  const visual = page.locator(`[data-math-concept-visual="${title}"]`)
+  await visual.locator('input[type="range"]').first().fill('360')
+  await expect(visual.locator('path.g11mv-angle')).toHaveAttribute('d', /^M 362 170 A 42 42 0 1 0 /)
+  expect(browserErrors, 'the 360-degree SVG arc should parse without browser errors').toEqual([])
 })
 
 test('switching logarithm laws keeps the exponent control and formula synchronized', async ({ page }, testInfo) => {

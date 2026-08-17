@@ -1,0 +1,130 @@
+.g11mv-axis {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.g11mv-neutral {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 3;
+}
+
+.g11mv-angle,
+.g11mv-right-angle {
+  fill: none;
+  stroke: var(--plot-secondary);
+  stroke-width: 3;
+}
+
+.g11mv-arrow-head { fill: var(--accent); }
+
+.g11mv-resultant {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 4;
+  stroke-dasharray: 9 6;
+}
+
+.g11mv-plane {
+  fill: var(--accent-soft);
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.g11mv-plane-secondary {
+  fill: var(--surface-2);
+  stroke: var(--plot-secondary);
+  stroke-width: 2;
+}
+
+.g11mv-intersection,
+.g11mv-distance {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+
+.g11mv-wire-box {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+}
+
+.g11mv-parallel-copy {
+  fill: none;
+  stroke: var(--plot-secondary);
+  stroke-width: 3;
+  stroke-dasharray: 9 6;
+}
+
+.g11mv-hidden-edge {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+}
+
+.g11mv-prism-front {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.g11mv-mean-line {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.g11mv-median-line {
+  stroke: var(--plot-secondary);
+  stroke-width: 4;
+  stroke-dasharray: 8 6;
+}
+
+.g11mv-vector-plane {
+  fill: var(--accent-soft);
+  stroke: var(--line-strong);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+}
+
+.g11mv-induction-arrow {
+  fill: none;
+  stroke: var(--plot-secondary);
+  stroke-width: 4;
+}
+
+.g11mv-stem {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.g11mv .amv-stage .amv-primary,
+.g11mv .amv-stage .amv-secondary,
+.g11mv .amv-stage .amv-point,
+  .g11mv .amv-stage .amv-point-secondary,
+  .g11mv .amv-stage .g11mv-mean-line,
+  .g11mv .amv-stage .g11mv-median-line,
+  .g11mv .amv-stage .g11mv-plane-secondary,
+  .g11mv .amv-stage .g11mv-parallel-copy,
+  .g11mv .amv-stage .g11mv-distance {
+  transition: all .22s ease;
+}
+
+@media (max-width: 680px) {
+  .g11mv .amv-controls:has(.amv-range:nth-child(3)) { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g11mv .amv-stage .amv-primary,
+  .g11mv .amv-stage .amv-secondary,
+  .g11mv .amv-stage .amv-point,
+  .g11mv .amv-stage .amv-point-secondary,
+  .g11mv .amv-stage .g11mv-mean-line,
+  .g11mv .amv-stage .g11mv-median-line,
+  .g11mv .amv-stage .g11mv-plane-secondary,
+  .g11mv .amv-stage .g11mv-parallel-copy,
+  .g11mv .amv-stage .g11mv-distance { transition: none; }
+}

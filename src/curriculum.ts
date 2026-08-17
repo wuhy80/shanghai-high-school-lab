@@ -69,7 +69,9 @@ export const demoIds = [
 const demoByTitle: Record<string, (typeof demoIds)[number]> = {
   '函数图像与参数变换': 'function',
   '随机试验与频率': 'probability',
+  '随机模拟实验': 'probability',
   '单位圆与三角函数': 'unit-circle',
+  '单位圆中的正弦与余弦坐标': 'unit-circle',
   '平抛与斜抛运动': 'projectile',
   '波的叠加与干涉': 'wave',
   '欧姆定律与伏安特性': 'circuit',

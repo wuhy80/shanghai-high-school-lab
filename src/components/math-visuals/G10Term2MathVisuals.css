@@ -1,0 +1,87 @@
+.g10t2-axis,
+.g10t2-grid,
+.g10t2-circle,
+.g10t2-guide,
+.g10t2-tangent,
+.g10t2-asymptote,
+.g10t2-triangle,
+.g10t2-angle,
+.g10t2-angle-secondary,
+.g10t2-modulus-circle {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.g10t2-axis { stroke: var(--line-strong); stroke-width: 2; }
+.g10t2-grid { stroke: var(--line); stroke-width: 1; }
+.g10t2-circle { stroke: var(--line-strong); stroke-width: 3; }
+.g10t2-guide { stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 7 6; }
+.g10t2-tangent { stroke: var(--plot-secondary); stroke-width: 2; }
+.g10t2-asymptote { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 6 7; }
+.g10t2-angle { stroke: var(--accent); stroke-width: 4; }
+.g10t2-angle-secondary { stroke: var(--plot-secondary); stroke-width: 4; }
+
+.g10t2-vector,
+.g10t2-vector-secondary,
+.g10t2-vector-sum,
+.g10t2-wave {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: d 180ms ease, points 180ms ease, x1 180ms ease, x2 180ms ease, y1 180ms ease, y2 180ms ease;
+}
+
+.g10t2-vector { stroke: var(--accent); stroke-width: 5; }
+.g10t2-vector-secondary { stroke: var(--plot-secondary); stroke-width: 4; }
+.g10t2-vector-sum { stroke: var(--ink); stroke-width: 4; }
+.g10t2-wave { stroke: var(--accent); stroke-width: 5; }
+
+.g10t2-point,
+.g10t2-point-secondary {
+  stroke: var(--surface);
+  stroke-width: 4;
+  vector-effect: non-scaling-stroke;
+  transition: cx 180ms ease, cy 180ms ease;
+}
+
+.g10t2-point { fill: var(--accent); }
+.g10t2-point-secondary { fill: var(--plot-secondary); }
+.g10t2-triangle { stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; }
+.g10t2-triangle-fill { fill: var(--accent-soft); }
+.g10t2-modulus-circle { stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 7 7; }
+
+.amv-stage svg marker path { fill: var(--ink); }
+.amv-stage svg .g10t2-vector marker path { fill: var(--accent); }
+.amv-stage svg .g10t2-vector-secondary marker path { fill: var(--plot-secondary); }
+
+.amv-stage svg .g10t2-short-label,
+.amv-stage svg .g10t2-coordinate-label,
+.amv-stage svg .g10t2-axis-label,
+.amv-stage svg .g10t2-side-note {
+  fill: var(--muted);
+  font-size: 18px;
+}
+
+.amv-stage svg .g10t2-coordinate-label,
+.amv-stage svg .g10t2-axis-label { font-size: 16px; }
+.amv-stage svg .g10t2-side-note { font-size: 17px; }
+.amv-stage svg .g10t2-formula { fill: var(--ink); font-size: 20px; font-weight: 500; }
+
+@media (max-width: 420px) {
+  .amv-stage svg .g10t2-short-label,
+  .amv-stage svg .g10t2-side-note { font-size: 28px; }
+  .amv-stage svg .g10t2-coordinate-label,
+  .amv-stage svg .g10t2-axis-label { font-size: 27px; }
+  .amv-stage svg .g10t2-formula { font-size: 30px; }
+  .g10t2-mobile-hide { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g10t2-vector,
+  .g10t2-vector-secondary,
+  .g10t2-vector-sum,
+  .g10t2-wave,
+  .g10t2-point,
+  .g10t2-point-secondary { transition: none; }
+}

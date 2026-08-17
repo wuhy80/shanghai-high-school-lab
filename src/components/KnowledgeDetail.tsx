@@ -8,8 +8,8 @@ import {
   ListChecks,
 } from 'lucide-react'
 import type { CoursePlan, CurriculumUnit, KnowledgeTopic } from '../curriculum'
-import { G10MathVisual } from './math-visuals/G10MathVisual'
-import { isG10MathVisualTopicId } from './math-visuals/g10MathVisualTopics'
+import { MathConceptVisual } from './math-visuals/MathConceptVisual'
+import { isMathVisualTopicId } from './math-visuals/mathVisualTopics'
 
 type KnowledgeDetailProps = {
   course: CoursePlan
@@ -64,7 +64,14 @@ export function KnowledgeDetail({ course, subjectName, topic, unit }: KnowledgeD
         <p className="unit-focus"><GitBranch size={17} aria-hidden="true" /><span><b>{unit.chapter ? '本节联系' : '单元联系'}：</b>{unit.focus}</span></p>
       </section>
 
-      {isG10MathVisualTopicId(topic.id) && <G10MathVisual topicTitle={topic.title} />}
+      {isMathVisualTopicId(topic.id) && (
+        <MathConceptVisual
+          chapter={unit.chapter}
+          topicId={topic.id}
+          topicTitle={topic.title}
+          unitTitle={unit.title}
+        />
+      )}
 
       <section className="reasoning-steps" aria-labelledby={`steps-${topic.id}`}>
         <div className="detail-section-heading">

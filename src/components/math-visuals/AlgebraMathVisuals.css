@@ -1,0 +1,3 @@
+.amv-sequence-baseline { stroke: var(--line-strong); stroke-width: 2; }
+.amv-stage .amv-soft-fill { fill: var(--accent-soft); }
+.amv-stage .amv-secondary-fill { fill: var(--contrast-soft); }

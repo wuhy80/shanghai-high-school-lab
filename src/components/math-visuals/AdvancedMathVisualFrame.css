@@ -1,0 +1,180 @@
+.amv {
+  padding: 28px 0;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+}
+
+.amv-header {
+  display: grid;
+  grid-template-columns: minmax(240px, .8fr) minmax(300px, 1.2fr);
+  align-items: end;
+  gap: 28px;
+  margin-bottom: 20px;
+}
+
+.amv-header span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.amv-header h3 {
+  margin: 5px 0 0;
+  font-size: 23px;
+  line-height: 1.35;
+}
+
+.amv-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.amv-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 18px 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.amv-range {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 10px;
+}
+
+.amv-range > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.amv-range output {
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.amv-range input { width: 100%; accent-color: var(--accent); }
+
+.amv-choices {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.amv-choices legend {
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.amv-choices > div { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.amv-choices button {
+  min-height: 38px;
+  padding: 7px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  color: var(--muted);
+  background: var(--surface);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.amv-choices button[aria-pressed='true'] {
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 700;
+}
+
+.amv-stage {
+  min-width: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--surface-2);
+  background-image: radial-gradient(circle, var(--line) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.amv-stage > svg {
+  width: 100%;
+  height: auto;
+  min-height: 320px;
+  display: block;
+}
+
+.amv-stage svg text {
+  fill: var(--ink);
+  font-family: inherit;
+  font-size: 22px;
+}
+
+.amv-stage svg .amv-label-small { fill: var(--muted); font-size: 19px; }
+.amv-axes line { stroke: var(--line-strong); stroke-width: 2; }
+.amv-axes path { fill: var(--line-strong); }
+.amv-axes text { fill: var(--muted); }
+.amv-primary { fill: none; stroke: var(--accent); stroke-width: 5; }
+.amv-secondary { fill: none; stroke: var(--plot-secondary); stroke-width: 4; }
+.amv-guide { fill: none; stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 8 7; }
+.amv-point { fill: var(--accent); stroke: var(--surface); stroke-width: 4; }
+.amv-point-secondary { fill: var(--plot-secondary); stroke: var(--surface); stroke-width: 4; }
+.amv-soft-fill { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+.amv-secondary-fill { fill: var(--contrast-soft); stroke: var(--plot-secondary); stroke-width: 2; }
+
+.amv-readout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  min-height: 66px;
+  margin: 0;
+  padding: 12px 18px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.amv-readout code,
+.amv-readout strong { color: var(--ink); font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif; font-size: 18px; }
+
+.amv-takeaway {
+  margin: 0;
+  padding: 18px 20px 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.amv-takeaway strong { color: var(--accent-ink); }
+.amv-takeaway code,
+.amv-takeaway i { color: var(--ink); font-family: Cambria, "Times New Roman", "Microsoft YaHei", serif; font-size: 17px; }
+
+@media (max-width: 680px) {
+  .amv { padding-block: 22px; }
+  .amv-header { grid-template-columns: 1fr; gap: 10px; }
+  .amv-header h3 { font-size: 20px; }
+  .amv-header p { font-size: 14px; }
+  .amv-controls { grid-template-columns: 1fr; gap: 14px; padding: 15px 12px; }
+  .amv-stage > svg { min-height: 0; }
+  .amv-takeaway { padding-inline: 8px; font-size: 14px; }
+  .amv-readout { justify-content: flex-start; padding-inline: 10px; font-size: 14px; }
+}
+
+@media (max-width: 380px) {
+  .amv-choices button { padding-inline: 8px; font-size: 12px; }
+  .amv-stage svg text { font-size: 28px; }
+  .amv-stage svg .amv-label-small { font-size: 27px; }
+}

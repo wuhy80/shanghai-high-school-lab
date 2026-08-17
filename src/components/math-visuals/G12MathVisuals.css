@@ -1,0 +1,163 @@
+.g12mv-axis,
+.g12mv-tick,
+.g12mv-space-axis {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.g12mv-tangent {
+  fill: none;
+  stroke: var(--plot-secondary);
+  stroke-width: 4;
+}
+
+.g12mv-sign-chart line,
+.g12mv-selection-brace,
+.g12mv-stem {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.g12mv-sign-chart circle {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.g12mv-rectangle,
+.g12mv-normal-area,
+.g12mv-plane,
+.g12mv-solid-top {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.g12mv-solid-front {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.g12mv-solid-side {
+  fill: var(--contrast-soft);
+  stroke: var(--plot-secondary);
+  stroke-width: 2;
+}
+
+.g12mv-branch {
+  stroke: var(--line-strong);
+  stroke-width: 3;
+}
+
+.g12mv-branch.active {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.g12mv-node-start,
+.g12mv-node,
+.g12mv-object circle,
+.g12mv-pascal-cell circle {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.g12mv-node-active,
+.g12mv-object-selected circle,
+.g12mv-pascal-active circle {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.g12mv-bar {
+  fill: var(--accent);
+}
+
+.g12mv-mean-marker {
+  stroke: var(--plot-secondary);
+  stroke-width: 3;
+  stroke-dasharray: 8 6;
+}
+
+.g12mv-regression-line {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.g12mv-residual {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+
+.g12mv-data-point {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+
+.g12mv-data-outlier {
+  fill: var(--plot-secondary);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+
+.g12mv-table-line {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+
+.g12mv .amv-stage svg .g12mv-expected {
+  fill: var(--muted);
+  font-size: 18px;
+}
+
+.g12mv-conic {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.g12mv-angle {
+  fill: none;
+  stroke: var(--plot-secondary);
+  stroke-width: 4;
+}
+
+.g12mv-arrow-head { fill: var(--accent); }
+
+.g12mv .amv-stage .amv-primary,
+.g12mv .amv-stage .amv-secondary,
+.g12mv .amv-stage .amv-point,
+.g12mv .amv-stage .amv-point-secondary,
+.g12mv .amv-stage .g12mv-tangent,
+.g12mv .amv-stage .g12mv-bar,
+.g12mv .amv-stage .g12mv-conic,
+.g12mv .amv-stage .g12mv-rectangle {
+  transition: all .22s ease;
+}
+
+@media (max-width: 680px) {
+  .g12mv .amv-controls:has(.amv-range:nth-child(3)) { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 380px) {
+  .g12mv .amv-stage svg text { font-size: 29px; }
+  .g12mv .amv-stage svg .g12mv-expected { font-size: 27px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g12mv .amv-stage .amv-primary,
+  .g12mv .amv-stage .amv-secondary,
+  .g12mv .amv-stage .amv-point,
+  .g12mv .amv-stage .amv-point-secondary,
+  .g12mv .amv-stage .g12mv-tangent,
+  .g12mv .amv-stage .g12mv-bar,
+  .g12mv .amv-stage .g12mv-conic,
+  .g12mv .amv-stage .g12mv-rectangle { transition: none; }
+}

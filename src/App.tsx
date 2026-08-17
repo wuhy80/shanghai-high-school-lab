@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { DemoStage } from './components/DemoStage'
 import { KnowledgeDetail } from './components/KnowledgeDetail'
-import { isG10MathVisualTopicId } from './components/math-visuals/g10MathVisualTopics'
+import { isMathVisualTopicId } from './components/math-visuals/mathVisualTopics'
 import {
   allTopics,
   semesterPlans,
@@ -125,7 +125,7 @@ function UnitDirectoryItem({ currentTopicId, isCurrentUnit, onSelect, unit, unit
             >
               <span>{String(topicIndex + 1).padStart(2, '0')}</span>
               <strong>{itemTopic.title}</strong>
-              {itemTopic.demoId ? <small>互动</small> : isG10MathVisualTopicId(itemTopic.id) && <small>图解</small>}
+              {itemTopic.demoId ? <small>互动</small> : isMathVisualTopicId(itemTopic.id) && <small>图解</small>}
             </button>
           </li>
         ))}
@@ -432,7 +432,7 @@ function App() {
 
           <header className="topic-heading">
             <div>
-              <p className="eyebrow">{topic.demoId ? '互动演示' : isG10MathVisualTopicId(topic.id) ? '可视化讲解' : '重点讲解'} · {subject.label}</p>
+              <p className="eyebrow">{topic.demoId ? '互动演示' : isMathVisualTopicId(topic.id) ? '可视化讲解' : '重点讲解'} · {subject.label}</p>
               <h1>{topic.title}</h1>
               <p className="topic-focus">{topic.focus}</p>
             </div>
