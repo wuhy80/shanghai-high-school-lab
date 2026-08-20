@@ -437,6 +437,72 @@ const families: PhysicsFamily[] = [
 
 const fallbackFamily = families[1]
 
+type PhysicsFamilyOverride = {
+  matches: RegExp
+  familyId: string
+}
+
+const titleFamilyOverrides: PhysicsFamilyOverride[] = [
+  {
+    familyId: 'measurement-reference',
+    matches: /^(时刻与时间间隔|位置坐标与位置变化|位移的矢量性|路程的标量性|位移—时间关系)$/,
+  },
+  {
+    familyId: 'force-newton',
+    matches: /^(合力与分力的等效性|平行四边形定则|三角形定则|两个力合力的范围|正交分解法|按效果分解|合力与加速度方向|运动图像与受力图互译|加速度计原理)$/,
+  },
+  {
+    familyId: 'experiment-evidence',
+    matches: /^(传感器验证作用力反作用力|小车质量和砝码质量|a—F图像|a—1\/m图像|图像斜率与截距取义|异常数据的诊断|实验不确定度与拟合|图像拟合与误差传播)$/,
+  },
+  {
+    familyId: 'circular-gravitation',
+    matches: /^(向心加速度方向|向心加速度公式|圆锥摆|转弯临界速度|卫星线速度和角速度|地球静止轨道条件|近地点和远地点速度)$/,
+  },
+  {
+    familyId: 'work-energy',
+    matches: /^(功的定义|功的正负|恒力功的计算|变力功的图像面积|功的标量性|摩擦力做功|重力做功|重力势能|重力势能的相对性|重力做功与势能变化|物体系重力势能|弹簧弹力做功|除重力弹力外的力做功|能量守恒定律|滑块—木板模型|弹簧多阶段过程|能量流向图|多过程动能定理|曲线运动中的动能定理|曲线运动能量分析)$/,
+  },
+  {
+    familyId: 'electrostatics-capacitor',
+    matches: /^(静电平衡与导体内部|带电粒子偏转)$/,
+  },
+  {
+    familyId: 'dc-circuit',
+    matches: /^(电源效率与最大功率|电功率与能量)$/,
+  },
+  {
+    familyId: 'magnetic-particle',
+    matches: /^(电流元在磁场中的受力|带电粒子的匀速圆周运动|带电粒子圆周半径|电磁测量仪器原理|电荷量质量的实验反演)$/,
+  },
+  {
+    familyId: 'momentum-collision',
+    matches: /^碰撞中的临界条件$/,
+  },
+  {
+    familyId: 'oscillation',
+    matches: /^(回复力与加速度关系|简谐运动图像与能量)$/,
+  },
+  {
+    familyId: 'mechanical-wave',
+    matches: /^横波纵波与介质质点$/,
+  },
+  {
+    familyId: 'geometric-wave-optics',
+    matches: /^(双缝干涉|波的反射折射与衍射|双缝干涉条件|光程差与干涉条纹)$/,
+  },
+  {
+    familyId: 'thermal-gas',
+    matches: /^物质的微观模型$/,
+  },
+  {
+    familyId: 'sensor-control',
+    matches: /^电磁场能量传递$/,
+  },
+]
+
+const familyById = new Map(families.map((family) => [family.id, family]))
+
 function stableTopicKey(context: LessonContext) {
   let hash = 2166136261
   for (const character of `${context.unitTitle}|${context.title}`) {
@@ -446,14 +512,26 @@ function stableTopicKey(context: LessonContext) {
   return (hash >>> 0).toString(36)
 }
 
+function longestMatchLength(text: string, pattern: RegExp) {
+  return pattern.source.split('|').reduce((longest, source) => {
+    const match = text.match(new RegExp(source, pattern.flags.replace(/[gy]/g, '')))
+    return Math.max(longest, match?.[0].length ?? 0)
+  }, 0)
+}
+
 function selectFamily(context: LessonContext) {
+  const override = titleFamilyOverrides.find(({ matches }) => matches.test(context.title))
+  const overrideFamily = override ? familyById.get(override.familyId) : undefined
+  if (overrideFamily) return overrideFamily
+
   const candidates = families.map((family, index) => {
-    const titleMatch = context.title.match(family.matches)?.[0].length ?? 0
-    const unitMatch = context.unitTitle.match(family.matches)?.[0].length ?? 0
-    const focusMatch = context.unitFocus.match(family.matches)?.[0].length ?? 0
+    const titleMatch = longestMatchLength(context.title, family.matches)
+    const unitMatch = longestMatchLength(context.unitTitle, family.matches)
+    const focusMatch = longestMatchLength(context.unitFocus, family.matches)
     return { family, index, score: titleMatch * 100 + unitMatch * 10 + focusMatch }
   })
-  return candidates.sort((left, right) => right.score - left.score || left.index - right.index)[0]?.family ?? fallbackFamily
+  const best = candidates.sort((left, right) => right.score - left.score || left.index - right.index)[0]
+  return best && best.score > 0 ? best.family : fallbackFamily
 }
 
 export function buildPhysicsLesson(context: LessonContext): LessonContent | undefined {

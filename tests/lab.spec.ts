@@ -5,6 +5,7 @@ import { subjects, type SubjectId } from '../src/data'
 import { G10_MATH_VISUAL_TOPICS } from '../src/components/math-visuals/g10MathVisualTopics'
 import { APPLIED_LESSON_TEMPLATE_REGRESSIONS } from '../src/lessonApplied'
 import { humanitiesRegressionTemplateByTitle } from '../src/lessonHumanities'
+import { resolveChemistryVisualFamily, resolvePhysicsVisualFamily } from '../src/components/science-visuals/scienceVisualFamilies'
 
 const expectedG10MathLessonTemplates = new Map([
   ['集合的表示与元素关系', 'g10-math-set-language'],
@@ -379,9 +380,9 @@ test('physics and chemistry topics route to their dedicated concept families', a
     { subjectId: 'chemistry', title: '物质的量及单位', family: 'chemistry-stoichiometry' },
     { subjectId: 'chemistry', title: '平衡常数的表达', family: 'chemistry-equilibrium' },
     { subjectId: 'chemistry', title: '原电池电极判断', family: 'chemistry-electrochemistry' },
-    { subjectId: 'chemistry', title: '分子空间构型', family: 'chemistry-bond-molecule-crystal' },
+    { subjectId: 'chemistry', title: '分子空间构型', family: 'chemistry-molecular-geometry' },
     { subjectId: 'chemistry', title: '官能团相互转化', family: 'chemistry-organic-reactions' },
-    { subjectId: 'chemistry', title: '气体制备净化收集', family: 'chemistry-experiment' },
+    { subjectId: 'chemistry', title: '气体制备净化收集', family: 'chemistry-gas-preparation' },
   ] as const
 
   for (const route of routes) {
@@ -389,6 +390,44 @@ test('physics and chemistry topics route to their dedicated concept families', a
     expect(matches.length, `${route.subjectId}/${route.title}: curriculum topic exists`).toBeGreaterThan(0)
     for (const match of matches) {
       expect(match.topic.lesson.templateId, `${match.semester.id}/${route.title}: dedicated lesson family`).toMatch(new RegExp(`^${route.family}--`))
+    }
+  }
+})
+
+test('ambiguous science titles route to the intended visual family', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static science visual route validation only needs one project')
+  const routes = [
+    { subjectId: 'physics', title: '多解与运动方向核验', family: 'motion' },
+    { subjectId: 'physics', title: '重力势能', family: 'energy' },
+    { subjectId: 'physics', title: '静电平衡与导体内部', family: 'electrostatic' },
+    { subjectId: 'physics', title: '碰撞中的临界条件', family: 'momentum' },
+    { subjectId: 'physics', title: '回复力与加速度关系', family: 'oscillation' },
+    { subjectId: 'physics', title: '横波纵波与介质质点', family: 'wave' },
+    { subjectId: 'physics', title: '带电粒子在磁场中的运动', family: 'magnet' },
+    { subjectId: 'physics', title: '理想变压器', family: 'transformer' },
+    { subjectId: 'physics', title: '传感器的输入与输出', family: 'sensor' },
+    { subjectId: 'physics', title: '气体状态变化与图像', family: 'pv-process' },
+    { subjectId: 'physics', title: '原子核衰变规律', family: 'nuclear' },
+    { subjectId: 'chemistry', title: '电解质和非电解质', family: 'ions' },
+    { subjectId: 'chemistry', title: '弱电解质的电离平衡', family: 'acid' },
+    { subjectId: 'chemistry', title: '电离能与电负性', family: 'periodic' },
+    { subjectId: 'chemistry', title: '化学键与反应热', family: 'thermochemistry' },
+    { subjectId: 'chemistry', title: '反应物产物总能量', family: 'thermochemistry' },
+    { subjectId: 'chemistry', title: '晶胞中的粒子计数', family: 'crystal' },
+    { subjectId: 'chemistry', title: '电解池工作原理', family: 'electrolysis-corrosion' },
+    { subjectId: 'chemistry', title: '酸碱中和滴定', family: 'titration' },
+    { subjectId: 'chemistry', title: '气体制备净化与收集', family: 'apparatus' },
+    { subjectId: 'chemistry', title: '烯烃炔烃的加成氧化', family: 'organic-reaction' },
+  ] as const
+
+  for (const route of routes) {
+    const entries = allTopics.filter((entry) => entry.subjectId === route.subjectId && entry.topic.title === route.title)
+    expect(entries.length, `${route.subjectId}/${route.title}: curriculum topic exists`).toBeGreaterThan(0)
+    for (const entry of entries) {
+      const family = route.subjectId === 'physics'
+        ? resolvePhysicsVisualFamily(entry.topic.title, entry.unit.title)
+        : resolveChemistryVisualFamily(entry.topic.title, entry.unit.title)
+      expect(family, `${entry.semester.id}/${route.title}: visual family`).toBe(route.family)
     }
   }
 })
@@ -450,6 +489,63 @@ test('semester-first navigation and global search open the exact course topic', 
   await expect(page.locator('.catalog-header h2')).toHaveText(target.course.book)
   await expect(page.getByRole('heading', { level: 1, name: target.topic.title, exact: true })).toBeVisible()
   await expect(page.locator(`[id="directory-topic-${target.topic.id}"]`)).toHaveAttribute('aria-current', 'page')
+})
+
+test('mobile catalog restores focus and keeps active course filters visible', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile focus flow is covered at 390x844')
+  expect(page.viewportSize()).toEqual({ width: 390, height: 844 })
+  await page.goto('/')
+
+  const catalogTrigger = page.getByRole('button', { name: '课程目录', exact: true })
+  const catalogClose = page.locator('.catalog-close')
+  await catalogTrigger.click()
+  await expect(catalogClose).toBeFocused()
+
+  await page.keyboard.press('Escape')
+  await expect(catalogTrigger).toBeFocused()
+
+  await catalogTrigger.click()
+  await expect(catalogClose).toBeFocused()
+  const nextTopic = page.locator('.catalog-sidebar details[open] li button:not([aria-current="page"])').first()
+  const nextTopicTitle = (await nextTopic.locator('strong').textContent())?.trim()
+  expect(nextTopicTitle, 'a different visible topic in the current catalog section').toBeTruthy()
+  if (!nextTopicTitle) return
+  await nextTopic.click()
+
+  const nextHeading = page.getByRole('heading', { level: 1, name: nextTopicTitle, exact: true })
+  await expect(nextHeading).toBeVisible()
+  await expect(nextHeading).toBeFocused()
+
+  const distantTarget = allTopics.find((entry) => (
+    entry.semester.id === 'g12-1'
+    && entry.subjectId === 'physics'
+    && entry.topic.title === '法拉第电磁感应定律'
+  ))
+  expect(distantTarget, 'a distant semester and subject search target').toBeTruthy()
+  if (!distantTarget) return
+
+  await page.getByRole('searchbox', { name: '搜索全部课程内容' }).fill(distantTarget.topic.title)
+  await page.locator('.search-results button')
+    .filter({ hasText: distantTarget.topic.title })
+    .filter({ hasText: distantTarget.semester.shortLabel })
+    .filter({ hasText: subjectName(distantTarget.subjectId) })
+    .first()
+    .click()
+
+  const distantHeading = page.getByRole('heading', { level: 1, name: distantTarget.topic.title, exact: true })
+  await expect(distantHeading).toBeFocused()
+  await expect(page.locator('.semester-nav button[aria-current="page"]')).toContainText(distantTarget.semester.shortLabel)
+  await expect(page.locator('.subject-nav button[aria-current="page"]')).toContainText(subjectName(distantTarget.subjectId))
+
+  const activeItemIsVisible = async (navSelector: string) => page.locator(navSelector).evaluate((nav) => {
+    const active = nav.querySelector<HTMLButtonElement>('button[aria-current="page"]')
+    if (!active) return false
+    const navBounds = nav.getBoundingClientRect()
+    const activeBounds = active.getBoundingClientRect()
+    return activeBounds.left >= navBounds.left - 1 && activeBounds.right <= navBounds.right + 1
+  })
+  await expect.poll(() => activeItemIsVisible('.semester-nav')).toBe(true)
+  await expect.poll(() => activeItemIsVisible('.subject-nav')).toBe(true)
 })
 
 test('every mapped interactive demo renders and remains numerically valid', async ({ page }, testInfo) => {
@@ -585,7 +681,7 @@ test('representative advanced math visuals fit and remain interactive at every w
 })
 
 test('representative physics and chemistry visual families work at every width', async ({ page }, testInfo) => {
-  test.setTimeout(180_000)
+  test.setTimeout(300_000)
   await page.goto('/')
   const representatives = [
     { semesterId: 'g10-1', subjectId: 'physics', title: '匀变速直线运动的定义', family: 'motion' },
@@ -595,14 +691,39 @@ test('representative physics and chemistry visual families work at every width',
     { semesterId: 'g12-1', subjectId: 'physics', title: '理想气体状态方程', family: 'thermal' },
     { semesterId: 'g12-1', subjectId: 'physics', title: '法拉第电磁感应定律', family: 'induction' },
     { semesterId: 'g12-1', subjectId: 'physics', title: '光电效应的实验规律', family: 'modern' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '理想变压器', family: 'transformer' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '传感器的输入与输出', family: 'sensor' },
+    { semesterId: 'g12-2', subjectId: 'physics', title: '气体状态变化与图像', family: 'pv-process' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '原子核衰变规律', family: 'nuclear' },
+    { semesterId: 'g10-2', subjectId: 'physics', title: '曲线运动的速度方向', family: 'projectile' },
+    { semesterId: 'g10-1', subjectId: 'physics', title: '受力分析的隔离法', family: 'force' },
+    { semesterId: 'g10-2', subjectId: 'physics', title: '万有引力定律', family: 'orbit' },
+    { semesterId: 'g10-2', subjectId: 'physics', title: '机械能守恒条件', family: 'energy' },
+    { semesterId: 'g11-2', subjectId: 'physics', title: '弹性碰撞', family: 'momentum' },
+    { semesterId: 'g11-2', subjectId: 'physics', title: '单摆周期', family: 'oscillation' },
+    { semesterId: 'g12-2', subjectId: 'physics', title: '几何光学成像', family: 'optics' },
+    { semesterId: 'g11-1', subjectId: 'physics', title: '静电平衡与导体内部', family: 'electrostatic' },
     { semesterId: 'g10-1', subjectId: 'chemistry', title: '物质的量及单位', family: 'stoich' },
     { semesterId: 'g10-2', subjectId: 'chemistry', title: '温度影响', family: 'rate' },
     { semesterId: 'g11-2', subjectId: 'chemistry', title: '平衡常数的表达', family: 'equilibrium' },
     { semesterId: 'g11-2', subjectId: 'chemistry', title: '水的离子积与pH', family: 'acid' },
     { semesterId: 'g11-2', subjectId: 'chemistry', title: '原电池电极判断', family: 'electrochem' },
     { semesterId: 'g12-1', subjectId: 'chemistry', title: '分子空间构型', family: 'structure' },
-    { semesterId: 'g12-1', subjectId: 'chemistry', title: '官能团相互转化', family: 'organic' },
-    { semesterId: 'g12-2', subjectId: 'chemistry', title: '气体制备净化收集', family: 'experiment' },
+    { semesterId: 'g12-1', subjectId: 'chemistry', title: '有机物分类与命名', family: 'organic' },
+    { semesterId: 'g12-2', subjectId: 'chemistry', title: '实验变量设计', family: 'experiment' },
+    { semesterId: 'g10-1', subjectId: 'chemistry', title: '离子反应发生条件', family: 'ions' },
+    { semesterId: 'g10-1', subjectId: 'chemistry', title: '电子转移表示法', family: 'redox' },
+    { semesterId: 'g10-2', subjectId: 'chemistry', title: '原子半径递变', family: 'periodic' },
+    { semesterId: 'g11-2', subjectId: 'chemistry', title: '反应能量图与活化能', family: 'thermochemistry' },
+    { semesterId: 'g12-1', subjectId: 'chemistry', title: '晶胞中的粒子计数', family: 'crystal' },
+    { semesterId: 'g10-1', subjectId: 'chemistry', title: '氯气与水反应', family: 'inorganic' },
+    { semesterId: 'g11-2', subjectId: 'chemistry', title: '沉淀溶解平衡', family: 'precipitation' },
+    { semesterId: 'g12-1', subjectId: 'chemistry', title: '质谱红外与核磁信息', family: 'spectrum' },
+    { semesterId: 'g10-2', subjectId: 'chemistry', title: '材料老化与回收', family: 'materials' },
+    { semesterId: 'g11-2', subjectId: 'chemistry', title: '电解池工作原理', family: 'electrolysis-corrosion' },
+    { semesterId: 'g11-2', subjectId: 'chemistry', title: '酸碱中和滴定', family: 'titration' },
+    { semesterId: 'g12-2', subjectId: 'chemistry', title: '气体制备净化收集', family: 'apparatus' },
+    { semesterId: 'g12-1', subjectId: 'chemistry', title: '烯烃炔烃的加成氧化', family: 'organic-reaction' },
   ] as const
 
   for (const representative of representatives) {
@@ -639,6 +760,107 @@ test('representative physics and chemistry visual families work at every width',
   }
 })
 
+test('new science visual families keep every SVG element inside the viewBox', async ({ page }, testInfo) => {
+  test.setTimeout(240_000)
+  await page.goto('/')
+  const representatives = [
+    ['g10-2', 'physics', '曲线运动的速度方向'],
+    ['g10-1', 'physics', '受力分析的隔离法'],
+    ['g10-2', 'physics', '万有引力定律'],
+    ['g10-2', 'physics', '机械能守恒条件'],
+    ['g11-2', 'physics', '弹性碰撞'],
+    ['g11-2', 'physics', '单摆周期'],
+    ['g12-2', 'physics', '几何光学成像'],
+    ['g11-1', 'physics', '静电平衡与导体内部'],
+    ['g12-1', 'physics', '理想变压器'],
+    ['g12-1', 'physics', '传感器的输入与输出'],
+    ['g12-2', 'physics', '气体状态变化与图像'],
+    ['g12-1', 'physics', '原子核衰变规律'],
+    ['g10-1', 'chemistry', '离子反应发生条件'],
+    ['g10-1', 'chemistry', '电子转移表示法'],
+    ['g10-2', 'chemistry', '原子半径递变'],
+    ['g11-2', 'chemistry', '反应能量图与活化能'],
+    ['g12-1', 'chemistry', '晶胞中的粒子计数'],
+    ['g10-1', 'chemistry', '氯气与水反应'],
+    ['g11-2', 'chemistry', '沉淀溶解平衡'],
+    ['g12-1', 'chemistry', '质谱红外与核磁信息'],
+    ['g10-2', 'chemistry', '材料老化与回收'],
+    ['g11-2', 'chemistry', '电解池工作原理'],
+    ['g11-2', 'chemistry', '酸碱中和滴定'],
+    ['g12-2', 'chemistry', '气体制备净化收集'],
+    ['g12-1', 'chemistry', '烯烃炔烃的加成氧化'],
+  ] as const
+
+  const expectInsideViewBox = async (visual: ReturnType<Page['locator']>, label: string) => {
+    const overflow = await visual.locator('svg').evaluate((svg) => {
+      const viewBox = svg.viewBox.baseVal
+      const tolerance = 2
+      return Array.from(svg.querySelectorAll<SVGGraphicsElement>('text,line,path,polyline,polygon,rect,circle,ellipse'))
+        .flatMap((element) => {
+          if (getComputedStyle(element).display === 'none') return []
+          let box: DOMRect
+          try {
+            box = element.getBBox()
+          } catch {
+            return []
+          }
+          const svgMatrix = svg.getScreenCTM()
+          const elementMatrix = element.getScreenCTM()
+          const matrix = svgMatrix && elementMatrix ? svgMatrix.inverse().multiply(elementMatrix) : undefined
+          const corners = [
+            [box.x, box.y],
+            [box.x + box.width, box.y],
+            [box.x, box.y + box.height],
+            [box.x + box.width, box.y + box.height],
+          ].map(([x, y]) => {
+            const point = svg.createSVGPoint()
+            point.x = x
+            point.y = y
+            return matrix ? point.matrixTransform(matrix) : point
+          })
+          const bounds = {
+            x: Math.min(...corners.map((point) => point.x)),
+            y: Math.min(...corners.map((point) => point.y)),
+            width: Math.max(...corners.map((point) => point.x)) - Math.min(...corners.map((point) => point.x)),
+            height: Math.max(...corners.map((point) => point.y)) - Math.min(...corners.map((point) => point.y)),
+          }
+          const outside = bounds.x < viewBox.x - tolerance
+            || bounds.y < viewBox.y - tolerance
+            || bounds.x + bounds.width > viewBox.x + viewBox.width + tolerance
+            || bounds.y + bounds.height > viewBox.y + viewBox.height + tolerance
+          return outside ? [{ tag: element.tagName, text: element.textContent?.trim(), box: bounds }] : []
+        })
+    })
+    expect(overflow, label).toEqual([])
+  }
+
+  for (const [semesterId, subjectId, title] of representatives) {
+    const entry = allTopics.find((item) => item.semester.id === semesterId && item.subjectId === subjectId && item.topic.title === title)
+    expect(entry, `${semesterId}/${subjectId}/${title}: curriculum entry`).toBeTruthy()
+    if (!entry) continue
+    await page.getByRole('searchbox', { name: '搜索全部课程内容' }).fill(title)
+    await page.locator('.search-results button').filter({ hasText: title }).filter({ hasText: entry.semester.shortLabel }).filter({ hasText: subjectName(entry.subjectId) }).first().click()
+    const visual = page.locator(`[data-science-concept-visual="${title}"]`)
+    await expect(visual).toBeVisible()
+    await expectInsideViewBox(visual, `${testInfo.project.name}/${title}/initial`)
+
+    const ranges = visual.locator('input[type="range"]')
+    for (let index = 0; index < await ranges.count(); index += 1) {
+      const range = ranges.nth(index)
+      await range.fill(await range.getAttribute('min') ?? '0')
+      await expectInsideViewBox(visual, `${testInfo.project.name}/${title}/range-${index}-min`)
+      await range.fill(await range.getAttribute('max') ?? '1')
+      await expectInsideViewBox(visual, `${testInfo.project.name}/${title}/range-${index}-max`)
+    }
+
+    const choices = visual.locator('.amv-choices button')
+    for (let index = 0; index < await choices.count(); index += 1) {
+      await choices.nth(index).click()
+      await expectInsideViewBox(visual, `${testInfo.project.name}/${title}/choice-${index}`)
+    }
+  }
+})
+
 test('science animation controls change state and respect reduced motion', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'Animation state regression only needs one browser')
   await page.goto('/')
@@ -649,22 +871,173 @@ test('science animation controls change state and respect reduced motion', async
   const visual = page.locator(`[data-science-concept-visual="${entry.topic.title}"]`)
   const button = visual.locator('.science-play')
   await expect(button).toHaveText('播放动画')
+  const movingDot = visual.locator('.science-dot').first()
+  const initialX = await movingDot.getAttribute('cx')
   await button.click()
   await expect(button).toHaveAttribute('aria-pressed', 'true')
   await expect(button).toHaveText('暂停动画')
-  await button.click()
-  await expect(button).toHaveAttribute('aria-pressed', 'false')
+  await page.waitForTimeout(160)
+  expect(await movingDot.getAttribute('cx')).not.toBe(initialX)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await expect(button).toBeHidden()
+  const stoppedX = await movingDot.getAttribute('cx')
+  await page.waitForTimeout(180)
+  expect(await movingDot.getAttribute('cx')).toBe(stoppedX)
+})
+
+test('science diagrams preserve their core quantitative relationships', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Science invariants only need one browser')
+  await page.goto('/')
+  const entry = (semesterId: SemesterId, subjectId: SubjectId, title: string) => {
+    const match = allTopics.find((item) => item.semester.id === semesterId && item.subjectId === subjectId && item.topic.title === title)
+    expect(match, `${semesterId}/${subjectId}/${title}: curriculum entry`).toBeTruthy()
+    return match
+  }
+
+  const motionEntry = entry('g10-1', 'physics', '匀变速直线运动的定义')
+  if (!motionEntry) return
+  await openTopic(page, motionEntry)
+  const motion = page.locator('[data-science-family="motion"]')
+  await motion.locator('input[type="range"]').nth(0).fill('1')
+  await motion.locator('input[type="range"]').nth(1).fill('0')
+  await expect(motion.locator('svg')).toHaveAttribute('data-displacement', '4.000')
+  await motion.locator('input[type="range"]').nth(1).fill('2')
+  await expect(motion.locator('svg')).toHaveAttribute('data-displacement', '20.000')
+
+  const magnetEntry = entry('g11-1', 'physics', '洛伦兹力方向')
+  if (!magnetEntry) return
+  await openTopic(page, magnetEntry)
+  const magnet = page.locator('[data-science-family="magnet"]')
+  await magnet.locator('input[type="range"]').fill('1')
+  const slowRadius = Number(await magnet.locator('svg').getAttribute('data-orbit-radius'))
+  await magnet.locator('input[type="range"]').fill('6')
+  const fastRadius = Number(await magnet.locator('svg').getAttribute('data-orbit-radius'))
+  expect(fastRadius, 'r=mv/(qB): faster particles have a larger radius').toBeGreaterThan(slowRadius)
+
+  const waveEntry = entry('g11-2', 'physics', '机械波的形成条件')
+  if (!waveEntry) return
+  await openTopic(page, waveEntry)
+  const wave = page.locator('[data-science-family="wave"]')
+  await wave.locator('input[type="range"]').first().fill('1')
+  const lowFrequencyEnd = Number(await wave.locator('[data-wavelength-marker]').getAttribute('x2'))
+  await wave.locator('input[type="range"]').first().fill('4')
+  const highFrequencyEnd = Number(await wave.locator('[data-wavelength-marker]').getAttribute('x2'))
+  expect(highFrequencyEnd, 'v=lambda*f: wavelength shrinks as frequency rises at fixed speed').toBeLessThan(lowFrequencyEnd)
+
+  const inductionEntry = entry('g12-1', 'physics', '法拉第电磁感应定律')
+  if (!inductionEntry) return
+  await openTopic(page, inductionEntry)
+  const induction = page.locator('[data-science-family="induction"]')
+  await induction.locator('input[type="range"]').fill('0')
+  await expect(induction.locator('svg')).toHaveAttribute('data-induced-emf', '0.000')
+  await induction.locator('input[type="range"]').fill('80')
+  await expect(induction.locator('svg')).toHaveAttribute('data-induced-emf', '4.000')
+
+  const transformerEntry = entry('g12-1', 'physics', '理想变压器')
+  if (!transformerEntry) return
+  await openTopic(page, transformerEntry)
+  const transformer = page.locator('[data-science-family="transformer"]')
+  await transformer.locator('input[type="range"]').nth(0).fill('400')
+  await transformer.locator('input[type="range"]').nth(1).fill('800')
+  await expect(transformer.locator('svg')).toHaveAttribute('data-turns-ratio', '2.000')
+  await expect(transformer.locator('svg')).toHaveAttribute('data-output-voltage', '440.000')
+  await expect(transformer.locator('svg')).toHaveAttribute('data-output-current', '0.500')
+
+  const gasEntry = entry('g12-2', 'physics', '气体状态变化与图像')
+  if (!gasEntry) return
+  await openTopic(page, gasEntry)
+  const gas = page.locator('[data-science-family="pv-process"]')
+  await gas.locator('.amv-choices button').filter({ hasText: '等温' }).click()
+  await gas.locator('input[type="range"]').fill('1.6')
+  const gasSvg = gas.locator('svg')
+  expect(Number(await gasSvg.getAttribute('data-pressure')) * Number(await gasSvg.getAttribute('data-volume')), 'isothermal pV remains constant').toBeCloseTo(200, 2)
+  await expect(gasSvg).toHaveAttribute('data-temperature', '300.000')
+
+  const nuclearEntry = entry('g12-1', 'physics', '原子核衰变规律')
+  if (!nuclearEntry) return
+  await openTopic(page, nuclearEntry)
+  const nuclear = page.locator('[data-science-family="nuclear"]')
+  await nuclear.locator('input[type="range"]').nth(0).fill('6')
+  await nuclear.locator('input[type="range"]').nth(1).fill('6')
+  await expect(nuclear.locator('svg')).toHaveAttribute('data-parent-nuclei', '32')
+  await nuclear.locator('input[type="range"]').nth(1).fill('12')
+  await expect(nuclear.locator('svg')).toHaveAttribute('data-parent-nuclei', '16')
+
+  const modernEntry = entry('g12-1', 'physics', '光电效应的实验规律')
+  if (!modernEntry) return
+  await openTopic(page, modernEntry)
+  const modern = page.locator('[data-science-family="modern"]')
+  const n1Y = Number(await modern.locator('[data-energy-level="1"]').getAttribute('y1'))
+  const n4Y = Number(await modern.locator('[data-energy-level="4"]').getAttribute('y1'))
+  expect(n4Y, 'higher atomic energy levels appear higher on the diagram').toBeLessThan(n1Y)
+
+  const acidEntry = entry('g11-2', 'chemistry', '水的离子积与pH')
+  if (!acidEntry) return
+  await openTopic(page, acidEntry)
+  const acid = page.locator('[data-science-family="acid"]')
+  await acid.locator('input[type="range"]').fill('0')
+  await expect(acid.locator('[data-ph-indicator]')).toHaveAttribute('fill', /hsl\(0 /)
+  await acid.locator('input[type="range"]').fill('14')
+  await expect(acid.locator('[data-ph-indicator]')).toHaveAttribute('fill', /hsl\(240 /)
+
+  const rateEntry = entry('g10-2', 'chemistry', '温度影响')
+  if (!rateEntry) return
+  await openTopic(page, rateEntry)
+  const rate = page.locator('[data-science-family="rate"]')
+  await rate.locator('input[type="range"]').first().fill('200')
+  await expect(rate.locator('svg')).toHaveAttribute('data-particle-count', '16')
+  await rate.locator('input[type="range"]').first().fill('500')
+  await expect(rate.locator('svg')).toHaveAttribute('data-particle-count', '16')
+
+  const titrationEntry = entry('g11-2', 'chemistry', '酸碱中和滴定')
+  if (!titrationEntry) return
+  await openTopic(page, titrationEntry)
+  const titration = page.locator('[data-science-family="titration"]')
+  await titration.locator('input[type="range"]').fill('25')
+  await expect(titration.locator('svg')).toHaveAttribute('data-titration-ph', '7.000')
+
+  const electrolysisEntry = entry('g11-2', 'chemistry', '电解池工作原理')
+  if (!electrolysisEntry) return
+  await openTopic(page, electrolysisEntry)
+  const electrolysis = page.locator('[data-science-family="electrolysis-corrosion"]')
+  await electrolysis.locator('.amv-choices button').filter({ hasText: '电解池' }).click()
+  await expect(electrolysis.locator('svg')).toHaveAttribute('data-electrochemistry-mode', 'electrolysis')
+  await expect(electrolysis).toContainText('阳极(+)：2Cl⁻ → Cl₂ + 2e⁻')
 })
 
 test('representative science visuals pass serious and critical WCAG checks in both themes', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'narrow-chromium', 'Axe is covered at desktop and 390px mobile widths')
+  test.setTimeout(180_000)
   await page.addInitScript(() => localStorage.setItem('huzhi-theme', 'light'))
   await page.goto('/')
   const entries = [
     allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'physics' && item.topic.title === '法拉第电磁感应定律'),
     allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'chemistry' && item.topic.title === '原电池电极判断'),
+    allTopics.find((item) => item.semester.id === 'g10-2' && item.subjectId === 'physics' && item.topic.title === '曲线运动的速度方向'),
+    allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'physics' && item.topic.title === '受力分析的隔离法'),
+    allTopics.find((item) => item.semester.id === 'g10-2' && item.subjectId === 'physics' && item.topic.title === '万有引力定律'),
+    allTopics.find((item) => item.semester.id === 'g10-2' && item.subjectId === 'physics' && item.topic.title === '机械能守恒条件'),
+    allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'physics' && item.topic.title === '弹性碰撞'),
+    allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'physics' && item.topic.title === '单摆周期'),
+    allTopics.find((item) => item.semester.id === 'g12-2' && item.subjectId === 'physics' && item.topic.title === '几何光学成像'),
+    allTopics.find((item) => item.semester.id === 'g11-1' && item.subjectId === 'physics' && item.topic.title === '静电平衡与导体内部'),
+    allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'chemistry' && item.topic.title === '离子反应发生条件'),
+    allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'chemistry' && item.topic.title === '电子转移表示法'),
+    allTopics.find((item) => item.semester.id === 'g10-2' && item.subjectId === 'chemistry' && item.topic.title === '原子半径递变'),
+    allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'chemistry' && item.topic.title === '反应能量图与活化能'),
+    allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'chemistry' && item.topic.title === '晶胞中的粒子计数'),
+    allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'chemistry' && item.topic.title === '氯气与水反应'),
+    allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'chemistry' && item.topic.title === '沉淀溶解平衡'),
+    allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'chemistry' && item.topic.title === '质谱红外与核磁信息'),
+    allTopics.find((item) => item.semester.id === 'g10-2' && item.subjectId === 'chemistry' && item.topic.title === '材料老化与回收'),
+    allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'physics' && item.topic.title === '理想变压器'),
+    allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'physics' && item.topic.title === '传感器的输入与输出'),
+    allTopics.find((item) => item.semester.id === 'g12-2' && item.subjectId === 'physics' && item.topic.title === '气体状态变化与图像'),
+    allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'physics' && item.topic.title === '原子核衰变规律'),
+    allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'chemistry' && item.topic.title === '电解池工作原理'),
+    allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'chemistry' && item.topic.title === '酸碱中和滴定'),
+    allTopics.find((item) => item.semester.id === 'g12-2' && item.subjectId === 'chemistry' && item.topic.title === '气体制备净化收集'),
+    allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'chemistry' && item.topic.title === '烯烃炔烃的加成氧化'),
   ]
   expect(entries.every(Boolean), 'science accessibility representatives exist').toBe(true)
 

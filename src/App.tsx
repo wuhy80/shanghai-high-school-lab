@@ -71,6 +71,22 @@ function topicCount(course: CoursePlan) {
   return course.units.reduce((total, unit) => total + unit.topics.length, 0)
 }
 
+function revealActiveNavItem(nav: HTMLElement | null) {
+  if (!nav) return
+  const active = nav.querySelector<HTMLButtonElement>('button[aria-current="page"]')
+  if (!active) return
+
+  const navRect = nav.getBoundingClientRect()
+  const activeRect = active.getBoundingClientRect()
+  if (activeRect.left >= navRect.left && activeRect.right <= navRect.right) return
+
+  const left = nav.scrollLeft + activeRect.left - navRect.left - (nav.clientWidth - activeRect.width) / 2
+  nav.scrollTo({
+    left,
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+  })
+}
+
 function groupUnitsByChapter(units: CurriculumUnit[]) {
   return units.reduce<Array<{ chapter?: string; units: Array<{ unit: CurriculumUnit; index: number }> }>>((groups, unit, index) => {
     const current = groups.at(-1)
@@ -146,6 +162,13 @@ function App() {
   const [catalogOpen, setCatalogOpen] = useState(false)
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
   const searchRef = useRef<HTMLDivElement>(null)
+  const catalogTriggerRef = useRef<HTMLButtonElement>(null)
+  const catalogCloseRef = useRef<HTMLButtonElement>(null)
+  const semesterNavRef = useRef<HTMLElement>(null)
+  const subjectNavRef = useRef<HTMLElement>(null)
+  const topicHeadingRef = useRef<HTMLHeadingElement>(null)
+  const focusTopicHeadingRef = useRef(false)
+  const restoreCatalogTriggerRef = useRef(false)
 
   const semester = semesterPlans.find((item) => item.id === semesterId) ?? semesterPlans[0]
   const subject = subjects.find((item) => item.id === subjectId) ?? subjects[0]
@@ -216,11 +239,42 @@ function App() {
     const closeOverlays = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       setSearchOpen(false)
+      if (catalogOpen) restoreCatalogTriggerRef.current = true
       setCatalogOpen(false)
     }
     document.addEventListener('keydown', closeOverlays)
     return () => document.removeEventListener('keydown', closeOverlays)
-  }, [])
+  }, [catalogOpen])
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      if (catalogOpen) {
+        catalogCloseRef.current?.focus({ preventScroll: true })
+        return
+      }
+      if (focusTopicHeadingRef.current) {
+        focusTopicHeadingRef.current = false
+        restoreCatalogTriggerRef.current = false
+        topicHeadingRef.current?.focus()
+        return
+      }
+      if (restoreCatalogTriggerRef.current) {
+        restoreCatalogTriggerRef.current = false
+        catalogTriggerRef.current?.focus({ preventScroll: true })
+      }
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [catalogOpen, topicId])
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => revealActiveNavItem(semesterNavRef.current))
+    return () => window.cancelAnimationFrame(frame)
+  }, [semesterId])
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => revealActiveNavItem(subjectNavRef.current))
+    return () => window.cancelAnimationFrame(frame)
+  }, [subjectId])
 
   useEffect(() => {
     if (!courseTopics.some((entry) => entry.topic.id === topicId)) setTopicId(firstTopic(course).id)
@@ -240,11 +294,13 @@ function App() {
   }
 
   const selectTopic = (nextTopic: KnowledgeTopic) => {
+    focusTopicHeadingRef.current = true
     setTopicId(nextTopic.id)
     setCatalogOpen(false)
   }
 
   const selectSearchResult = (result: (typeof allTopics)[number]) => {
+    focusTopicHeadingRef.current = true
     setSemesterId(result.semester.id)
     setSubjectId(result.subjectId)
     setTopicId(result.topic.id)
@@ -325,7 +381,7 @@ function App() {
         </div>
       </header>
 
-      <nav className="semester-nav" aria-label="按学期选择课程">
+      <nav className="semester-nav" aria-label="按学期选择课程" ref={semesterNavRef}>
         <p>学习阶段</p>
         <div>
           {semesterPlans.map((item) => (
@@ -343,7 +399,7 @@ function App() {
         </div>
       </nav>
 
-      <nav className="subject-nav" aria-label={`${semester.label}学科`}>
+      <nav className="subject-nav" aria-label={`${semester.label}学科`} ref={subjectNavRef}>
         <div>
           {subjects.map((item) => {
             const Icon = subjectIcons[item.id]
@@ -370,8 +426,12 @@ function App() {
           <strong>{course.book}</strong>
         </div>
         <button
+          ref={catalogTriggerRef}
           type="button"
-          onClick={() => setCatalogOpen(true)}
+          onClick={() => {
+            restoreCatalogTriggerRef.current = false
+            setCatalogOpen(true)
+          }}
           aria-expanded={catalogOpen}
           aria-controls="curriculum-directory"
         >
@@ -380,14 +440,20 @@ function App() {
       </div>
 
       <div className="workspace">
-        {catalogOpen && <button className="drawer-scrim" type="button" onClick={() => setCatalogOpen(false)} aria-label="关闭课程目录" />}
+        {catalogOpen && <button className="drawer-scrim" type="button" onClick={() => {
+          restoreCatalogTriggerRef.current = true
+          setCatalogOpen(false)
+        }} aria-label="关闭课程目录" />}
         <aside className="catalog-sidebar" id="curriculum-directory" aria-label={`${subject.name}教材目录`}>
           <div className="catalog-header">
             <div>
               <p>{semester.label} · {subject.name}</p>
               <h2>{course.book}</h2>
             </div>
-            <button className="catalog-close" type="button" onClick={() => setCatalogOpen(false)} aria-label="关闭课程目录">
+            <button ref={catalogCloseRef} className="catalog-close" type="button" onClick={() => {
+              restoreCatalogTriggerRef.current = true
+              setCatalogOpen(false)
+            }} aria-label="关闭课程目录">
               <X size={18} />
             </button>
           </div>
@@ -435,7 +501,7 @@ function App() {
           <header className="topic-heading">
             <div>
               <p className="eyebrow">{topic.demoId ? '互动演示' : (isMathVisualTopicId(topic.id) || subject.id === 'physics' || subject.id === 'chemistry') ? '可视化讲解' : '重点讲解'} · {subject.label}</p>
-              <h1>{topic.title}</h1>
+              <h1 ref={topicHeadingRef} tabIndex={-1}>{topic.title}</h1>
               <p className="topic-focus">{topic.focus}</p>
             </div>
             <div className="topic-index" aria-label={`本课程第 ${currentIndex + 1} 个知识点，共 ${courseTopics.length} 个`}>

@@ -20,7 +20,7 @@ type ChemistryFamily = {
 const families: ChemistryFamily[] = [
   {
     id: 'chemistry-classification-ions',
-    keywords: ['物质分类', '分散系', '胶体', '电解质', '电离', '导电性', '离子反应', '离子方程式'],
+    keywords: ['物质分类', '纯净物', '混合物', '物质类别', '分类标准', '分散系', '胶体', '电解质', '电离', '导电性', '离子反应', '离子方程式'],
     question: '宏观上看到的均一、浑浊、导电或生成沉淀，分别对应哪些真实微粒和变化？',
     core: '分类的依据必须唯一且可检验；溶液导电来自可自由移动的离子，离子反应则由沉淀、气体或弱电解质的生成推动。',
     macro: '宏观层先记录光束、浑浊、导电和沉淀等证据，再确定分类标准。胶体的丁达尔效应来自分散质粒子对光的散射，不等于发生化学反应；电解质必须是化合物，并且在水溶液或熔融状态产生离子。',
@@ -140,7 +140,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-inorganic-network',
-    keywords: ['卤素', '氯及', '硫及', '氮及', '硅与', '硅及', '无机非金属', '无机物转化', '元素转化', '氯硫氮', '陌生元素'],
+    keywords: ['卤素', '氯及', '氯气', '氯水', '硫及', '硫酸', '氮及', '氮气', '氮氧化物', '氮循环', '氨与', '铵盐', '硝酸', '氮肥', '硅与', '硅及', '无机非金属', '无机物转化', '元素转化', '氯硫氮', '陌生元素'],
     question: '怎样沿“物质类别—元素价态—反应条件”三条线建立无机物转化网络，而不是孤立背方程式？',
     core: '元素化合物网络以核心元素的价态为纵轴、氧化物酸碱性等物质类别为横轴，箭头必须写清反应物、介质和温度等条件。',
     macro: '宏观层用颜色、气味、沉淀、气体和试纸变化验证转化，但有毒或刺激性气体必须在通风与尾气处理条件下观察。相同元素不同价态的氧化还原能力还受酸碱介质与浓度影响。',
@@ -160,7 +160,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-metals-materials',
-    keywords: ['钠镁铝', '铁及', '铁铜', '金属腐蚀', '合金', '金属冶炼', '资源循环', '金属材料'],
+    keywords: ['钠镁铝', '钠的', '氧化钠', '碳酸钠', '镁与', '铝与', '氧化铝', '氢氧化铝', '铝盐', '铝热', '铁及', '铁铜', '亚铁', '铁离子', '金属活动性', '金属腐蚀', '合金', '金属冶炼', '资源循环', '金属材料'],
     question: '金属活动性、价态和材料微结构怎样共同决定反应、冶炼、腐蚀与使用性能？',
     core: '金属化学要同时追踪失电子倾向、表面膜和反应条件；材料性能则由成分、结构与加工过程共同决定，不能由单一金属活动性解释。',
     macro: '宏观层比较与水、酸、碱和氧化剂的现象，并注意 Al、Fe 等可能钝化。合金通常比纯金属硬但熔点和延展性可不同；冶炼方法取决于金属活泼性和资源、能耗、污染约束。',
@@ -180,7 +180,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-thermochemistry',
-    keywords: ['能量变化', '反应热', '能量图', '化学键与反应热', '吸热', '放热', '焓变', '热化学', '盖斯', '燃烧热', '能源评价', '活化能'],
+    keywords: ['能量变化', '反应物产物总能量', '反应热', '能量图', '化学键与反应热', '吸热', '放热', '焓变', '热化学', '盖斯', '燃烧热', '能源评价', '活化能'],
     question: '如何区分反应的热效应、反应快慢和反应路径，并用能量守恒计算难以直接测量的焓变？',
     core: '焓变 ΔH=生成物总焓−反应物总焓，只由始态与终态决定；活化能控制速率而不改变 ΔH，催化剂改变路径但不改变热效应。',
     macro: '量热实验测的是体系与环境的热交换，需用 q=mcΔT 并考虑量热器吸热、散热和不完全反应。热化学方程式的物态、系数和温压均属于数值条件，方程式倍乘时 ΔH 也同比例变化。',
@@ -260,7 +260,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-electrochemistry',
-    keywords: ['原电池', '化学电源', '燃料电池', '电极反应', '电子流向', '电解池', '电解规律', '电化学定量', '新型电池', '电化学腐蚀'],
+    keywords: ['原电池', '化学电源', '燃料电池', '正极和负极', '电极反应', '电子流向', '离子迁移', '盐桥', '电解池', '电解规律', '电化学定量', '新型电池', '电化学腐蚀'],
     question: '如何同时追踪电极反应、电子流、离子迁移与能量方向，准确分析原电池和电解池？',
     core: '阳极永远发生氧化、阴极永远发生还原；原电池把自发氧化还原的化学能转成电能，电解池用外电源推动非自发反应。',
     macro: '电极增重、减重、析气和溶液颜色变化是电极过程的证据。原电池电子经外电路由负极流向正极；电解池电源负极连接阴极。盐桥或隔膜允许离子迁移以维持两侧电中性，而不是传递电子。',
@@ -280,7 +280,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-organic-structure-id',
-    keywords: ['有机化合物分类', '有机物命名', '同系物', '同分异构', '能团性质与检验'],
+    keywords: ['有机化合物分类', '有机物分类', '有机物命名', '有机命名', '碳原子的四价性', '碳骨架', '结构式和结构简式', '球棍模型', '同系物', '同分异构', '官能团的识别', '官能团性质与检验'],
     question: '怎样从碳骨架与官能团识别有机物，并系统完成命名、同分异构枚举和性质预测？',
     core: '有机物结构分析先定官能团、再定主链和编号；分子式相同而连接或空间排列不同才是同分异构，官能团决定主要反应类型。',
     macro: '沸点、溶解性和检验现象来自碳骨架大小、极性及氢键的共同作用。银镜、溴水褪色等现象必须结合试剂条件解释，不能把“褪色”唯一归因于某一种官能团。',
@@ -300,7 +300,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-organic-reactions',
-    keywords: ['甲烷', '烷烃', '取代与构象', '乙烯', '烯烃', '炔烃', '加成', '苯及', '芳香烃', '卤代烃', '乙醇', '乙酸', '醇酚', '醛酮', '羧酸', '酯化', '水解', '胺酰胺', '有机反应类型', '反应条件', '有机合成路线', '官能团保护', '有机合成'],
+    keywords: ['甲烷', '烷烃', '取代与构象', '乙烯', '烯烃', '炔烃', '加成', '苯及', '芳香烃', '卤代烃', '乙醇', '乙酸', '醇酚', '醛酮', '羧酸', '酯化', '水解', '胺酰胺', '有机反应类型', '有机合成路线', '官能团保护', '有机合成'],
     question: '怎样沿官能团变化追踪有机反应，并利用碳骨架守恒、条件选择和产率设计合成路线？',
     core: '有机反应的主线是“官能团如何改变、碳骨架是否改变、需要什么条件”；取代、加成、消去、氧化还原和酯化水解不能只靠试剂名称判断。',
     macro: '溴水褪色、银镜、沉淀或气味变化只是反应证据，必须设置空白并考虑萃取、酸碱反应等干扰。合成设计通常从目标官能团逆推直接前体，再正向核对每一步条件和选择性。',
@@ -340,7 +340,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-organic-analysis',
-    keywords: ['有机物分离', '分离提纯', '质谱', '红外', '核磁信息', '波谱'],
+    keywords: ['有机物分离', '有机物分离提纯', '质谱', '红外', '核磁信息', '波谱', '结构信息综合推断', '谱图证据', '有机定量分析'],
     question: '怎样把沸点、溶解性和质谱、红外、核磁证据组合起来，完成有机物分离与结构鉴定？',
     core: '结构鉴定不是凭单一峰猜答案：质谱给相对分子质量和碎片，红外识别官能团，核磁给不同化学环境及氢数比例，最后用分子式与不饱和度闭合。',
     macro: '分离先利用沸点、溶解度或酸碱性差异选择蒸馏、萃取、洗涤和重结晶。每一步都要说明目标物在哪一相；分液时要识别上下层、及时放气，并用少量多次提高萃取效率。',
@@ -360,7 +360,7 @@ const families: ChemistryFamily[] = [
   },
   {
     id: 'chemistry-experiment',
-    keywords: ['实验安全', '气体制备', '净化', '收集', '物质分离提纯与检验', '定量实验', '条件控制', '变量设计', '异常现象', '方案改进', '误差分析'],
+    keywords: ['实验', '实验安全', '气体制备', '净化', '收集', '物质分离提纯与检验', '定量实验', '条件控制', '变量设计', '异常现象', '方案改进', '误差分析'],
     question: '怎样沿“目的—原理—装置—操作—证据—评价”设计实验，并用守恒和对照判断结果是否可信？',
     core: '实验方案必须让现象能唯一回答问题：装置匹配反应条件与物性，操作控制变量，证据排除替代解释，评价同时考虑安全、误差与废物处理。',
     macro: '制气装置由反应物状态和加热条件选择，净化顺序要避免引入新杂质，收集方法取决于溶解性、密度和是否与空气反应。定量实验的读数、洗涤、转移和终点判断都可能产生方向明确的误差。',
@@ -380,17 +380,276 @@ const families: ChemistryFamily[] = [
   },
 ]
 
+function baseFamily(id: string): ChemistryFamily {
+  const family = families.find((candidate) => candidate.id === id)
+  if (!family) throw new Error(`Unknown chemistry family: ${id}`)
+  return family
+}
+
+const specializedFamilies: ChemistryFamily[] = [
+  {
+    ...baseFamily('chemistry-inorganic-network'),
+    id: 'chemistry-silicon-material',
+    keywords: ['硅酸盐', '二氧化硅', '硅单质', '半导体材料', '无机硅材料'],
+    question: '怎样从硅氧骨架、制备条件和材料结构解释硅、二氧化硅、硅酸盐与半导体的性质和用途？',
+    core: '硅材料的性质取决于硅原子的成键方式和硅氧网络：晶体硅的共价结构适合半导体应用，二氧化硅和硅酸盐的网络结构决定硬度、耐热与化学稳定性。',
+    macro: '石英、玻璃、陶瓷、水泥和晶体硅的外观与用途不同，比较时要把原料、结构、加工温度和性能联系起来。硅酸盐组成常用氧化物形式表达，但这种写法不是说材料由游离氧化物简单混合。',
+    micro: '微观层追踪 Si—O 共价网络、晶格缺陷和掺杂带来的载流子变化。符号层写硅酸盐转化时要核对硅元素守恒，并区分 SiO₂ 与强碱反应、硅酸盐酸化和硅酸脱水等条件。',
+    steps: [
+      { label: '识别结构单元', detail: '区分晶体硅、二氧化硅网络和不同硅酸盐，标出主要成键方式与结构层次。' },
+      { label: '连接制备转化', detail: '写清熔融、酸化、还原或掺杂条件，沿硅元素守恒追踪原料到产品。' },
+      { label: '评价材料性能', detail: '从硬度、耐热、导电、成本和回收等维度说明结构为何适合具体用途。' },
+    ],
+    example: {
+      prompt: '向 Na₂SiO₃ 溶液通入足量 CO₂，写出反应并说明所得凝胶加热后的变化。',
+      reasoning: ['CO₂与水形成的酸性环境使 SiO₃²⁻转化为难溶的 H₂SiO₃，离子反应可写为 SiO₃²⁻+CO₂+H₂O→H₂SiO₃↓+CO₃²⁻。', '硅酸凝胶受热逐步失水形成多孔 SiO₂；宏观形态变化来自硅氧网络重新连接。'],
+      result: '该过程把硅酸盐酸化、硅酸凝胶形成与二氧化硅网络联系起来，条件和产物形态都应写明。',
+    },
+    check: { question: '玻璃可以写成若干氧化物的组合式，能否据此说玻璃只是这些氧化物的机械混合物？', answer: '不能。组合式用于表示平均组成，玻璃内部形成了连续的硅氧网络，不是各氧化物保持原状的简单混合。' },
+    pitfall: '不要把 SiO₂ 类比成 CO₂ 分子，也不要由“半导体”推出硅在任何条件下都容易导电；结构、温度和掺杂共同决定性能。',
+  },
+  {
+    ...baseFamily('chemistry-bond-molecule-crystal'),
+    id: 'chemistry-molecular-geometry',
+    keywords: ['价层电子对互斥', '杂化轨道', '分子的极性', '分子空间结构', '分子构型'],
+    question: '怎样从 Lewis 结构、电子域和孤电子对逐步推出分子构型、键角与分子极性？',
+    core: '分子构型由中心原子的电子域排斥决定，孤电子对通常比成键电子对占据更大空间；分子极性则是全部键偶极按空间方向叠加后的结果。',
+    macro: '沸点、溶解性和介电行为可作为分子极性与分子间作用力的证据，但物性还受相对分子质量和氢键影响，不能由单一性质反推唯一构型。',
+    micro: '先由总价电子数画 Lewis 结构，把单键、多键和孤电子对分别计为电子域，再由电子域构型删去孤电子对得到分子构型；最后按对称性判断键偶极是否抵消。',
+    steps: [
+      { label: '画 Lewis 结构', detail: '计算总价电子数，确定中心原子、成键关系、孤电子对和可能的形式电荷。' },
+      { label: '数电子域', detail: '将每个成键方向和孤电子对计为一个电子域，依据排斥强弱判断几何和键角。' },
+      { label: '叠加键偶极', detail: '结合键极性与空间对称性作矢量叠加，判断整个分子的极性并联系物性。' },
+    ],
+    example: {
+      prompt: '比较 CH₄、NH₃ 和 H₂O 的电子域构型、分子构型和键角。',
+      reasoning: ['三者中心原子都有4个电子域，电子域构型均为正四面体；孤电子对数依次为0、1、2。', '孤电子对排斥更强，使分子构型依次为正四面体、三角锥形、V形，键角依次减小。'],
+      result: '电子域构型相同不等于分子构型相同；孤电子对数决定可见原子排列和键角变化。',
+    },
+    check: { question: 'CO₂含有极性 C=O 键，为什么整个分子是非极性的？', answer: 'CO₂为直线形，两个大小相等、方向相反的键偶极完全抵消，所以分子总偶极矩为零。' },
+    pitfall: '不能把平面结构式直接当空间构型，也不能只数与中心原子相连的原子数而漏掉孤电子对。',
+  },
+  {
+    ...baseFamily('chemistry-crystal-types'),
+    id: 'chemistry-crystal-cell',
+    keywords: ['晶胞及其粒子计数', '晶胞中的粒子计数', '晶体参数与密度计算'],
+    question: '怎样按共享比例准确计算晶胞中的粒子数，并把组成、配位和晶格参数连接到晶体密度？',
+    core: '晶胞边界粒子必须按相邻晶胞共享份额计数；一个晶胞的有效粒子数确定化学式，粒子质量与晶胞体积之比则连接到宏观密度。',
+    macro: '晶体模型是周期结构的截取，不是独立分子。测得的密度和衍射晶格参数可反向检验晶胞模型，但模型中画出的球数不能直接当有效粒子数。',
+    micro: '顶点、棱、面心和体心粒子的份额分别是1/8、1/4、1/2和1。密度计算先求一个晶胞中各粒子的式量总和，再除以 Nₐ 和晶胞实际体积。',
+    steps: [
+      { label: '分类所有占位', detail: '按顶点、棱、面心、体心和内部位置分别统计每类粒子的几何个数。' },
+      { label: '乘共享份额', detail: '将几何个数乘对应份额得到有效个数，化成最简比并核对电荷或化学式。' },
+      { label: '连接密度参数', detail: '把晶胞质量写成有效式量除以阿伏加德罗常数，体积统一换算后求密度。' },
+    ],
+    example: {
+      prompt: '某面心立方金属晶胞边长为 a，一个晶胞含多少原子？写出密度表达式。',
+      reasoning: ['8个顶点贡献8×1/8=1，6个面心贡献6×1/2=3，所以每个晶胞含4个原子。', '一个晶胞质量为4M/Nₐ，体积为a³，因此ρ=4M/(Nₐa³)，使用时要统一a的长度单位。'],
+      result: '面心立方晶胞有效含4个原子，密度由原子摩尔质量和晶胞边长共同决定。',
+    },
+    check: { question: '一个粒子位于晶胞棱上时，为什么只计入四分之一？', answer: '一条棱由四个相邻晶胞共享，所以该棱上粒子对每个晶胞的贡献为1/4。' },
+    pitfall: '最常见错误是直接数模型中的球、漏乘共享份额，或在密度计算中没有把晶胞边长换成与密度单位一致的长度。',
+  },
+  {
+    ...baseFamily('chemistry-organic-analysis'),
+    id: 'chemistry-organic-separation',
+    keywords: ['有机物分离提纯', '有机混合物分离'],
+    question: '怎样利用沸点、溶解度和酸碱性差异选择有机物分离流程，并在每一步追踪目标物所在相？',
+    core: '有机分离的关键不是记仪器名称，而是先制造可利用的物性差异，再通过萃取、洗涤、蒸馏或重结晶完成相间转移和纯化。',
+    macro: '分液要先确认两相是否互不相溶、上下层密度和目标物分布；蒸馏依据沸点差，重结晶依据溶解度随温度变化。操作结束还需用沸点、色谱或谱图检验纯度。',
+    micro: '酸碱萃取通过质子转移把中性有机物转成水溶性离子，调回pH后再析出目标物。少量多次萃取每次重新建立分配平衡，通常优于一次使用等体积溶剂。',
+    steps: [
+      { label: '寻找物性差异', detail: '比较沸点、溶解度、密度和酸碱性，明确目标物与杂质可以在哪一步分开。' },
+      { label: '逐步追踪目标相', detail: '为每次萃取、洗涤、分液或蒸馏标出目标物处于水相、有机相还是馏分。' },
+      { label: '回收并验纯', detail: '调节pH或除去溶剂回收目标物，再用合适的物理常数或分析信号检验纯度。' },
+    ],
+    example: {
+      prompt: '苯甲酸与萘的混合物溶于乙醚，设计分离流程。',
+      reasoning: ['用NaHCO₃溶液萃取，苯甲酸转化为水溶性的苯甲酸钠进入水相，萘留在乙醚层。', '分出水相后加酸使苯甲酸重新析出；乙醚层蒸去溶剂得到萘，两条支路分别验纯。'],
+      result: '酸碱反应制造了溶解性差异，必须在每一步明确目标物所在相并避免误弃。',
+    },
+    check: { question: '萃取时一次用30 mL溶剂与三次各用10 mL相比，通常哪种更充分？', answer: '在分配系数相同且两相互不相溶时，少量多次萃取通常更充分。' },
+    pitfall: '分液前不确认上下层、萃取后不追踪目标相，或酸化时忽略放气和pH边界，都会导致产物损失。',
+  },
+  {
+    ...baseFamily('chemistry-organic-analysis'),
+    id: 'chemistry-organic-spectroscopy',
+    keywords: ['质谱红外与核磁信息', '质谱与红外信息', '谱图证据与结构确认'],
+    question: '怎样按“分子式—不饱和度—官能团—氢环境”的顺序整合质谱、红外和核磁证据？',
+    core: '波谱鉴定需要证据闭合：质谱约束相对分子质量，红外定位官能团，核磁给化学环境数和相对氢数，任何候选结构都必须同时解释全部信号。',
+    macro: '样品纯度和溶剂峰会影响谱图，峰强也不总能直接当原子数。先确认分子离子峰、特征吸收和积分是否可靠，再排除与分子式或化学性质冲突的候选。',
+    micro: '电子或核所处化学环境不同会产生不同能量响应。不饱和度先限制环和多键总数，红外锁定官能团，核磁信号数、积分和裂分再确定片段连接方式。',
+    steps: [
+      { label: '确定分子式约束', detail: '由分子离子峰、元素分析和不饱和度确定总原子数以及环、多键的可能数量。' },
+      { label: '提取特征信号', detail: '先读关键红外峰，再统计核磁信号数、积分比和邻氢裂分，形成结构片段。' },
+      { label: '拼接并全谱核验', detail: '组合片段后重新检查分子式、不饱和度和每一个主要谱峰，排除不能解释的候选。' },
+    ],
+    example: {
+      prompt: '某物质分子式 C₂H₆O，红外有宽 O—H 峰，¹H NMR有三组信号且积分比3∶2∶1，判断结构。',
+      reasoning: ['分子式候选包括乙醇和二甲醚，宽O—H峰说明含羟基，排除二甲醚。', '三组信号分别对应CH₃、CH₂和OH，积分3∶2∶1与CH₃CH₂OH完全一致。'],
+      result: '候选结构为乙醇，分子式、红外和核磁证据相互闭合。',
+    },
+    check: { question: '红外出现羰基吸收峰，能否据此唯一判断物质是醛？', answer: '不能。酮、羧酸、酯等也含羰基，还要结合O—H、C—H特征峰及核磁或化学检验。' },
+    pitfall: '不能用一个峰直接猜结构，也不能把质谱基峰默认成分子离子峰；所有证据必须与分子式同时相容。',
+  },
+  {
+    ...baseFamily('chemistry-aqueous-equilibrium'),
+    id: 'chemistry-acid-base-titration',
+    keywords: ['酸碱中和滴定', '酸碱滴定与定量实验', '酸碱滴定'],
+    question: '怎样从化学计量、滴定曲线和指示剂变色范围确定滴定结果，并判断读数和操作误差的方向？',
+    core: '酸碱滴定先由计量关系判断过量粒子，再用平衡求pH；化学计量点、滴定终点和滴定曲线突跃区是三个相关但不完全相同的概念。',
+    macro: '滴定前要润洗、排气泡、读初始体积并做平行实验。指示剂变色范围应落在突跃区，终点颜色要浅且短时间稳定，不能通过多加标准液追求颜色明显。',
+    micro: '强酸强碱先按H⁺与OH⁻物质的量反应；弱酸或弱碱体系在计量点附近还要考虑缓冲、电离或水解。符号层始终使用实际加入体积和总混合体积。',
+    steps: [
+      { label: '算计量关系', detail: '由标准液浓度和滴定体积求物质的量，按方程式判断待测物或过量粒子。' },
+      { label: '定位曲线区域', detail: '区分起始、缓冲、半计量、计量点和过量区，选择对应的pH计算模型。' },
+      { label: '核查终点误差', detail: '比较指示剂终点与计量点，并逐项判断润洗、气泡、读数和过量滴定的误差方向。' },
+    ],
+    example: {
+      prompt: '用0.1000 mol/L NaOH滴定20.00 mL盐酸，平均消耗18.60 mL，求盐酸浓度。',
+      reasoning: ['HCl与NaOH按1∶1反应，n(NaOH)=0.1000×0.01860=1.860×10⁻³ mol。', '盐酸取样体积为0.02000 L，因此c(HCl)=1.860×10⁻³/0.02000=0.09300 mol/L。'],
+      result: '盐酸浓度为0.09300 mol/L，结果应结合滴定管和移液管精度保留有效数字。',
+    },
+    check: { question: '滴定管尖嘴中开始有气泡、终点时气泡消失，会使计算的待测浓度偏高还是偏低？', answer: '读出的体积包含填充气泡的体积，实际进入锥形瓶的标准液较少，按读数计算会使待测浓度偏高。' },
+    pitfall: '不能把指示剂刚变色等同于理论计量点，也不能只背误差结论；必须追踪读数、实际加入量和计算量之间的方向。',
+  },
+  {
+    ...baseFamily('chemistry-experiment'),
+    id: 'chemistry-separation-identification',
+    keywords: ['物质分离提纯与检验', '分离提纯与检验', '未知物检验方案', '混合物分离流程'],
+    question: '怎样先利用物性差异完成分离，再通过相互独立且能排除干扰的现象确认各组分？',
+    core: '分离与检验必须按顺序设计：先避免检验试剂互相干扰，再利用溶解度、沸点、粒径或反应选择性分离，最后对不同馏分或滤液分别验证。',
+    macro: '过滤、结晶、蒸馏、萃取和洗涤各自利用不同物性。检验现象只有在空白、试剂顺序和干扰排除明确时才构成证据，沉淀颜色或气味通常不能单独确认物质。',
+    micro: '微观层追踪每一步哪些粒子留在滤渣、滤液、水相或有机相。符号层写净离子方程式，并检查前一步残留试剂是否会在后一步产生相同现象。',
+    steps: [
+      { label: '列组分与干扰', detail: '写出各组分的溶解性、挥发性和特征反应，标出会产生相同现象的干扰物。' },
+      { label: '先分离后检验', detail: '选择过滤、结晶、蒸馏或萃取并跟踪各组分去向，再安排检验试剂顺序。' },
+      { label: '形成证据闭环', detail: '为阳性和阴性结果设置对照，用方程式解释现象，并检查回收率与废液安全。' },
+    ],
+    example: {
+      prompt: '设计方案分离 NaCl 与 BaSO₄ 固体混合物，并分别确认两种组分。',
+      reasoning: ['加水搅拌后过滤，NaCl进入滤液，BaSO₄留在滤渣；洗涤滤渣可减少附着的Cl⁻。', '滤液可先酸化再加AgNO₃检验Cl⁻，滤渣依据不溶性并结合Ba、S元素检验形成相互支持的证据。'],
+      result: '流程利用溶解度差分离，检验对象和试剂顺序均与各组分所在部分对应。',
+    },
+    check: { question: '检验SO₄²⁻时为什么通常先用盐酸酸化，再加入BaCl₂？', answer: '先酸化可排除CO₃²⁻、SO₃²⁻等也会与Ba²⁺形成白色沉淀的干扰。' },
+    pitfall: '不能在未分离的混合物中连续加入多种试剂后凭最终现象下结论，也不能忘记跟踪目标物所在部分。',
+  },
+  {
+    ...baseFamily('chemistry-experiment'),
+    id: 'chemistry-gas-preparation',
+    keywords: ['气体制备净化与收集', '实验室制氯气', '实验室制氨气', '发生装置选择'],
+    question: '怎样依据反应物状态、加热条件和气体物性，完成发生、净化、干燥、收集、检验与尾气处理的整套装置设计？',
+    core: '气体实验是一条连续物质流：发生装置由反应条件决定，净化和干燥要按杂质来源排序，收集由溶解性、密度和反应性决定，末端必须处理安全风险。',
+    macro: '连接装置前先检查气密性，装药后控制反应速率。洗气瓶长进短出，干燥剂不能与目标气体反应；有毒、可燃或易倒吸体系还要设置吸收、防爆和安全瓶。',
+    micro: '微观层列出目标气体、夹带蒸气和副产气体，逐个选择只除杂质而不消耗目标物的试剂。符号层用主反应和除杂反应核对物质流向，并说明空气排尽的判断方法。',
+    steps: [
+      { label: '选择发生装置', detail: '根据固液状态、是否加热和反应速率选择装置，先检查气密性再装药。' },
+      { label: '安排净化收集', detail: '按杂质来源选择洗气和干燥剂，再依据溶解性、密度与反应性确定收集方法。' },
+      { label: '补齐检验安全', detail: '说明验纯或检验位置、尾气处理、倒吸防护以及实验结束时的操作顺序。' },
+    ],
+    example: {
+      prompt: '用大理石与稀盐酸制干燥CO₂，说明发生、净化、干燥和收集顺序。',
+      reasoning: ['采用固液不加热装置，生成气体可能夹带HCl和水蒸气，先用饱和NaHCO₃除HCl，再用浓H₂SO₄干燥。', 'CO₂能溶于水且密度大于空气，采用向上排空气法收集，并防止气体在密闭系统中持续积聚。'],
+      result: '装置顺序为发生→除HCl→干燥→向上排空气收集，净化与干燥顺序不能颠倒。',
+    },
+    check: { question: '制取NH₃时为什么不能用浓硫酸干燥？', answer: 'NH₃是碱性气体，会与浓硫酸发生反应而被消耗，应选择碱石灰等不与NH₃反应的干燥剂。' },
+    pitfall: '不能只画发生装置；净化剂与目标气体的相容性、空气排尽、尾气处理和倒吸风险都属于方案的一部分。',
+  },
+  {
+    ...baseFamily('chemistry-metals-materials'),
+    id: 'chemistry-materials-sustainability',
+    keywords: ['化学材料', '硅酸盐材料', '半导体材料', '复合材料', '材料老化', '资源利用', '循环化学', '绿色化学', '原子经济性', '生命周期评价', '环境评价', '环境保护', '污染', '海水淡化', '煤的干馏', '石油分馏', '天然气化工'],
+    question: '怎样把材料结构、工艺流程、资源效率、污染风险和生命周期数据放进同一套方案评价？',
+    core: '材料和绿色化学问题不是用途清单，而是“结构—性能—制备—使用—回收”的系统权衡；原子经济性、能耗、毒性和可循环性必须分别评价。',
+    macro: '工业流程要标原料、产品、副产物、循环物流和污染控制。材料选择需同时比较强度、耐热、耐蚀、成本和寿命，不能仅凭某一项性能宣布方案更绿色。',
+    micro: '微观结构决定材料性能，反应选择性和分离难度决定资源消耗。符号层用原子利用率、产率、能耗或排放等量化指标比较方案，并明确系统边界。',
+    steps: [
+      { label: '画清物质能量流', detail: '列出原料、主产品、副产物、循环物和能量输入，标出每股物流的去向。' },
+      { label: '比较结构与性能', detail: '从组成、微结构和加工过程解释材料性能，并检查是否满足真实使用约束。' },
+      { label: '做全周期评价', detail: '分别比较原子经济性、实际产率、能耗、毒性、排放、寿命和回收，说明评价边界。' },
+    ],
+    example: {
+      prompt: '比较“直接填埋废塑料”和“分类回收再生”两种方案，至少给出四类评价指标。',
+      reasoning: ['应比较原料替代量、分选与再加工能耗、再生材料性能及不可回收残渣，而不能只看是否减少填埋。', '还需纳入运输、添加剂毒性、微塑料风险和产品寿命；不同系统边界可能改变结论。'],
+      result: '合理结论应说明适用的塑料类别和地区条件，并用资源、能量、环境和性能多指标支持。',
+    },
+    check: { question: '原子经济性高的反应是否一定是最绿色的工艺？', answer: '不一定。还要考虑实际产率、试剂毒性、溶剂、能耗、分离成本、安全和废物处理。' },
+    pitfall: '“可回收”“天然”或“高原子经济性”都不是单独充分的绿色结论，必须说明系统边界和可比较指标。',
+  },
+  {
+    ...baseFamily('chemistry-stoichiometry'),
+    id: 'chemistry-integrated-reasoning',
+    keywords: ['综合推断', '证据链', '模型假设', '跨模块', '开放探究'],
+    question: '面对跨模块或陌生信息，怎样先识别证据和守恒约束，再选择最合适的化学模型？',
+    core: '综合题的稳定入口是对象、条件、证据和守恒：先区分事实与假设，再判断需要粒子、反应、平衡、结构还是实验模型，最后检查结论边界。',
+    macro: '流程图、图像、装置和文字信息要逐项翻译成可观察量与操作条件。结论必须由数据支持，并主动排查相同现象的替代解释和测量误差。',
+    micro: '微观层选择真实粒子、电子、键或晶格作为模型对象；符号层依次检查元素、质量、电荷、电子和能量守恒，避免把不同阶段的数据直接混算。',
+    steps: [
+      { label: '整理对象证据', detail: '列出已知物质、条件、现象、数据和待求结论，区分直接证据与推测。' },
+      { label: '选择模型守恒', detail: '判断主导过程并选择粒子、氧化还原、平衡、结构或实验模型，列对应守恒关系。' },
+      { label: '交叉验证边界', detail: '用另一条证据链复核结果，检查特殊条件、替代解释、数量级和结论适用范围。' },
+    ],
+    example: {
+      prompt: '某无色溶液可能含Cl⁻、SO₄²⁻和CO₃²⁻，怎样设计有顺序的检验并说明证据边界？',
+      reasoning: ['先取样酸化并观察是否放气，以排除CO₃²⁻对后续沉淀的干扰；不同检验应使用新的分样。', '检验SO₄²⁻可在酸化后加Ba²⁺，检验Cl⁻用另一份酸化样加Ag⁺；每个结论都要排除前一步试剂引入的同名离子。'],
+      result: '分样、试剂顺序和干扰排除共同构成证据链，不能在同一试管连续加试剂后直接归因。',
+    },
+    check: { question: '综合题中计算满足守恒，是否就能保证化学结论正确？', answer: '不能。还要确认反应是否发生、条件是否匹配、模型对象是否选对，以及是否存在副反应或替代解释。' },
+    pitfall: '不要看到“综合”就把所有公式串联；先识别主导过程和阶段边界，再选择守恒关系。',
+  },
+]
+
+const allFamilies = [...families, ...specializedFamilies]
+const familyById = new Map(allFamilies.map((family) => [family.id, family]))
+
 const regressionFamilies: Array<[RegExp, string]> = [
   [/硅.*无机非金属材料/, 'chemistry-silicon-material'],
-  [/分子空间结构与杂化|价层电子对互斥模型|杂化轨道与分子构型|分子的极性/, 'chemistry-molecular-geometry'],
-  [/晶胞及其粒子计数/, 'chemistry-crystal-cell'],
+  [/分子空间结构与杂化|分子空间构型|价层电子对互斥模型|杂化轨道与分子构型|分子的极性/, 'chemistry-molecular-geometry'],
+  [/晶胞及其粒子计数|晶胞中的粒子计数|晶体参数与密度计算/, 'chemistry-crystal-cell'],
   [/晶体与非晶体|分子晶体与共价晶体|离子晶体与金属晶体|晶体结构与材料性能|分子晶体结构与性质/, 'chemistry-crystal-types'],
-  [/有机化合物分类与命名|同系物与同分异构体|有机物命名与同分异构/, 'chemistry-organic-structure-id'],
+  [/有机化合物分类与命名|有机物分类与命名|同系物与同分异构体|有机物命名与同分异构|有机命名与异构/, 'chemistry-organic-structure-id'],
   [/有机物分离提纯/, 'chemistry-organic-separation'],
-  [/质谱红外与核磁信息/, 'chemistry-organic-spectroscopy'],
-  [/酸碱中和滴定|酸碱滴定与定量实验/, 'chemistry-acid-base-titration'],
-  [/物质分离提纯与检验/, 'chemistry-separation-identification'],
-  [/气体制备净化与收集/, 'chemistry-gas-preparation'],
+  [/质谱红外与核磁信息|质谱与红外信息|谱图证据与结构确认/, 'chemistry-organic-spectroscopy'],
+  [/酸碱中和滴定|酸碱滴定与定量实验|酸碱滴定/, 'chemistry-acid-base-titration'],
+  [/物质分离提纯与检验|分离提纯与检验|未知物检验方案|混合物分离流程/, 'chemistry-separation-identification'],
+  [/气体制备净化(?:与)?收集|实验室制氯气|实验室制氨气|发生装置选择/, 'chemistry-gas-preparation'],
+]
+
+const titleFamilyRoutes: Array<[RegExp, string]> = [
+  [/^强弱电解质初步$/, 'chemistry-classification-ions'],
+  [/纯净物与混合物|单质、氧化物、酸碱盐|树状分类与交叉分类|化合、分解、置换、复分解|物质类别间的转化|分类标准的适用范围/, 'chemistry-classification-ions'],
+  [/离子检验的证据链|^硫酸根检验$|^卤离子的检验$|^铵根离子检验$|^铁离子检验$/, 'chemistry-separation-identification'],
+  [/氯气的物理性质|氯气与金属|氯气与氢气|氯气与水|氯水成分|氯气与碱|尾气吸收|海水提溴|空气吹出与富集|海带灼烧浸取|碘的萃取和升华/, 'chemistry-inorganic-network'],
+  [/浓硫酸|铜与浓硫酸|硫酸工业|氮气的结构|自然固氮|一氧化氮与二氧化氮|氮氧化物|氮循环|氨的物理性质|氨与水|氨与酸|铵盐受热|硝酸|金属钝化|氮肥/, 'chemistry-inorganic-network'],
+  [/钠的保存|钠与水|氧化钠|碳酸钠|焰色试验|含钠物质|镁与水和酸|铝与氧气|铝与酸和碱|氧化铝|氢氧化铝|铝盐和偏铝酸盐|铝热反应|铝的两性|铁的二价三价互变|金属活动性与冶炼方法/, 'chemistry-metals-materials'],
+  [/电解法制备活泼金属|^正极和负极$|^氧化反应和还原反应$|^离子迁移$|^盐桥的作用$/, 'chemistry-electrochemistry'],
+  [/反应物产物总能量|化学键变化与反应热/, 'chemistry-thermochemistry'],
+  [/有机物与无机物|碳原子的四价性|碳碳单键双键三键|^碳骨架$|结构式和结构简式|球棍模型和空间填充模型|有机官能团的识别/, 'chemistry-organic-structure-id'],
+  [/反应条件对产物的影响|工业合成条件选择|多平衡体系的主次判断|综合平衡图像|反应原理综合图像/, 'chemistry-equilibrium'],
+  [/^键能与键长$|结构决定性质的证据链/, 'chemistry-bond-molecule-crystal'],
+  [/元素性质综合推断/, 'chemistry-atomic-periodic'],
+  [/结构信息综合推断|有机定量分析|定性定量证据链/, 'chemistry-organic-analysis'],
+  [/守恒法处理综合计算/, 'chemistry-stoichiometry'],
+  [/无机有机综合推断|实验现象与微粒变化对应|模型假设与证据边界|跨模块综合实验|流程图条件评价|开放探究与方案改进/, 'chemistry-integrated-reasoning'],
+  [/无机流程图/, 'chemistry-inorganic-network'],
+  [/硅酸盐材料|半导体材料|塑料纤维橡胶|复合材料|材料老化与回收|煤的干馏|石油分馏|石油裂化和裂解|天然气化工|海水淡化|资源利用率|循环化学|大气污染与酸雨|水体富营养化|重金属污染|白色污染|绿色化学原则|原子经济性|生命周期评价|能源与环境评价|安全边界与绿色化学|方案评价与绿色实验/, 'chemistry-materials-sustainability'],
+]
+
+const unitFamilyRoutes: Array<[RegExp, string]> = [
+  [/走进化学实验室|综合实验与微型项目|化学实验与探究/, 'chemistry-experiment'],
+  [/物质的分类与转化/, 'chemistry-classification-ions'],
+  [/氯气的性质|海水提溴与海带提碘|硫酸和硫酸盐|氮气与氮的氧化物|氨和铵盐|硝酸与含氮化合物|无机元素化合物网络/, 'chemistry-inorganic-network'],
+  [/钠及其化合物|镁、铝及其化合物|金属与材料/, 'chemistry-metals-materials'],
+  [/化学反应中的热量变化|化学反应与能量变化/, 'chemistry-thermochemistry'],
+  [/化学能转化为电能|电化学原理/, 'chemistry-electrochemistry'],
+  [/有机化合物与碳骨架/, 'chemistry-organic-structure-id'],
+  [/化学材料|化学资源的综合利用|环境保护与绿色化学/, 'chemistry-materials-sustainability'],
+  [/反应速率与限度|化学反应速率与平衡/, 'chemistry-rate'],
+  [/物质结构与性质/, 'chemistry-bond-molecule-crystal'],
+  [/分子结构与性质/, 'chemistry-molecular-geometry'],
+  [/有机物结构与研究方法/, 'chemistry-organic-analysis'],
+  [/有机化合物与生活|烃及卤代烃|含氧含氮有机物|有机合成与高分子/, 'chemistry-organic-reactions'],
+  [/物质结构与有机化学/, 'chemistry-integrated-reasoning'],
 ]
 
 const topicInsights: Array<[RegExp, string]> = [
@@ -424,16 +683,25 @@ function familyScore(family: ChemistryFamily, text: string): number {
   return family.keywords.reduce((best, keyword) => text.includes(keyword) ? Math.max(best, keyword.length) : best, 0)
 }
 
-function resolveFamily(context: LessonContext): ChemistryFamily {
-  const titleBest = families
-    .map((family) => ({ family, score: familyScore(family, context.title) }))
-    .sort((a, b) => b.score - a.score)[0]
-  if (titleBest && titleBest.score > 0) return titleBest.family
+function routedFamily(routes: Array<[RegExp, string]>, text: string): ChemistryFamily | undefined {
+  const familyId = routes.find(([pattern]) => pattern.test(text))?.[1]
+  return familyId ? familyById.get(familyId) : undefined
+}
 
-  const unitBest = families
-    .map((family) => ({ family, score: familyScore(family, context.unitTitle) }))
+function keywordFamily(text: string): ChemistryFamily | undefined {
+  const best = allFamilies
+    .map((family) => ({ family, score: familyScore(family, text) }))
     .sort((a, b) => b.score - a.score)[0]
-  return unitBest?.score ? unitBest.family : families[families.length - 1]
+  return best?.score ? best.family : undefined
+}
+
+function resolveFamily(context: LessonContext): ChemistryFamily {
+  return routedFamily(regressionFamilies, context.title)
+    ?? routedFamily(titleFamilyRoutes, context.title)
+    ?? keywordFamily(context.title)
+    ?? routedFamily(unitFamilyRoutes, context.unitTitle)
+    ?? keywordFamily(context.unitTitle)
+    ?? familyById.get('chemistry-integrated-reasoning')!
 }
 
 function topicInsight(title: string, family: ChemistryFamily): string {
@@ -444,13 +712,11 @@ function topicInsight(title: string, family: ChemistryFamily): string {
 /** Builds a chemistry-specific lesson. Call only for the chemistry subject. */
 export function buildChemistryLesson(context: LessonContext): LessonContent | undefined {
   const family = resolveFamily(context)
-  const regressionId = regressionFamilies.find(([pattern]) => pattern.test(context.title))?.[1]
-  const familyId = regressionId ?? family.id
   const focus = context.unitFocus.trim()
   const insight = topicInsight(context.title, family)
 
   return {
-    templateId: `${familyId}--${stableTopicKey(`${context.unitTitle}|${context.title}`)}`,
+    templateId: `${family.id}--${stableTopicKey(`${context.unitTitle}|${context.title}`)}`,
     guidingQuestion: `研究“${context.title}”时，${family.question}`,
     core: `“${context.title}”的关键不是记住一个孤立结论。${family.core}${insight}`,
     explanation: [

@@ -56,6 +56,60 @@
 .science-stage { fill: var(--surface); stroke: var(--line-strong); stroke-width: 2; }
 .science-stage-active { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
 .science-process-arrow { fill: none; stroke: var(--line-strong); stroke-width: 3; marker-end: none; }
+.science-trajectory, .science-ray, .science-trend-line, .science-reaction-curve, .science-spectrum-line { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.science-ramp { fill: var(--surface-3); stroke: var(--line-strong); stroke-width: 2; stroke-linejoin: round; }
+.science-block { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+.science-friction { stroke: var(--contrast); stroke-width: 4; stroke-linecap: round; }
+.science-bar-track { fill: var(--surface-3); }
+.science-energy-potential { fill: var(--accent); }
+.science-energy-kinetic { fill: var(--contrast); }
+.science-energy-thermal { fill: var(--line-strong); }
+.science-cart { stroke: var(--line-strong); stroke-width: 2; }
+.science-cart-a { fill: var(--accent-soft); }
+.science-cart-b { fill: var(--contrast-soft); }
+.science-wheel { fill: var(--ink); }
+.science-wall { fill: var(--line-strong); }
+.science-spring { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linejoin: round; }
+.science-lens { fill: color-mix(in srgb, var(--accent-soft) 72%, transparent); stroke: var(--accent); stroke-width: 3; }
+.science-object, .science-image { stroke: var(--ink); stroke-width: 5; }
+.science-object-head { fill: var(--ink); }
+.science-image { stroke: var(--contrast); }
+.science-image-virtual, .science-ray-extension { stroke-dasharray: 8 6; }
+.science-ray-extension { stroke: var(--line-strong); stroke-width: 2; }
+.science-planet { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+.science-satellite { fill: var(--contrast); stroke: var(--surface); stroke-width: 3; }
+.science-charge { stroke-width: 3; }
+.science-charge-positive { fill: var(--accent-soft); stroke: var(--accent); }
+.science-charge-negative { fill: var(--contrast-soft); stroke: var(--contrast); }
+.science-charge-label, .science-ion-label { fill: var(--ink); font-size: 18px; font-weight: 700; }
+.science-probe { fill: var(--ink); stroke: var(--surface); stroke-width: 3; }
+.science-field-line { fill: none; stroke: var(--line-strong); stroke-width: 2; }
+.science-ion { stroke: var(--surface); stroke-width: 2; }
+.science-ion-a { fill: var(--accent); }
+.science-ion-b { fill: var(--contrast); }
+.science-spectator { fill: var(--muted); opacity: .65; }
+.science-precipitate { fill: var(--contrast); opacity: .9; }
+.science-redox-donor { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+.science-redox-acceptor { fill: var(--contrast-soft); stroke: var(--contrast); stroke-width: 3; }
+.science-electron-path { stroke: var(--line-strong); stroke-width: 3; stroke-dasharray: 8 6; }
+.science-electron-pending { fill: var(--muted); opacity: .34; }
+.science-trend-point { fill: var(--surface); stroke: var(--accent); stroke-width: 4; }
+.science-chart-value { fill: var(--ink); font-size: 15px; }
+.science-energy-level { stroke: var(--line-strong); stroke-width: 3; }
+.science-network-node { fill: var(--surface); stroke: var(--line-strong); stroke-width: 2; }
+.science-network-node-active { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 4; }
+.science-network-link { stroke: var(--line-strong); stroke-width: 3; }
+.science-network-link-active { stroke: var(--contrast); stroke-width: 5; }
+.science-cell { fill: none; stroke: var(--line-strong); stroke-width: 3; stroke-linejoin: round; }
+.science-crystal-particle { fill: var(--accent); stroke: var(--surface); stroke-width: 2; opacity: .82; }
+.science-crystal-center { fill: var(--contrast); }
+.science-crystal-face { fill: var(--accent-strong); }
+.science-cell-count { fill: var(--ink); font-size: 42px; font-weight: 700; }
+.science-equilibrium-arrow { stroke: var(--accent); stroke-width: 4; }
+.science-spectrum-peak { stroke: var(--accent); stroke-width: 6; }
+.science-recycle-path { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 10 6; }
+.science-material-recycled { fill: var(--accent); }
+.science-material-waste { fill: var(--contrast); }
 
 @media (max-width: 760px) {
   .science-visual .amv { padding: 24px 17px 22px; }

@@ -1,6 +1,38 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { SubjectId } from '../../data'
 import { MathChoices, MathRange, MathVisualFrame } from '../math-visuals/AdvancedMathVisualFrame'
+import {
+  ChemistryCrystalVisual,
+  ChemistryInorganicVisual,
+  ChemistryIonVisual,
+  ChemistryMaterialsVisual,
+  ChemistryPeriodicVisual,
+  ChemistryPrecipitationVisual,
+  ChemistryRedoxVisual,
+  ChemistrySpectrumVisual,
+  ChemistryThermochemistryVisual,
+  PhysicsElectrostaticVisual,
+  PhysicsEnergyVisual,
+  PhysicsForceVisual,
+  PhysicsMomentumVisual,
+  PhysicsOpticsVisual,
+  PhysicsOrbitVisual,
+  PhysicsOscillationVisual,
+  PhysicsProjectileVisual,
+} from './AdvancedScienceVisuals'
+import {
+  ChemistryApparatusVisual,
+  ElectrolysisCorrosionVisual,
+  OrganicReactionVisual,
+  TitrationVisual,
+} from './ChemistrySupplementVisuals'
+import {
+  NuclearDecayVisual,
+  PVProcessVisual,
+  SensorVisual,
+  TransformerVisual,
+} from './PhysicsSupplementVisuals'
+import { resolveChemistryVisualFamily, resolvePhysicsVisualFamily } from './scienceVisualFamilies'
 import './ScienceConceptVisual.css'
 
 type ScienceConceptVisualProps = {
@@ -19,33 +51,43 @@ function PlayButton({ playing, onToggle }: { playing: boolean; onToggle: () => v
 function useTicker(initial = 0, step = 0.04, max = 1) {
   const [value, setValue] = useState(initial)
   const [playing, setPlaying] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(reducedMotion)
   useEffect(() => {
-    if (!playing || reducedMotion()) return undefined
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setReduceMotion(media.matches)
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
+  useEffect(() => {
+    if (!playing || reduceMotion) return undefined
     const timer = window.setInterval(() => setValue((current) => (current + step >= max ? 0 : current + step)), 40)
     return () => window.clearInterval(timer)
-  }, [max, playing, step])
+  }, [max, playing, reduceMotion, step])
   return { value, setValue, playing, setPlaying }
 }
 
 function PhysicsMotionVisual({ topicTitle }: { topicTitle: string }) {
   const { value: time, setValue: setTime, playing, setPlaying } = useTicker(0, 0.035, 1)
-  const [acceleration, setAcceleration] = useState(2)
-  const position = 48 + 500 * (0.5 - 0.5 * Math.cos(time * Math.PI * 2))
-  const velocity = 5 * Math.sin(time * Math.PI * 2)
-  const accelerationValue = acceleration * Math.cos(time * Math.PI * 2)
+  const [acceleration, setAcceleration] = useState(1.5)
+  const seconds = time * 4
+  const initialVelocity = 1
+  const displacement = initialVelocity * seconds + acceleration * seconds * seconds / 2
+  const position = 48 + displacement * 20
+  const velocity = initialVelocity + acceleration * seconds
   return <MathVisualFrame
-    title={`${topicTitle}：运动状态的连续变化`}
-    summary="拖动时间或播放动画，比较位置、速度和加速度。速度是位置图像的斜率，加速度是速度图像的斜率。"
-    controls={<><MathRange label="时间 t" value={time} min={0} max={1} step={0.01} output={`${(time * 4).toFixed(2)} s`} onChange={setTime} /><MathRange label="加速度幅值" value={acceleration} min={0.5} max={4} step={0.5} output={`${acceleration.toFixed(1)} m/s²`} onChange={setAcceleration} /><PlayButton playing={playing} onToggle={() => setPlaying((current) => !current)} /></>}
-    takeaway={<>同一时刻的位移、速度、加速度要放回同一参考系判断；速度为零不代表加速度为零。</>}
+    title={`${topicTitle}：恒加速度运动状态联动`}
+    summary="拖动时间或播放运动，位置按二次函数增长，速度按一次函数增长，加速度保持恒定。调节加速度后，三项读数会按同一组运动方程同步变化。"
+    controls={<><MathRange label="时间 t" value={time} min={0} max={1} step={0.01} output={`${seconds.toFixed(2)} s`} onChange={setTime} /><MathRange label="加速度 a" value={acceleration} min={0} max={2} step={0.25} output={`${acceleration.toFixed(2)} m/s²`} onChange={setAcceleration} /><PlayButton playing={playing} onToggle={() => setPlaying((current) => !current)} /></>}
+    takeaway={<>本图满足 <code>x=v₀t+at²/2</code>、<code>v=v₀+at</code>；加速度为零时退化为匀速直线运动。</>}
   >
-    <svg viewBox="0 0 640 300" role="img" aria-label={`${topicTitle}运动示意，当前位置 ${position.toFixed(0)}，速度 ${velocity.toFixed(1)}`}>
-      <title>{topicTitle}运动示意</title><desc>小球沿水平轨道运动，箭头表示速度，读数随时间变化。</desc>
+    <svg viewBox="0 0 640 300" role="img" data-displacement={displacement.toFixed(3)} data-velocity={velocity.toFixed(3)} data-acceleration={acceleration.toFixed(3)} aria-label={`${topicTitle}运动示意，当前位置 ${position.toFixed(0)}，速度 ${velocity.toFixed(1)}`}>
+      <title>{topicTitle}恒加速度运动</title><desc>小球沿水平轨道作恒加速度运动，位置、速度和加速度读数满足同一组运动方程。</desc>
       <line className="science-axis" x1="42" y1="150" x2="598" y2="150" /><line className="science-guide" x1="42" y1="184" x2="598" y2="184" />
-      <circle className="science-dot" cx={position} cy="150" r="13" /><line className="science-vector" x1={position} y1="150" x2={position + velocity * 11} y2="150" />
+      <circle className="science-dot" cx={position} cy="150" r="13" /><line className="science-vector" x1={position} y1="150" x2={Math.min(594, position + velocity * 8)} y2="150" />
       <text className="science-label" x="45" y="214">0</text><text className="science-label" x="574" y="214">x</text><text className="science-label" x={clamp(position - 22, 48, 550)} y="117">v = {velocity.toFixed(1)} m/s</text>
-      <rect className="science-meter" x="58" y="32" width="150" height="56" rx="4" /><text className="science-meter-label" x="72" y="55">a(t)</text><text className="science-meter-value" x="72" y="76">{accelerationValue.toFixed(1)} m/s²</text>
-      <rect className="science-meter science-meter-alt" x="224" y="32" width="150" height="56" rx="4" /><text className="science-meter-label" x="238" y="55">x(t)</text><text className="science-meter-value" x="238" y="76">{((position - 48) / 50).toFixed(1)} m</text>
+      <rect className="science-meter" x="58" y="32" width="150" height="56" rx="4" /><text className="science-meter-label" x="72" y="55">a(t)</text><text className="science-meter-value" x="72" y="76">{acceleration.toFixed(2)} m/s²</text>
+      <rect className="science-meter science-meter-alt" x="224" y="32" width="150" height="56" rx="4" /><text className="science-meter-label" x="238" y="55">x(t)</text><text className="science-meter-value" x="238" y="76">{displacement.toFixed(1)} m</text>
     </svg>
   </MathVisualFrame>
 }
@@ -75,7 +117,7 @@ function PhysicsElectricVisual({ topicTitle }: { topicTitle: string }) {
 function PhysicsMagnetVisual({ topicTitle }: { topicTitle: string }) {
   const [speed, setSpeed] = useState(4)
   const [charge, setCharge] = useState<'正电荷' | '负电荷'>('正电荷')
-  const radius = clamp(120 - speed * 12, 42, 120)
+  const radius = 40 + speed * 16
   const sign = charge === '正电荷' ? 1 : -1
   const endX = 320 + radius * Math.cos(sign > 0 ? -0.95 : 0.95)
   const endY = 170 + radius * Math.sin(sign > 0 ? -0.95 : 0.95)
@@ -85,13 +127,13 @@ function PhysicsMagnetVisual({ topicTitle }: { topicTitle: string }) {
     controls={<><MathRange label="速度 v" value={speed} min={1} max={6} step={1} output={`${speed} ×10⁶ m/s`} onChange={setSpeed} /><MathChoices label="电荷类型" value={charge} choices={[{ value: '正电荷', label: '正电荷' }, { value: '负电荷', label: '负电荷' }]} onChange={(value) => setCharge(value as typeof charge)} /></>}
     takeaway={<>半径 <code>r=mv/(qB)</code> 随速度增大而增大；换成负电荷，弯曲方向反向，但周期关系仍由质量、电荷量和磁感应强度决定。</>}
   >
-    <svg viewBox="0 0 640 300" role="img" aria-label={`${topicTitle}${charge}轨迹，半径 ${radius.toFixed(0)}`}>
+    <svg viewBox="0 0 640 300" role="img" data-orbit-radius={radius} aria-label={`${topicTitle}${charge}轨迹，半径 ${radius.toFixed(0)}`}>
       <title>{topicTitle}洛伦兹力示意</title><desc>匀强磁场中带电粒子沿圆弧运动，速度和洛伦兹力互相垂直。</desc>
       <rect className="science-field" x="42" y="30" width="556" height="240" rx="6" />
       {Array.from({ length: 30 }, (_, index) => <text key={index} className="science-field-mark" x={70 + (index % 10) * 52} y={65 + Math.floor(index / 10) * 62}>×</text>)}
       <path className="science-orbit" d={`M ${320 - radius} 170 A ${radius} ${radius} 0 1 1 ${endX} ${endY}`} /><circle className="science-dot" cx={320 - radius} cy="170" r="11" />
       <line className="science-vector" x1={320 - radius} y1="170" x2={320 - radius + 42} y2="170" /><line className="science-force" x1={320 - radius} y1="170" x2={320 - radius} y2={170 - sign * 48} />
-      <text className="science-label" x={320 - radius + 46} y="164">v</text><text className="science-label" x={320 - radius + 8} y={170 - sign * 56}>F</text><text className="science-label" x="480" y="252">B 垂直纸面向里</text>
+      <text className="science-label" x={320 - radius + 46} y="164">v</text><text className="science-label" x={320 - radius + 8} y={170 - sign * 56}>F</text><text className="science-label" x="438" y="252">B 垂直纸面向里</text>
     </svg>
   </MathVisualFrame>
 }
@@ -104,6 +146,9 @@ function PhysicsWaveVisual({ topicTitle }: { topicTitle: string }) {
     const y = 150 - 54 * Math.sin(index / 120 * Math.PI * 2 * frequency - phase * Math.PI * 2)
     return `${x},${y}`
   }).join(' ')
+  const wavelength = 556 / frequency
+  const wavelengthStart = 50
+  const wavelengthEnd = wavelengthStart + wavelength
   return <MathVisualFrame
     title={`${topicTitle}：波形、波长与频率`}
     summary="波形图是某一时刻空间各点的位移快照。播放后看波峰向右传播，调节频率可比较周期和波长的变化。"
@@ -113,8 +158,8 @@ function PhysicsWaveVisual({ topicTitle }: { topicTitle: string }) {
     <svg viewBox="0 0 640 300" role="img" aria-label={`${topicTitle}波形，频率 ${frequency} 赫兹`}>
       <title>{topicTitle}波形传播</title><desc>正弦波在水平介质中传播，标出了一个波长和振幅。</desc>
       <line className="science-axis" x1="42" y1="150" x2="598" y2="150" /><polyline className="science-wave" points={points} />
-      <line className="science-guide" x1="95" y1="96" x2="95" y2="204" /><line className="science-guide" x1="95" y1="96" x2="234" y2="96" /><line className="science-guide" x1="234" y1="96" x2="234" y2="150" />
-      <text className="science-label" x="148" y="84">λ</text><text className="science-label" x="105" y="116">A</text><text className="science-label" x="500" y="220">传播方向 →</text>
+      <line className="science-guide" x1={wavelengthStart} y1="82" x2={wavelengthStart} y2="150" /><line className="science-guide" data-wavelength-marker="true" x1={wavelengthStart} y1="82" x2={wavelengthEnd} y2="82" /><line className="science-guide" x1={wavelengthEnd} y1="82" x2={wavelengthEnd} y2="150" />
+      <text className="science-label" x={(wavelengthStart + wavelengthEnd) / 2} y="70" textAnchor="middle">λ</text><text className="science-label" x="105" y="116">A</text><text className="science-label" x="450" y="220">传播方向 →</text>
     </svg>
   </MathVisualFrame>
 }
@@ -139,21 +184,21 @@ function PhysicsThermalVisual({ topicTitle }: { topicTitle: string }) {
 }
 
 function PhysicsInductionVisual({ topicTitle }: { topicTitle: string }) {
-  const [flux, setFlux] = useState(55)
-  const [direction, setDirection] = useState<'增大' | '减小'>('增大')
-  const emf = Math.abs(flux - 50) / 10
+  const [fluxRate, setFluxRate] = useState(40)
+  const direction = fluxRate > 0 ? '增大' : fluxRate < 0 ? '减小' : '不变'
+  const emf = 50 * Math.abs(fluxRate) / 1000
   return <MathVisualFrame
     title={`${topicTitle}：磁通量变化产生感应电动势`}
     summary="改变线圈中的磁通量，线圈中就会出现感应电流。楞次定律告诉我们感应效应总是反抗磁通量的变化。"
-    controls={<><MathRange label="磁通量 Φ" value={flux} min={10} max={90} step={5} output={`${flux} mWb`} onChange={setFlux} /><MathChoices label="变化趋势" value={direction} choices={[{ value: '增大', label: '增大' }, { value: '减小', label: '减小' }]} onChange={(value) => setDirection(value as typeof direction)} /></>}
+    controls={<MathRange label="磁通量变化率 ΔΦ/Δt" value={fluxRate} min={-80} max={80} step={10} output={`${fluxRate} mWb/s`} onChange={setFluxRate} />}
     takeaway={<>感应电动势大小与磁通量变化率有关；电流方向由“阻碍原磁通量变化”判断，而不是简单背固定方向。</>}
   >
-    <svg viewBox="0 0 640 300" role="img" aria-label={`${topicTitle}感应示意，感应电动势 ${emf.toFixed(1)} 伏`}>
+    <svg viewBox="0 0 640 300" role="img" data-induced-emf={emf.toFixed(3)} aria-label={`${topicTitle}感应示意，感应电动势 ${emf.toFixed(1)} 伏`}>
       <title>{topicTitle}电磁感应示意</title><desc>磁铁靠近或远离线圈，线圈中的电流计偏转方向随磁通量变化而改变。</desc>
       <ellipse className="science-coil" cx="405" cy="150" rx="100" ry="92" /><ellipse className="science-coil-inner" cx="405" cy="150" rx="66" ry="62" />
       <rect className="science-magnet" x="112" y="104" width="100" height="92" rx="5" /><text className="science-magnet-label" x="138" y="140">N</text><text className="science-magnet-label" x="174" y="177">S</text>
-      <line className="science-vector" x1="230" y1="150" x2="310" y2="150" /><text className="science-label" x="230" y="126">磁通量 {direction}</text>
-      <path className="science-current-arc" d={direction === '增大' ? 'M 350 78 A 78 78 0 0 1 350 222' : 'M 460 78 A 78 78 0 0 0 460 222'} /><text className="science-label" x="476" y="245">ε = {emf.toFixed(1)} V</text>
+      <line className="science-vector" x1="230" y1="150" x2={direction === '减小' ? 214 : 310} y2="150" /><text className="science-label" x="220" y="126">磁通量 {direction}</text>
+      {direction !== '不变' && <path className="science-current-arc" d={direction === '增大' ? 'M 350 78 A 78 78 0 0 1 350 222' : 'M 460 78 A 78 78 0 0 0 460 222'} />}<text className="science-label" x="476" y="245">ε = {emf.toFixed(1)} V</text>
     </svg>
   </MathVisualFrame>
 }
@@ -169,8 +214,8 @@ function PhysicsModernVisual({ topicTitle }: { topicTitle: string }) {
   >
     <svg viewBox="0 0 640 300" role="img" aria-label={`${topicTitle}能级图，跃迁到 n=${level}`}>
       <title>{topicTitle}原子能级跃迁</title><desc>氢原子多个离散能级，电子从高能级向下跃迁并发出光子。</desc>
-      {energies.map((energy, index) => { const y = 64 + index * 48; return <g key={index}><line className="science-energy" x1="110" y1={y} x2="500" y2={y} /><text className="science-label" x="72" y={y + 6}>n={index + 1}</text><text className="science-label" x="518" y={y + 6}>{energy} eV</text></g> })}
-      <line className="science-transition" x1="306" y1={64 + 48 * 3} x2="306" y2={64 + (level - 1) * 48} /><polygon className="science-arrow-head" points={`300,${64 + (level - 1) * 48} 312,${64 + (level - 1) * 48} 306,${56 + (level - 1) * 48}`} /><circle className="science-dot" cx="306" cy={64 + (level - 1) * 48} r="9" />
+      {energies.map((energy, index) => { const y = 232 - index * 48; return <g key={index}><line className="science-energy" data-energy-level={index + 1} x1="110" y1={y} x2="500" y2={y} /><text className="science-label" x="72" y={y + 6}>n={index + 1}</text><text className="science-label" x="518" y={y + 6}>{energy} eV</text></g> })}
+      <line className="science-transition" x1="306" y1="88" x2="306" y2={232 - (level - 1) * 48} /><polygon className="science-arrow-head" points={`300,${232 - (level - 1) * 48} 312,${232 - (level - 1) * 48} 306,${240 - (level - 1) * 48}`} /><circle className="science-dot" cx="306" cy={232 - (level - 1) * 48} r="9" />
       <text className="science-label" x="254" y="274">ΔE = hν</text>
     </svg>
   </MathVisualFrame>
@@ -198,17 +243,18 @@ function ChemistryStoichVisual({ topicTitle }: { topicTitle: string }) {
 function ChemistryRateVisual({ topicTitle }: { topicTitle: string }) {
   const { value: phase, setValue: setPhase, playing, setPlaying } = useTicker(0, 0.025, 1)
   const [temperature, setTemperature] = useState(300)
-  const particleCount = Math.round(8 + (temperature - 200) / 30)
+  const particleCount = 16
+  const speedFactor = temperature / 300
   return <MathVisualFrame
     title={`${topicTitle}：有效碰撞与反应速率`}
     summary="粒子碰撞不一定发生反应，只有能量足够且取向合适的有效碰撞才会生成产物。温度升高会增加有效碰撞比例。"
     controls={<><MathRange label="温度 T" value={temperature} min={200} max={500} step={20} output={`${temperature} K`} onChange={setTemperature} /><MathRange label="动画相位" value={phase} min={0} max={1} step={0.01} output={`${(phase * 360).toFixed(0)}°`} onChange={setPhase} /><PlayButton playing={playing} onToggle={() => setPlaying((current) => !current)} /></>}
     takeaway={<>催化剂降低活化能，改变达到有效碰撞的比例，但不改变反应物和生成物的总能量差。</>}
   >
-    <svg viewBox="0 0 640 300" role="img" aria-label={`${topicTitle}有效碰撞示意，温度 ${temperature} 开尔文`}>
+    <svg viewBox="0 0 640 300" role="img" data-particle-count={particleCount} aria-label={`${topicTitle}有效碰撞示意，温度 ${temperature} 开尔文`}>
       <title>{topicTitle}有效碰撞</title><desc>两类粒子在容器中运动，红色连接表示发生有效碰撞。</desc>
       <rect className="science-container" x="42" y="32" width="556" height="220" rx="8" />
-      {Array.from({ length: particleCount }, (_, index) => { const x = 80 + ((index * 67 + phase * 140) % 470); const y = 72 + ((index * 43 + phase * 75) % 140); return <circle key={index} className={index % 3 === 0 ? 'science-reactant science-reactant-b' : 'science-reactant'} cx={x} cy={y} r="9" /> })}
+      {Array.from({ length: particleCount }, (_, index) => { const x = 80 + ((index * 67 + phase * 140 * speedFactor) % 470); const y = 72 + ((index * 43 + phase * 75 * speedFactor) % 140); const dx = (((index * 13) % 9) - 4) * speedFactor * 2; const dy = (((index * 7) % 7) - 3) * speedFactor * 2; return <g key={index}><circle className={index % 3 === 0 ? 'science-reactant science-reactant-b' : 'science-reactant'} cx={x} cy={y} r="9" /><line className="science-vector science-vector-soft" x1={x} y1={y} x2={x + dx} y2={y + dy} /></g> })}
       <circle className="science-collision" cx="319" cy="150" r="28" /><text className="science-label" x="278" y="205">有效碰撞</text><text className="science-label" x="62" y="278">速率随有效碰撞比例增加</text>
     </svg>
   </MathVisualFrame>
@@ -236,7 +282,7 @@ function ChemistryEquilibriumVisual({ topicTitle }: { topicTitle: string }) {
 
 function ChemistryAcidVisual({ topicTitle }: { topicTitle: string }) {
   const [ph, setPh] = useState(7)
-  const hue = clamp(240 - ph * 28, 0, 240)
+  const hue = ph <= 7 ? ph / 7 * 50 : 50 + (ph - 7) / 7 * 190
   return <MathVisualFrame
     title={`${topicTitle}：酸碱性与 pH`}
     summary="pH 用氢离子浓度的负对数表示酸碱性。拖动 pH，从颜色和刻度看出酸碱性是连续变化的。"
@@ -248,7 +294,7 @@ function ChemistryAcidVisual({ topicTitle }: { topicTitle: string }) {
       <defs><linearGradient id="science-ph-gradient" x1="0" x2="1"><stop offset="0%" stopColor="#e45b66" /><stop offset="50%" stopColor="#f3cf5b" /><stop offset="100%" stopColor="#4d91d8" /></linearGradient></defs>
       <rect x="62" y="105" width="516" height="44" rx="8" fill="url(#science-ph-gradient)" /><line className="science-ph-marker" x1={62 + ph / 14 * 516} y1="82" x2={62 + ph / 14 * 516} y2="176" /><polygon className="science-arrow-head" points={`${62 + ph / 14 * 516 - 9},82 ${62 + ph / 14 * 516 + 9},82 ${62 + ph / 14 * 516},68`} />
       {Array.from({ length: 15 }, (_, index) => <g key={index}><line className="science-tick" x1={62 + index / 14 * 516} y1="149" x2={62 + index / 14 * 516} y2="160" /><text className="science-label" x={62 + index / 14 * 516} y="190" textAnchor="middle">{index}</text></g>)}
-      <circle cx="62" cy="234" r="9" fill={`hsl(${hue} 70% 55%)`} /><text className="science-label" x="82" y="240">当前 pH = {ph.toFixed(1)}</text><text className="science-label" x="62" y="72">酸性</text><text className="science-label" x="534" y="72">碱性</text>
+      <circle data-ph-indicator="true" cx="62" cy="234" r="9" fill={`hsl(${hue} 70% 55%)`} /><text className="science-label" x="82" y="240">当前 pH = {ph.toFixed(1)}</text><text className="science-label" x="62" y="72">酸性</text><text className="science-label" x="534" y="72">碱性</text>
     </svg>
   </MathVisualFrame>
 }
@@ -327,52 +373,52 @@ function ChemistryExperimentVisual({ topicTitle }: { topicTitle: string }) {
   </MathVisualFrame>
 }
 
-function chemistryFamily(topicTitle: string, unitTitle: string) {
-  const classify = (text: string) => {
-    if (/电化学|原电池|电解|腐蚀|电极|电池/.test(text)) return 'electrochem'
-    if (/酸|碱|pH|滴定|电离|水解|沉淀/.test(text)) return 'acid'
-    if (/平衡|平衡常数/.test(text)) return 'equilibrium'
-    if (/速率|催化|碰撞/.test(text)) return 'rate'
-    if (/有机|烷|烯|醇|酚|醚|醛|酮|羧酸|酯|官能团|高分子|同分异构|碳链/.test(text)) return 'organic'
-    if (/结构|原子轨道|电子排布|晶体|共价键|化学键|杂化|分子构型/.test(text)) return 'structure'
-    if (/实验|制备|净化|收集|检验|流程/.test(text)) return 'experiment'
-    return undefined
-  }
-  return classify(topicTitle) ?? classify(unitTitle) ?? 'stoich'
-}
-
-function physicsFamily(context: string) {
-  if (/电磁感应|交变电流|变压器|输电|传感器|法拉第/.test(context)) return 'induction'
-  if (/光电|原子|核|能级|衰变|裂变|聚变|辐射/.test(context)) return 'modern'
-  if (/波|振动|光学|干涉|衍射|偏振/.test(context)) return 'wave'
-  if (/电场|电势|电容|电路|欧姆|电流|电功率|电压|电阻/.test(context)) return 'electric'
-  if (/磁场|磁|洛伦兹|安培|质谱|回旋/.test(context)) return 'magnet'
-  if (/热|气体|分子|热力|内能/.test(context)) return 'thermal'
-  return 'motion'
-}
-
 export function ScienceConceptVisual({ subjectId, topicTitle, unitTitle }: ScienceConceptVisualProps) {
-  const context = `${unitTitle} ${topicTitle}`
   let family: string
   let visual: ReactNode
   if (subjectId === 'physics') {
-    family = physicsFamily(context)
-    if (family === 'electric') visual = <PhysicsElectricVisual topicTitle={topicTitle} />
+    family = resolvePhysicsVisualFamily(topicTitle, unitTitle)
+    if (family === 'transformer') visual = <TransformerVisual topicTitle={topicTitle} />
+    else if (family === 'sensor') visual = <SensorVisual topicTitle={topicTitle} />
+    else if (family === 'pv-process') visual = <PVProcessVisual topicTitle={topicTitle} />
+    else if (family === 'nuclear') visual = <NuclearDecayVisual topicTitle={topicTitle} />
+    else if (family === 'electric') visual = <PhysicsElectricVisual topicTitle={topicTitle} />
     else if (family === 'magnet') visual = <PhysicsMagnetVisual topicTitle={topicTitle} />
     else if (family === 'wave') visual = <PhysicsWaveVisual topicTitle={topicTitle} />
     else if (family === 'thermal') visual = <PhysicsThermalVisual topicTitle={topicTitle} />
     else if (family === 'induction') visual = <PhysicsInductionVisual topicTitle={topicTitle} />
     else if (family === 'modern') visual = <PhysicsModernVisual topicTitle={topicTitle} />
+    else if (family === 'projectile') visual = <PhysicsProjectileVisual topicTitle={topicTitle} />
+    else if (family === 'force') visual = <PhysicsForceVisual topicTitle={topicTitle} />
+    else if (family === 'orbit') visual = <PhysicsOrbitVisual topicTitle={topicTitle} />
+    else if (family === 'energy') visual = <PhysicsEnergyVisual topicTitle={topicTitle} />
+    else if (family === 'momentum') visual = <PhysicsMomentumVisual topicTitle={topicTitle} />
+    else if (family === 'oscillation') visual = <PhysicsOscillationVisual topicTitle={topicTitle} />
+    else if (family === 'optics') visual = <PhysicsOpticsVisual topicTitle={topicTitle} />
+    else if (family === 'electrostatic') visual = <PhysicsElectrostaticVisual topicTitle={topicTitle} />
     else visual = <PhysicsMotionVisual topicTitle={topicTitle} />
   } else if (subjectId === 'chemistry') {
-    family = chemistryFamily(topicTitle, unitTitle)
-    if (family === 'electrochem') visual = <ChemistryElectrochemVisual topicTitle={topicTitle} />
+    family = resolveChemistryVisualFamily(topicTitle, unitTitle)
+    if (family === 'electrolysis-corrosion') visual = <ElectrolysisCorrosionVisual topicTitle={topicTitle} />
+    else if (family === 'titration') visual = <TitrationVisual topicTitle={topicTitle} />
+    else if (family === 'apparatus') visual = <ChemistryApparatusVisual topicTitle={topicTitle} />
+    else if (family === 'organic-reaction') visual = <OrganicReactionVisual topicTitle={topicTitle} />
+    else if (family === 'electrochem') visual = <ChemistryElectrochemVisual topicTitle={topicTitle} />
     else if (family === 'acid') visual = <ChemistryAcidVisual topicTitle={topicTitle} />
     else if (family === 'rate') visual = <ChemistryRateVisual topicTitle={topicTitle} />
     else if (family === 'equilibrium') visual = <ChemistryEquilibriumVisual topicTitle={topicTitle} />
     else if (family === 'organic') visual = <ChemistryOrganicVisual topicTitle={topicTitle} />
     else if (family === 'structure') visual = <ChemistryStructureVisual topicTitle={topicTitle} />
     else if (family === 'experiment') visual = <ChemistryExperimentVisual topicTitle={topicTitle} />
+    else if (family === 'ions') visual = <ChemistryIonVisual topicTitle={topicTitle} />
+    else if (family === 'redox') visual = <ChemistryRedoxVisual topicTitle={topicTitle} />
+    else if (family === 'periodic') visual = <ChemistryPeriodicVisual topicTitle={topicTitle} />
+    else if (family === 'thermochemistry') visual = <ChemistryThermochemistryVisual topicTitle={topicTitle} />
+    else if (family === 'crystal') visual = <ChemistryCrystalVisual topicTitle={topicTitle} />
+    else if (family === 'inorganic') visual = <ChemistryInorganicVisual topicTitle={topicTitle} />
+    else if (family === 'precipitation') visual = <ChemistryPrecipitationVisual topicTitle={topicTitle} />
+    else if (family === 'spectrum') visual = <ChemistrySpectrumVisual topicTitle={topicTitle} />
+    else if (family === 'materials') visual = <ChemistryMaterialsVisual topicTitle={topicTitle} />
     else visual = <ChemistryStoichVisual topicTitle={topicTitle} />
   } else {
     return null
