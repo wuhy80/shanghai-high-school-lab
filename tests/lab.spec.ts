@@ -5,7 +5,6 @@ import { subjects, type SubjectId } from '../src/data'
 import { G10_MATH_VISUAL_TOPICS } from '../src/components/math-visuals/g10MathVisualTopics'
 import { APPLIED_LESSON_TEMPLATE_REGRESSIONS } from '../src/lessonApplied'
 import { humanitiesRegressionTemplateByTitle } from '../src/lessonHumanities'
-import { scienceLessonRegressionMap } from '../src/lessonScience'
 
 const expectedG10MathLessonTemplates = new Map([
   ['集合的表示与元素关系', 'g10-math-set-language'],
@@ -322,6 +321,26 @@ test('every topic contains a substantive lesson and each subject uses varied con
   expect(lessonQualityErrors, 'lesson fields below the substantive-content thresholds').toEqual([])
 })
 
+test('physics and chemistry are chaptered, deep and duplicate-free in all six semesters', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static science curriculum validation only needs one project')
+
+  for (const semester of semesterPlans) {
+    for (const subjectId of ['physics', 'chemistry'] as const) {
+      const course = semester.courses[subjectId]
+      const titles = course.units.flatMap((unit) => unit.topics.map((topic) => topic.title))
+      const uniqueTitles = new Set(titles)
+      expect(course.units.every((unit) => Boolean(unit.chapter)), `${semester.id}/${subjectId}: every section has a chapter`).toBe(true)
+      expect(uniqueTitles.size, `${semester.id}/${subjectId}: duplicate topic titles`).toBe(titles.length)
+      expect(titles.length, `${semester.id}/${subjectId}: substantive topic count`).toBeGreaterThanOrEqual(50)
+      expect(course.units.every((unit) => unit.topics.every((topic) => topic.lesson.templateId.includes('--'))), `${semester.id}/${subjectId}: dedicated lesson routing`).toBe(true)
+      if (semester.id === 'g12-2') {
+        expect(course.basis, `${semester.id}/${subjectId}: review basis`).toBe('review')
+        expect(course.book, `${semester.id}/${subjectId}: no invented textbook`).toContain('专题复习')
+      }
+    }
+  }
+})
+
 test('explicit topic regression routes keep ambiguous titles in the intended lesson family', async ({ page: _page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'Static lesson route validation only needs one project')
 
@@ -342,11 +361,36 @@ test('explicit topic regression routes keep ambiguous titles in the intended les
   }
 
   assertRoutes(APPLIED_LESSON_TEMPLATE_REGRESSIONS, 'applied subjects')
-  assertRoutes(scienceLessonRegressionMap, 'science subjects')
   assertRoutes(
     Object.fromEntries(Object.entries(humanitiesRegressionTemplateByTitle).map(([key, route]) => [key, route.familyId])),
     'humanities subjects',
   )
+})
+
+test('physics and chemistry topics route to their dedicated concept families', async ({ page: _page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Static science route validation only needs one project')
+  const routes = [
+    { subjectId: 'physics', title: '匀变速直线运动的定义', family: 'linear-kinematics' },
+    { subjectId: 'physics', title: '洛伦兹力方向', family: 'magnetic-particle' },
+    { subjectId: 'physics', title: '机械波的形成条件', family: 'mechanical-wave' },
+    { subjectId: 'physics', title: '法拉第电磁感应定律', family: 'electromagnetic-induction' },
+    { subjectId: 'physics', title: '理想气体状态方程', family: 'thermal-gas' },
+    { subjectId: 'physics', title: '光电效应的实验规律', family: 'modern-physics' },
+    { subjectId: 'chemistry', title: '物质的量及单位', family: 'chemistry-stoichiometry' },
+    { subjectId: 'chemistry', title: '平衡常数的表达', family: 'chemistry-equilibrium' },
+    { subjectId: 'chemistry', title: '原电池电极判断', family: 'chemistry-electrochemistry' },
+    { subjectId: 'chemistry', title: '分子空间构型', family: 'chemistry-bond-molecule-crystal' },
+    { subjectId: 'chemistry', title: '官能团相互转化', family: 'chemistry-organic-reactions' },
+    { subjectId: 'chemistry', title: '气体制备净化收集', family: 'chemistry-experiment' },
+  ] as const
+
+  for (const route of routes) {
+    const matches = allTopics.filter((entry) => entry.subjectId === route.subjectId && entry.topic.title === route.title)
+    expect(matches.length, `${route.subjectId}/${route.title}: curriculum topic exists`).toBeGreaterThan(0)
+    for (const match of matches) {
+      expect(match.topic.lesson.templateId, `${match.semester.id}/${route.title}: dedicated lesson family`).toMatch(new RegExp(`^${route.family}--`))
+    }
+  }
 })
 
 test('advanced math topics use subject-specific lesson families instead of broad fallback examples', async ({ page: _page }, testInfo) => {
@@ -537,6 +581,111 @@ test('representative advanced math visuals fit and remain interactive at every w
     await expect(visual).not.toContainText(/NaN|Infinity|undefined/)
     await expect(visual.locator('svg').first()).toBeVisible()
     await expectNoPageOverflow(page, `${testInfo.project.name}/${representative.semester}/${representative.title}`)
+  }
+})
+
+test('representative physics and chemistry visual families work at every width', async ({ page }, testInfo) => {
+  test.setTimeout(180_000)
+  await page.goto('/')
+  const representatives = [
+    { semesterId: 'g10-1', subjectId: 'physics', title: '匀变速直线运动的定义', family: 'motion' },
+    { semesterId: 'g11-1', subjectId: 'physics', title: '闭合电路欧姆定律', family: 'electric' },
+    { semesterId: 'g11-1', subjectId: 'physics', title: '洛伦兹力方向', family: 'magnet' },
+    { semesterId: 'g11-2', subjectId: 'physics', title: '机械波的形成条件', family: 'wave' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '理想气体状态方程', family: 'thermal' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '法拉第电磁感应定律', family: 'induction' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '光电效应的实验规律', family: 'modern' },
+    { semesterId: 'g10-1', subjectId: 'chemistry', title: '物质的量及单位', family: 'stoich' },
+    { semesterId: 'g10-2', subjectId: 'chemistry', title: '温度影响', family: 'rate' },
+    { semesterId: 'g11-2', subjectId: 'chemistry', title: '平衡常数的表达', family: 'equilibrium' },
+    { semesterId: 'g11-2', subjectId: 'chemistry', title: '水的离子积与pH', family: 'acid' },
+    { semesterId: 'g11-2', subjectId: 'chemistry', title: '原电池电极判断', family: 'electrochem' },
+    { semesterId: 'g12-1', subjectId: 'chemistry', title: '分子空间构型', family: 'structure' },
+    { semesterId: 'g12-1', subjectId: 'chemistry', title: '官能团相互转化', family: 'organic' },
+    { semesterId: 'g12-2', subjectId: 'chemistry', title: '气体制备净化收集', family: 'experiment' },
+  ] as const
+
+  for (const representative of representatives) {
+    const entry = allTopics.find((item) => item.semester.id === representative.semesterId
+      && item.subjectId === representative.subjectId
+      && item.topic.title === representative.title)
+    expect(entry, `${representative.semesterId}/${representative.title}: curriculum entry`).toBeTruthy()
+    if (!entry) continue
+    await page.getByRole('searchbox', { name: '搜索全部课程内容' }).fill(entry.topic.title)
+    await page.locator('.search-results button')
+      .filter({ hasText: entry.topic.title })
+      .filter({ hasText: entry.semester.shortLabel })
+      .filter({ hasText: subjectName(entry.subjectId) })
+      .first()
+      .click()
+
+    const visual = page.locator(`[data-science-concept-visual="${entry.topic.title}"]`)
+    await expect(visual, `${entry.semester.shortLabel}/${entry.topic.title}: visual`).toBeVisible()
+    await expect(visual).toHaveAttribute('data-science-family', representative.family)
+    await expect(visual.locator('svg[role="img"]')).toBeVisible()
+    const bounds = await visual.evaluate((element) => {
+      const rect = element.getBoundingClientRect()
+      return { height: rect.height, width: rect.width }
+    })
+    expect(bounds.width, `${entry.topic.title}: visual width`).toBeGreaterThan(240)
+    expect(bounds.height, `${entry.topic.title}: visual height`).toBeGreaterThan(160)
+
+    const range = visual.locator('input[type="range"]').first()
+    if (await range.count()) await range.fill(await range.getAttribute('max') ?? '1')
+    const choice = visual.locator('button[aria-pressed="false"]').first()
+    if (await choice.count()) await choice.click()
+    await expect(visual).not.toContainText(/NaN|Infinity|undefined/)
+    await expectNoPageOverflow(page, `${testInfo.project.name}/${entry.semester.shortLabel}/${entry.topic.title}`)
+  }
+})
+
+test('science animation controls change state and respect reduced motion', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop-chromium', 'Animation state regression only needs one browser')
+  await page.goto('/')
+  const entry = allTopics.find((item) => item.semester.id === 'g10-1' && item.subjectId === 'physics' && item.topic.title === '匀变速直线运动的定义')
+  expect(entry).toBeTruthy()
+  if (!entry) return
+  await openTopic(page, entry)
+  const visual = page.locator(`[data-science-concept-visual="${entry.topic.title}"]`)
+  const button = visual.locator('.science-play')
+  await expect(button).toHaveText('播放动画')
+  await button.click()
+  await expect(button).toHaveAttribute('aria-pressed', 'true')
+  await expect(button).toHaveText('暂停动画')
+  await button.click()
+  await expect(button).toHaveAttribute('aria-pressed', 'false')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect(button).toBeHidden()
+})
+
+test('representative science visuals pass serious and critical WCAG checks in both themes', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'narrow-chromium', 'Axe is covered at desktop and 390px mobile widths')
+  await page.addInitScript(() => localStorage.setItem('huzhi-theme', 'light'))
+  await page.goto('/')
+  const entries = [
+    allTopics.find((item) => item.semester.id === 'g12-1' && item.subjectId === 'physics' && item.topic.title === '法拉第电磁感应定律'),
+    allTopics.find((item) => item.semester.id === 'g11-2' && item.subjectId === 'chemistry' && item.topic.title === '原电池电极判断'),
+  ]
+  expect(entries.every(Boolean), 'science accessibility representatives exist').toBe(true)
+
+  for (const theme of ['light', 'dark'] as const) {
+    if (theme === 'dark') await page.locator('.icon-button').click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+    for (const entry of entries) {
+      if (!entry) continue
+      await page.getByRole('searchbox', { name: '搜索全部课程内容' }).fill(entry.topic.title)
+      await page.locator('.search-results button')
+        .filter({ hasText: entry.topic.title })
+        .filter({ hasText: entry.semester.shortLabel })
+        .filter({ hasText: subjectName(entry.subjectId) })
+        .first()
+        .click()
+      const visual = page.locator(`[data-science-concept-visual="${entry.topic.title}"]`)
+      await expect(visual).toBeVisible()
+      const results = await new AxeBuilder({ page }).include(`[data-science-concept-visual="${entry.topic.title}"]`).withTags(['wcag2a', 'wcag2aa']).analyze()
+      const blocking = results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')
+      expect(blocking, `${testInfo.project.name}/${theme}/${entry.topic.title}: science visual accessibility violations`).toEqual([])
+    }
   }
 })
 

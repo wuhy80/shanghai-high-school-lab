@@ -87,11 +87,12 @@ type UnitDirectoryItemProps = {
   currentTopicId: string
   isCurrentUnit: boolean
   onSelect: (topic: KnowledgeTopic) => void
+  subjectId: SubjectId
   unit: CurriculumUnit
   unitIndex: number
 }
 
-function UnitDirectoryItem({ currentTopicId, isCurrentUnit, onSelect, unit, unitIndex }: UnitDirectoryItemProps) {
+function UnitDirectoryItem({ currentTopicId, isCurrentUnit, onSelect, subjectId, unit, unitIndex }: UnitDirectoryItemProps) {
   const [open, setOpen] = useState(isCurrentUnit)
   const sectionMatch = unit.title.match(/^(\d+\.\d+)\s+(.+)$/)
   const sectionNumber = sectionMatch?.[1] ?? String(unitIndex + 1).padStart(2, '0')
@@ -125,7 +126,7 @@ function UnitDirectoryItem({ currentTopicId, isCurrentUnit, onSelect, unit, unit
             >
               <span>{String(topicIndex + 1).padStart(2, '0')}</span>
               <strong>{itemTopic.title}</strong>
-              {itemTopic.demoId ? <small>互动</small> : isMathVisualTopicId(itemTopic.id) && <small>图解</small>}
+              {itemTopic.demoId ? <small>互动</small> : (isMathVisualTopicId(itemTopic.id) || subjectId === 'physics' || subjectId === 'chemistry') && <small>图解</small>}
             </button>
           </li>
         ))}
@@ -413,6 +414,7 @@ function App() {
                     currentTopicId={topic.id}
                     isCurrentUnit={item.id === unit.id}
                     onSelect={selectTopic}
+                    subjectId={subject.id}
                     unit={item}
                     unitIndex={unitIndex}
                   />
@@ -432,7 +434,7 @@ function App() {
 
           <header className="topic-heading">
             <div>
-              <p className="eyebrow">{topic.demoId ? '互动演示' : isMathVisualTopicId(topic.id) ? '可视化讲解' : '重点讲解'} · {subject.label}</p>
+              <p className="eyebrow">{topic.demoId ? '互动演示' : (isMathVisualTopicId(topic.id) || subject.id === 'physics' || subject.id === 'chemistry') ? '可视化讲解' : '重点讲解'} · {subject.label}</p>
               <h1>{topic.title}</h1>
               <p className="topic-focus">{topic.focus}</p>
             </div>
@@ -448,7 +450,7 @@ function App() {
             aria-labelledby={`directory-topic-${topic.id}`}
           >
             {topic.demoId && <DemoStage key={topic.id} topicId={topic.demoId} />}
-            <KnowledgeDetail course={course} subjectName={subject.name} topic={topic} unit={unit} />
+            <KnowledgeDetail course={course} subjectId={subject.id} subjectName={subject.name} topic={topic} unit={unit} />
           </div>
 
           <nav className="topic-pagination" aria-label="前后知识点">

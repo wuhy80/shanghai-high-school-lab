@@ -8,11 +8,14 @@ import {
   ListChecks,
 } from 'lucide-react'
 import type { CoursePlan, CurriculumUnit, KnowledgeTopic } from '../curriculum'
+import type { SubjectId } from '../data'
 import { MathConceptVisual } from './math-visuals/MathConceptVisual'
 import { isMathVisualTopicId } from './math-visuals/mathVisualTopics'
+import { ScienceConceptVisual } from './science-visuals/ScienceConceptVisual'
 
 type KnowledgeDetailProps = {
   course: CoursePlan
+  subjectId: SubjectId
   subjectName: string
   topic: KnowledgeTopic
   unit: CurriculumUnit
@@ -27,7 +30,7 @@ const visualLabels: Record<KnowledgeTopic['visual'], string> = {
   flow: '输入与流程',
 }
 
-export function KnowledgeDetail({ course, subjectName, topic, unit }: KnowledgeDetailProps) {
+export function KnowledgeDetail({ course, subjectId, subjectName, topic, unit }: KnowledgeDetailProps) {
   const lesson = topic.lesson
   const titleId = `knowledge-detail-title-${topic.id}`
 
@@ -68,6 +71,14 @@ export function KnowledgeDetail({ course, subjectName, topic, unit }: KnowledgeD
         <MathConceptVisual
           chapter={unit.chapter}
           topicId={topic.id}
+          topicTitle={topic.title}
+          unitTitle={unit.title}
+        />
+      )}
+
+      {(subjectId === 'physics' || subjectId === 'chemistry') && (
+        <ScienceConceptVisual
+          subjectId={subjectId}
           topicTitle={topic.title}
           unitTitle={unit.title}
         />
