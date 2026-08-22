@@ -1,5 +1,9 @@
 export type PhysicsVisualFamily =
   | 'motion'
+  | 'ac-wave'
+  | 'lc-oscillation'
+  | 'heat-engine'
+  | 'experiment-fit'
   | 'transformer'
   | 'sensor'
   | 'pv-process'
@@ -21,6 +25,8 @@ export type PhysicsVisualFamily =
 
 export type ChemistryVisualFamily =
   | 'stoich'
+  | 'separation'
+  | 'quantitative-error'
   | 'electrolysis-corrosion'
   | 'titration'
   | 'apparatus'
@@ -44,6 +50,10 @@ export type ChemistryVisualFamily =
 
 function classifyPhysics(text: string): PhysicsVisualFamily | undefined {
   if (/功率和动量的前置联系/.test(text)) return 'energy'
+  if (/图像拟合|实验拟合|误差传播|a[—-]F|a[—-]1\/m|线性化|有效数字|实验不确定度/.test(text)) return 'experiment-fit'
+  if (/热机|卡诺|热机效率|能源品质/.test(text)) return 'heat-engine'
+  if (/电磁振荡|LC振荡|电磁波|无线电波|振荡电路/.test(text)) return 'lc-oscillation'
+  if (/交变电流|正弦式|峰值|有效值|感抗|容抗/.test(text)) return 'ac-wave'
   if (/变压器|匝数比|升压|降压|远距离输电|输电损耗/.test(text)) return 'transformer'
   if (/传感器|敏感元件|输入与输出|自动控制|反馈/.test(text)) return 'sensor'
   if (/p[-—–]?V|气体做功|等温等压等容|等温过程|等压过程|等容过程|气体状态变化与图像/.test(text)) return 'pv-process'
@@ -68,6 +78,8 @@ function classifyPhysics(text: string): PhysicsVisualFamily | undefined {
 
 function classifyChemistry(text: string): ChemistryVisualFamily | undefined {
   if (/单质.*氧化物.*酸碱盐|物质类别|纯净物|混合物|树状分类|交叉分类|化合.*分解.*置换.*复分解|分类标准/.test(text)) return 'ions'
+  if (/有机物分离提纯|物质分离提纯与检验|分离提纯与检验|过滤|蒸馏|萃取|分液|重结晶|色谱/.test(text)) return 'separation'
+  if (/定量实验|实验条件控制|变量设计|误差分析|有效数字|平行实验|实验方案评价/.test(text)) return 'quantitative-error'
   if (/电解池|电解规律|电解法|电镀|腐蚀|牺牲阳极|外加电流.*保护/.test(text)) return 'electrolysis-corrosion'
   if (/中和滴定|酸碱滴定|滴定曲线|等量点|滴定终点|指示剂.*变色/.test(text)) return 'titration'
   if (/气体制备|制备.*净化.*收集|发生装置|收集方法|排水集气|排空气|防倒吸|尾气处理/.test(text)) return 'apparatus'

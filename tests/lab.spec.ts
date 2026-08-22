@@ -408,6 +408,10 @@ test('ambiguous science titles route to the intended visual family', async ({ pa
     { subjectId: 'physics', title: '传感器的输入与输出', family: 'sensor' },
     { subjectId: 'physics', title: '气体状态变化与图像', family: 'pv-process' },
     { subjectId: 'physics', title: '原子核衰变规律', family: 'nuclear' },
+    { subjectId: 'physics', title: '正弦式交变电流的产生', family: 'ac-wave' },
+    { subjectId: 'physics', title: '电磁振荡与电磁波', family: 'lc-oscillation' },
+    { subjectId: 'physics', title: '热机效率与能源品质', family: 'heat-engine' },
+    { subjectId: 'physics', title: '图像拟合与误差传播', family: 'experiment-fit' },
     { subjectId: 'chemistry', title: '电解质和非电解质', family: 'ions' },
     { subjectId: 'chemistry', title: '弱电解质的电离平衡', family: 'acid' },
     { subjectId: 'chemistry', title: '电离能与电负性', family: 'periodic' },
@@ -418,6 +422,8 @@ test('ambiguous science titles route to the intended visual family', async ({ pa
     { subjectId: 'chemistry', title: '酸碱中和滴定', family: 'titration' },
     { subjectId: 'chemistry', title: '气体制备净化与收集', family: 'apparatus' },
     { subjectId: 'chemistry', title: '烯烃炔烃的加成氧化', family: 'organic-reaction' },
+    { subjectId: 'chemistry', title: '有机物分离提纯', family: 'separation' },
+    { subjectId: 'chemistry', title: '实验条件控制与变量设计', family: 'quantitative-error' },
   ] as const
 
   for (const route of routes) {
@@ -695,6 +701,10 @@ test('representative physics and chemistry visual families work at every width',
     { semesterId: 'g12-1', subjectId: 'physics', title: '传感器的输入与输出', family: 'sensor' },
     { semesterId: 'g12-2', subjectId: 'physics', title: '气体状态变化与图像', family: 'pv-process' },
     { semesterId: 'g12-1', subjectId: 'physics', title: '原子核衰变规律', family: 'nuclear' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '正弦式交变电流的产生', family: 'ac-wave' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '电磁振荡与电磁波', family: 'lc-oscillation' },
+    { semesterId: 'g12-1', subjectId: 'physics', title: '热机效率与能源品质', family: 'heat-engine' },
+    { semesterId: 'g12-2', subjectId: 'physics', title: '图像拟合与误差传播', family: 'experiment-fit' },
     { semesterId: 'g10-2', subjectId: 'physics', title: '曲线运动的速度方向', family: 'projectile' },
     { semesterId: 'g10-1', subjectId: 'physics', title: '受力分析的隔离法', family: 'force' },
     { semesterId: 'g10-2', subjectId: 'physics', title: '万有引力定律', family: 'orbit' },
@@ -710,7 +720,7 @@ test('representative physics and chemistry visual families work at every width',
     { semesterId: 'g11-2', subjectId: 'chemistry', title: '原电池电极判断', family: 'electrochem' },
     { semesterId: 'g12-1', subjectId: 'chemistry', title: '分子空间构型', family: 'structure' },
     { semesterId: 'g12-1', subjectId: 'chemistry', title: '有机物分类与命名', family: 'organic' },
-    { semesterId: 'g12-2', subjectId: 'chemistry', title: '实验变量设计', family: 'experiment' },
+    { semesterId: 'g12-2', subjectId: 'chemistry', title: '实验变量设计', family: 'quantitative-error' },
     { semesterId: 'g10-1', subjectId: 'chemistry', title: '离子反应发生条件', family: 'ions' },
     { semesterId: 'g10-1', subjectId: 'chemistry', title: '电子转移表示法', family: 'redox' },
     { semesterId: 'g10-2', subjectId: 'chemistry', title: '原子半径递变', family: 'periodic' },
@@ -724,6 +734,8 @@ test('representative physics and chemistry visual families work at every width',
     { semesterId: 'g11-2', subjectId: 'chemistry', title: '酸碱中和滴定', family: 'titration' },
     { semesterId: 'g12-2', subjectId: 'chemistry', title: '气体制备净化收集', family: 'apparatus' },
     { semesterId: 'g12-1', subjectId: 'chemistry', title: '烯烃炔烃的加成氧化', family: 'organic-reaction' },
+    { semesterId: 'g12-1', subjectId: 'chemistry', title: '有机物分离提纯', family: 'separation' },
+    { semesterId: 'g12-2', subjectId: 'chemistry', title: '实验条件控制与变量设计', family: 'quantitative-error' },
   ] as const
 
   for (const representative of representatives) {
@@ -776,6 +788,10 @@ test('new science visual families keep every SVG element inside the viewBox', as
     ['g12-1', 'physics', '传感器的输入与输出'],
     ['g12-2', 'physics', '气体状态变化与图像'],
     ['g12-1', 'physics', '原子核衰变规律'],
+    ['g12-1', 'physics', '正弦式交变电流的产生'],
+    ['g12-1', 'physics', '电磁振荡与电磁波'],
+    ['g12-1', 'physics', '热机效率与能源品质'],
+    ['g12-2', 'physics', '图像拟合与误差传播'],
     ['g10-1', 'chemistry', '离子反应发生条件'],
     ['g10-1', 'chemistry', '电子转移表示法'],
     ['g10-2', 'chemistry', '原子半径递变'],
@@ -789,6 +805,8 @@ test('new science visual families keep every SVG element inside the viewBox', as
     ['g11-2', 'chemistry', '酸碱中和滴定'],
     ['g12-2', 'chemistry', '气体制备净化收集'],
     ['g12-1', 'chemistry', '烯烃炔烃的加成氧化'],
+    ['g12-1', 'chemistry', '有机物分离提纯'],
+    ['g12-2', 'chemistry', '实验变量设计'],
   ] as const
 
   const expectInsideViewBox = async (visual: ReturnType<Page['locator']>, label: string) => {
@@ -1003,6 +1021,47 @@ test('science diagrams preserve their core quantitative relationships', async ({
   await electrolysis.locator('.amv-choices button').filter({ hasText: '电解池' }).click()
   await expect(electrolysis.locator('svg')).toHaveAttribute('data-electrochemistry-mode', 'electrolysis')
   await expect(electrolysis).toContainText('阳极(+)：2Cl⁻ → Cl₂ + 2e⁻')
+
+  const acEntry = entry('g12-1', 'physics', '正弦式交变电流的产生')
+  if (!acEntry) return
+  await openTopic(page, acEntry)
+  const ac = page.locator('[data-science-family="ac-wave"]')
+  await ac.locator('input[type="range"]').first().fill('200')
+  await expect(ac.locator('svg')).toHaveAttribute('data-ac-rms', '141.421')
+
+  const lcEntry = entry('g12-1', 'physics', '电磁振荡与电磁波')
+  if (!lcEntry) return
+  await openTopic(page, lcEntry)
+  const lc = page.locator('[data-science-family="lc-oscillation"]')
+  await lc.locator('input[type="range"]').nth(2).fill('0')
+  await expect(lc.locator('svg')).toHaveAttribute('data-electric-energy', '1.000')
+  await expect(lc.locator('svg')).toHaveAttribute('data-magnetic-energy', '0.000')
+
+  const heatEntry = entry('g12-1', 'physics', '热机效率与能源品质')
+  if (!heatEntry) return
+  await openTopic(page, heatEntry)
+  const heat = page.locator('[data-science-family="heat-engine"]')
+  await expect(heat.locator('svg')).toHaveAttribute('data-heat-efficiency', '0.5000')
+
+  const fitEntry = entry('g12-2', 'physics', '图像拟合与误差传播')
+  if (!fitEntry) return
+  await openTopic(page, fitEntry)
+  const fit = page.locator('[data-science-family="experiment-fit"]')
+  await expect(fit.locator('svg')).toHaveAttribute('data-fit-intercept', /-?\d+\.\d+/)
+
+  const separationEntry = entry('g12-1', 'chemistry', '有机物分离提纯')
+  if (!separationEntry) return
+  await openTopic(page, separationEntry)
+  const separation = page.locator('[data-science-family="separation"]')
+  await separation.locator('.amv-choices button').filter({ hasText: '萃取' }).click()
+  await expect(separation.locator('svg')).toHaveAttribute('data-separation-mode', '萃取')
+
+  const errorEntry = entry('g12-2', 'chemistry', '实验变量设计')
+  if (!errorEntry) return
+  await openTopic(page, errorEntry)
+  const error = page.locator('[data-science-family="quantitative-error"]')
+  await error.locator('input[type="range"]').fill('-8')
+  await expect(error.locator('svg')).toHaveAttribute('data-error-percent', '-8')
 })
 
 test('representative science visuals pass serious and critical WCAG checks in both themes', async ({ page }, testInfo) => {

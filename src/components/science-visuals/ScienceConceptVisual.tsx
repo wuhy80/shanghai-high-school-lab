@@ -26,6 +26,13 @@ import {
   OrganicReactionVisual,
   TitrationVisual,
 } from './ChemistrySupplementVisuals'
+import { QuantitativeErrorVisual, SeparationVisual } from './ChemistrySupplementVisuals2'
+import {
+  ACWaveVisual,
+  EMOscillationVisual,
+  ExperimentFitVisual,
+  HeatEngineVisual,
+} from './PhysicsSupplementVisuals2'
 import {
   NuclearDecayVisual,
   PVProcessVisual,
@@ -378,7 +385,11 @@ export function ScienceConceptVisual({ subjectId, topicTitle, unitTitle }: Scien
   let visual: ReactNode
   if (subjectId === 'physics') {
     family = resolvePhysicsVisualFamily(topicTitle, unitTitle)
-    if (family === 'transformer') visual = <TransformerVisual topicTitle={topicTitle} />
+    if (family === 'ac-wave') visual = <ACWaveVisual topicTitle={topicTitle} />
+    else if (family === 'lc-oscillation') visual = <EMOscillationVisual topicTitle={topicTitle} />
+    else if (family === 'heat-engine') visual = <HeatEngineVisual topicTitle={topicTitle} />
+    else if (family === 'experiment-fit') visual = <ExperimentFitVisual topicTitle={topicTitle} />
+    else if (family === 'transformer') visual = <TransformerVisual topicTitle={topicTitle} />
     else if (family === 'sensor') visual = <SensorVisual topicTitle={topicTitle} />
     else if (family === 'pv-process') visual = <PVProcessVisual topicTitle={topicTitle} />
     else if (family === 'nuclear') visual = <NuclearDecayVisual topicTitle={topicTitle} />
@@ -399,7 +410,9 @@ export function ScienceConceptVisual({ subjectId, topicTitle, unitTitle }: Scien
     else visual = <PhysicsMotionVisual topicTitle={topicTitle} />
   } else if (subjectId === 'chemistry') {
     family = resolveChemistryVisualFamily(topicTitle, unitTitle)
-    if (family === 'electrolysis-corrosion') visual = <ElectrolysisCorrosionVisual topicTitle={topicTitle} />
+    if (family === 'separation') visual = <SeparationVisual topicTitle={topicTitle} />
+    else if (family === 'quantitative-error') visual = <QuantitativeErrorVisual topicTitle={topicTitle} />
+    else if (family === 'electrolysis-corrosion') visual = <ElectrolysisCorrosionVisual topicTitle={topicTitle} />
     else if (family === 'titration') visual = <TitrationVisual topicTitle={topicTitle} />
     else if (family === 'apparatus') visual = <ChemistryApparatusVisual topicTitle={topicTitle} />
     else if (family === 'organic-reaction') visual = <OrganicReactionVisual topicTitle={topicTitle} />
